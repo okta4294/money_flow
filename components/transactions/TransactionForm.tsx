@@ -92,7 +92,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-slate-900 border border-slate-700/50 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md p-6 shadow-2xl animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+      <div className="relative bg-slate-900 border border-slate-700/50 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md p-6 shadow-2xl animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 max-h-[85vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-white font-semibold text-lg">
@@ -150,25 +150,27 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           {/* Category */}
           <div>
             <label className="text-slate-400 text-xs font-medium block mb-1.5">Kategori</label>
-            <div className="grid grid-cols-3 gap-2">
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setCategoryId(cat.id)}
-                  className={`flex flex-col items-center gap-1.5 py-2.5 px-2 rounded-xl border text-xs font-medium transition-all duration-150 ${
-                    categoryId === cat.id
-                      ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400"
-                      : "border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600 hover:text-white"
-                  }`}
-                >
-                  <span
-                    className="w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: cat.color }}
-                  />
-                  <span className="truncate w-full text-center">{cat.name}</span>
-                </button>
-              ))}
+            <div className="max-h-32 overflow-y-auto pr-1 border border-slate-800 rounded-xl p-2 bg-slate-950/20">
+              <div className="grid grid-cols-3 gap-1.5">
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setCategoryId(cat.id)}
+                    className={`flex flex-col items-center gap-1 py-1.5 px-1 rounded-lg border text-[11px] font-medium transition-all duration-150 ${
+                      categoryId === cat.id
+                        ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400"
+                        : "border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600 hover:text-white"
+                    }`}
+                  >
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: cat.color }}
+                    />
+                    <span className="truncate w-full text-center">{cat.name}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

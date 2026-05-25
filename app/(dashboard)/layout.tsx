@@ -6,14 +6,14 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { Menu, TrendingUp, LogOut } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Tag, Menu, TrendingUp, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/transactions", label: "Transaksi" },
-  { href: "/categories", label: "Kategori" },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/transactions", label: "Transaksi", icon: ArrowLeftRight },
+  { href: "/categories", label: "Kategori", icon: Tag },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -40,7 +40,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <Sidebar />
 
       {/* Mobile Top Bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-30 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
             <TrendingUp size={14} className="text-white" />
@@ -56,18 +56,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
 
       {/* Mobile Bottom Nav */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 flex">
-        {navItems.map(({ href, label }) => {
-          const active = pathname === href;
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 flex justify-around py-2 shadow-2xl">
+        {navItems.map(({ href, label, icon: Icon }) => {
+          const active = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
               key={href}
               href={href}
-              className={`flex-1 flex flex-col items-center justify-center py-3 text-xs font-medium transition-colors ${
+              className={`flex flex-col items-center justify-center py-1 px-3 text-[10px] font-medium transition-colors ${
                 active ? "text-emerald-400" : "text-slate-500 hover:text-slate-300"
               }`}
             >
-              <div className={`w-1 h-1 rounded-full mb-1 transition-all ${active ? "bg-emerald-400 scale-125" : "bg-transparent"}`} />
+              <Icon size={18} className={`mb-1 transition-all ${active ? "text-emerald-400 scale-110" : "text-slate-500"}`} />
               {label}
             </Link>
           );

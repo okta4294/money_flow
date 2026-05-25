@@ -124,7 +124,7 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
                 </span>
 
                 {/* Actions */}
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => onEdit(t)}
                     className="w-7 h-7 rounded-lg hover:bg-slate-700 text-slate-500 hover:text-white flex items-center justify-center transition-all"

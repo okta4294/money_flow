@@ -129,8 +129,24 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                 <span className="text-slate-600 text-[9px]">default</span>
               )}
 
-              {/* Hover actions */}
-              <div className="absolute inset-0 rounded-2xl bg-slate-900/90 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+              {/* Mobile Actions (Always visible on mobile, hidden on desktop) */}
+              <div className="absolute top-1.5 right-1.5 flex gap-1 lg:hidden z-10">
+                <button
+                  onClick={(e) => { e.stopPropagation(); openEdit(cat); }}
+                  className="w-6 h-6 rounded bg-slate-800/80 active:bg-slate-700 text-slate-400 active:text-white flex items-center justify-center transition-all"
+                >
+                  <Pencil size={11} />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDelete(cat); }}
+                  className="w-6 h-6 rounded bg-slate-800/80 active:bg-rose-500/20 text-slate-400 active:text-rose-400 flex items-center justify-center transition-all"
+                >
+                  <Trash2 size={11} />
+                </button>
+              </div>
+
+              {/* Desktop Hover actions (Hidden on mobile) */}
+              <div className="hidden lg:flex absolute inset-0 rounded-2xl bg-slate-900/90 opacity-0 group-hover:opacity-100 transition-opacity items-center justify-center gap-2">
                 <button
                   onClick={() => openEdit(cat)}
                   className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-all"

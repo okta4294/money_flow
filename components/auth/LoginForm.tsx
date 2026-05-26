@@ -155,7 +155,6 @@ export function LoginForm() {
             <circle cx="12" cy="7" r="4"/>
           </svg>
           Masuk sebagai Tamu
-          <span className="ml-1 text-xs text-slate-500">(data tidak tersimpan)</span>
         </button>
 
         {/* Divider */}

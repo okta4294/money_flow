@@ -54,7 +54,7 @@ export default function DashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-white text-2xl font-bold">Dashboard</h1>
-          <p className="text-slate-400 text-sm mt-0.5">Ringkasan keuangan Anda</p>
+          <p className="text-slate-400 text-sm mt-0.5">Ringkasan kemiskinan anda</p>
         </div>
         <div className="flex items-center gap-3">
           <MonthSelector year={year} month={month} onChange={(y, m) => { setYear(y); setMonth(m); }} />

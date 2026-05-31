@@ -5,6 +5,7 @@ import { X, Plus, CreditCard } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useCategories } from "@/hooks/useCategories";
 import { useDebts } from "@/hooks/useDebts";
+import { useAccounts } from "@/hooks/useAccounts";
 import { addTransaction, updateTransaction, Transaction, TransactionInput } from "@/lib/firestore/transactions";
 import { payDebt } from "@/lib/firestore/debts";
 
@@ -37,12 +38,14 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
   const { user } = useAuth();
   const { incomeCategories, expenseCategories } = useCategories();
   const { activeDebts } = useDebts();
+  const { accounts } = useAccounts();
 
   const today = new Date().toISOString().split("T")[0];
 
   const [type, setType] = useState<"income" | "expense">("expense");
   const [amount, setAmount] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [accountId, setAccountId] = useState("");
   const [note, setNote] = useState("");
   const [date, setDate] = useState(today);
   const [loading, setLoading] = useState(false);
@@ -59,6 +62,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
       setType(editData.type);
       setAmount(editData.amount.toString());
       setCategoryId(editData.categoryId);
+      setAccountId(editData.accountId || "");
       setNote(editData.note || "");
       setDate(editData.date);
       setSelectedDebtId(editData.debtId || "");
@@ -67,6 +71,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
       setType("expense");
       setAmount("");
       setCategoryId("");
+      setAccountId("");
       setNote("");
       setDate(today);
       setSelectedDebtId("");
@@ -119,6 +124,8 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
     setError("");
     setLoading(true);
     try {
+      const selectedAccount = accounts.find((a) => a.id === accountId);
+
       const data: TransactionInput = {
         amount: numericAmount,
         type,
@@ -126,6 +133,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
         categoryId,
         note,
         date,
+        ...(accountId ? { accountId, accountName: selectedAccount?.name } : {}),
         ...(showDebtDropdown && selectedDebtId
           ? { debtId: selectedDebtId, debtPaymentAmount: numericDebtPayment }
           : {}),
@@ -235,6 +243,58 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                         style={{ backgroundColor: cat.color }}
                       />
                       <span className="truncate w-full text-center">{cat.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Account Source / Destination */}
+          <div>
+            <label className="text-slate-400 text-xs font-medium block mb-1.5">
+              {type === "income" ? "Sumber Dana (opsional)" : "Rekening (opsional)"}
+            </label>
+            {accounts.length === 0 ? (
+              <div className="border border-dashed border-slate-700 rounded-xl p-4 text-center">
+                <p className="text-slate-500 text-xs">Belum ada akun/rekening</p>
+                <a href="/accounts" className="text-emerald-400 text-xs hover:underline mt-1 block">
+                  + Tambah akun dulu
+                </a>
+              </div>
+            ) : (
+              <div className="max-h-36 overflow-y-auto pr-1 border border-slate-800 rounded-xl p-2 bg-slate-950/20">
+                <div className="grid grid-cols-3 gap-1.5">
+                  {/* Option to unselect account */}
+                  <button
+                    type="button"
+                    onClick={() => setAccountId("")}
+                    className={`flex flex-col items-center gap-1 py-1.5 px-1 rounded-lg border text-[11px] font-medium transition-all duration-150 ${
+                      accountId === ""
+                        ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400"
+                        : "border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600 hover:text-white"
+                    }`}
+                  >
+                    <span className="w-2 h-2 rounded-full bg-slate-500" />
+                    <span className="truncate w-full text-center">Kosong</span>
+                  </button>
+
+                  {accounts.map((acc) => (
+                    <button
+                      key={acc.id}
+                      type="button"
+                      onClick={() => setAccountId(acc.id)}
+                      className={`flex flex-col items-center gap-1 py-1.5 px-1 rounded-lg border text-[11px] font-medium transition-all duration-150 ${
+                        accountId === acc.id
+                          ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400"
+                          : "border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600 hover:text-white"
+                      }`}
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: acc.color }}
+                      />
+                      <span className="truncate w-full text-center">{acc.name}</span>
                     </button>
                   ))}
                 </div>

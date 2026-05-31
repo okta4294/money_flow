@@ -26,6 +26,8 @@ export interface Transaction {
   createdAt: Timestamp;
   debtId?: string;
   debtPaymentAmount?: number;
+  accountId?: string;    // ID akun sumber dana (opsional)
+  accountName?: string;  // Nama akun sumber dana
 }
 
 export interface TransactionInput {
@@ -37,6 +39,8 @@ export interface TransactionInput {
   date: string;
   debtId?: string;           // ID hutang yang dibayar (opsional)
   debtPaymentAmount?: number; // Nominal yang dialokasikan untuk hutang ini
+  accountId?: string;
+  accountName?: string;
 }
 
 const transactionsRef = (userId: string) =>

@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { LayoutDashboard, ArrowLeftRight, Tag, Menu, TrendingUp, LogOut, CreditCard } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Tag, Menu, TrendingUp, LogOut, CreditCard, Landmark } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -14,6 +14,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/transactions", label: "Transaksi", icon: ArrowLeftRight },
   { href: "/categories", label: "Kategori", icon: Tag },
+  { href: "/accounts", label: "Akun", icon: Landmark },
   { href: "/debts", label: "Hutang", icon: CreditCard },
 ];
 

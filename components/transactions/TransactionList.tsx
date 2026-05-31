@@ -147,9 +147,16 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <p className="text-white text-sm font-medium truncate">{t.category}</p>
-                    {t.note && (
-                      <p className="text-slate-500 text-xs truncate">{t.note}</p>
-                    )}
+                    <div className="flex items-center gap-2 mt-0.5">
+                      {t.accountName && (
+                        <span className="inline-flex items-center text-[9px] font-medium px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
+                          {t.accountName}
+                        </span>
+                      )}
+                      {t.note && (
+                        <p className="text-slate-500 text-xs truncate">{t.note}</p>
+                      )}
+                    </div>
                     {t.debtId && (
                       <p className="text-amber-500/70 text-[10px] flex items-center gap-1 mt-0.5">
                         <CreditCard size={9} />

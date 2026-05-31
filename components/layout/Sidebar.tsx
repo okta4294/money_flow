@@ -10,12 +10,14 @@ import {
   LogOut,
   TrendingUp,
   CreditCard,
+  Landmark,
 } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/transactions", label: "Transaksi", icon: ArrowLeftRight },
   { href: "/categories", label: "Kategori", icon: Tag },
+  { href: "/accounts", label: "Akun", icon: Landmark },
   { href: "/debts", label: "Hutang", icon: CreditCard },
 ];
 

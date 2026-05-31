@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -30,8 +31,8 @@ export function Sidebar() {
       {/* Logo */}
       <div className="px-6 py-6 border-b border-slate-800">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/30">
-            <TrendingUp size={18} className="text-white" />
+          <div className="w-10 h-10 flex items-center justify-center">
+            <Image src="/logo.svg" alt="Money Flow Logo" width={40} height={40} className="drop-shadow-md" />
           </div>
           <div>
             <h1 className="text-white font-bold text-base leading-none">Money Flow</h1>

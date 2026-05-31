@@ -10,6 +10,8 @@ import {
   Timestamp,
   onSnapshot,
   getDocs,
+  getAggregateFromServer,
+  sum,
 } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -110,4 +112,33 @@ export async function updateTransaction(
 export async function deleteTransaction(userId: string, id: string) {
   const ref = doc(db, "users", userId, "transactions", id);
   await deleteDoc(ref);
+}
+
+export async function getMonthAggregates(userId: string, year: number, month: number) {
+  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+  const endDate = `${year}-${String(month).padStart(2, "0")}-31`;
+
+  const incomeQuery = query(
+    transactionsRef(userId),
+    where("date", ">=", startDate),
+    where("date", "<=", endDate),
+    where("type", "==", "income")
+  );
+  
+  const expenseQuery = query(
+    transactionsRef(userId),
+    where("date", ">=", startDate),
+    where("date", "<=", endDate),
+    where("type", "==", "expense")
+  );
+
+  const [incomeSnap, expenseSnap] = await Promise.all([
+    getAggregateFromServer(incomeQuery, { total: sum("amount") }),
+    getAggregateFromServer(expenseQuery, { total: sum("amount") })
+  ]);
+
+  return {
+    income: incomeSnap.data().total || 0,
+    expense: expenseSnap.data().total || 0,
+  };
 }

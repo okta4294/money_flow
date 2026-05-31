@@ -28,7 +28,13 @@ function formatDate(dateStr: string) {
 }
 
 function groupByDate(transactions: Transaction[]): Record<string, Transaction[]> {
-  return transactions.reduce((acc, t) => {
+  const sorted = [...transactions].sort((a, b) => {
+    const aTime = a.createdAt?.seconds || 0;
+    const bTime = b.createdAt?.seconds || 0;
+    return bTime - aTime;
+  });
+
+  return sorted.reduce((acc, t) => {
     if (!acc[t.date]) acc[t.date] = [];
     acc[t.date].push(t);
     return acc;

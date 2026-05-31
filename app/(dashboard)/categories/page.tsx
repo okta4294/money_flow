@@ -18,7 +18,7 @@ export default function CategoriesPage() {
 
       {/* Info Banner */}
       <div className="bg-blue-500/5 border border-blue-500/15 rounded-xl px-4 py-3 text-blue-300 text-sm">
-        💡 Kategori default telah disiapkan untuk Anda. Anda bisa menambah atau mengedit sesuai kebutuhan.
+        💡 Buat kategori sesuai kebutuhan Anda. Tambahkan kategori pemasukan dan pengeluaran sendiri.
       </div>
 
       <CategoryManager categories={categories} loading={loading} />

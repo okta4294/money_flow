@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Plus } from "lucide-react";
+import { X, Plus, CreditCard } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useCategories } from "@/hooks/useCategories";
+import { useDebts } from "@/hooks/useDebts";
 import { addTransaction, updateTransaction, Transaction, TransactionInput } from "@/lib/firestore/transactions";
+import { payDebt } from "@/lib/firestore/debts";
 
 interface TransactionFormProps {
   open: boolean;
@@ -17,9 +19,24 @@ function formatRupiah(value: string) {
   return num ? parseInt(num).toLocaleString("id-ID") : "";
 }
 
+function formatRupiahNum(amount: number) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(amount);
+}
+
+/** Cek apakah nama kategori mengandung kata 'hutang' atau 'paylater' */
+function isDebtCategory(categoryName: string): boolean {
+  const lower = categoryName.toLowerCase();
+  return lower.includes("hutang") || lower.includes("paylater") || lower.includes("pay later");
+}
+
 export function TransactionForm({ open, onClose, editData }: TransactionFormProps) {
   const { user } = useAuth();
   const { incomeCategories, expenseCategories } = useCategories();
+  const { activeDebts } = useDebts();
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -31,6 +48,10 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Debt payment state
+  const [selectedDebtId, setSelectedDebtId] = useState("");
+  const [debtPaymentAmount, setDebtPaymentAmount] = useState("");
+
   const categories = type === "income" ? incomeCategories : expenseCategories;
 
   useEffect(() => {
@@ -40,30 +61,60 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
       setCategoryId(editData.categoryId);
       setNote(editData.note || "");
       setDate(editData.date);
+      setSelectedDebtId(editData.debtId || "");
+      setDebtPaymentAmount(editData.debtPaymentAmount?.toString() || "");
     } else {
       setType("expense");
       setAmount("");
       setCategoryId("");
       setNote("");
       setDate(today);
+      setSelectedDebtId("");
+      setDebtPaymentAmount("");
     }
   }, [editData, open]);
 
-  // Reset category when type changes
+  // Reset category & debt fields when type changes
   useEffect(() => {
-    if (!editData) setCategoryId("");
+    if (!editData) {
+      setCategoryId("");
+      setSelectedDebtId("");
+      setDebtPaymentAmount("");
+    }
   }, [type]);
+
+  // Reset debt fields when category changes away from debt category
+  const selectedCategory = categories.find((c) => c.id === categoryId);
+  const showDebtDropdown = type === "expense" && selectedCategory && isDebtCategory(selectedCategory.name);
+
+  useEffect(() => {
+    if (!showDebtDropdown) {
+      setSelectedDebtId("");
+      setDebtPaymentAmount("");
+    }
+  }, [showDebtDropdown]);
+
+  // Sinkronkan nominal pembayaran hutang dengan jumlah pengeluaran secara otomatis
+  useEffect(() => {
+    if (showDebtDropdown && amount) {
+      setDebtPaymentAmount(amount.replace(/\D/g, ""));
+    }
+  }, [amount, showDebtDropdown]);
 
   if (!open) return null;
 
-  const selectedCategory = categories.find((c) => c.id === categoryId);
   const numericAmount = parseInt(amount.replace(/\D/g, "") || "0");
+  const numericDebtPayment = parseInt(debtPaymentAmount.replace(/\D/g, "") || "0");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     if (numericAmount <= 0) { setError("Masukkan jumlah yang valid"); return; }
     if (!categoryId) { setError("Pilih kategori"); return; }
+    if (showDebtDropdown && selectedDebtId && numericDebtPayment <= 0) {
+      setError("Masukkan nominal pembayaran hutang");
+      return;
+    }
 
     setError("");
     setLoading(true);
@@ -75,11 +126,19 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
         categoryId,
         note,
         date,
+        ...(showDebtDropdown && selectedDebtId
+          ? { debtId: selectedDebtId, debtPaymentAmount: numericDebtPayment }
+          : {}),
       };
+
       if (editData) {
         await updateTransaction(user.uid, editData.id, data);
       } else {
         await addTransaction(user.uid, data);
+        // Pay down the selected debt if chosen
+        if (showDebtDropdown && selectedDebtId && numericDebtPayment > 0) {
+          await payDebt(user.uid, selectedDebtId, numericDebtPayment);
+        }
       }
       onClose();
     } catch {
@@ -92,7 +151,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-slate-900 border border-slate-700/50 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md p-6 shadow-2xl animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 max-h-[85vh] overflow-y-auto">
+      <div className="relative bg-slate-900 border border-slate-700/50 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md p-6 shadow-2xl animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-white font-semibold text-lg">
@@ -150,29 +209,105 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           {/* Category */}
           <div>
             <label className="text-slate-400 text-xs font-medium block mb-1.5">Kategori</label>
-            <div className="max-h-32 overflow-y-auto pr-1 border border-slate-800 rounded-xl p-2 bg-slate-950/20">
-              <div className="grid grid-cols-3 gap-1.5">
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => setCategoryId(cat.id)}
-                    className={`flex flex-col items-center gap-1 py-1.5 px-1 rounded-lg border text-[11px] font-medium transition-all duration-150 ${
-                      categoryId === cat.id
-                        ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400"
-                        : "border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600 hover:text-white"
-                    }`}
-                  >
-                    <span
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: cat.color }}
-                    />
-                    <span className="truncate w-full text-center">{cat.name}</span>
-                  </button>
-                ))}
+            {categories.length === 0 ? (
+              <div className="border border-dashed border-slate-700 rounded-xl p-4 text-center">
+                <p className="text-slate-500 text-xs">Belum ada kategori</p>
+                <a href="/categories" className="text-emerald-400 text-xs hover:underline mt-1 block">
+                  + Tambah kategori dulu
+                </a>
               </div>
-            </div>
+            ) : (
+              <div className="max-h-36 overflow-y-auto pr-1 border border-slate-800 rounded-xl p-2 bg-slate-950/20">
+                <div className="grid grid-cols-3 gap-1.5">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setCategoryId(cat.id)}
+                      className={`flex flex-col items-center gap-1 py-1.5 px-1 rounded-lg border text-[11px] font-medium transition-all duration-150 ${
+                        categoryId === cat.id
+                          ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400"
+                          : "border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600 hover:text-white"
+                      }`}
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: cat.color }}
+                      />
+                      <span className="truncate w-full text-center">{cat.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Debt Payment Section — shown when category contains "hutang"/"paylater" */}
+          {showDebtDropdown && (
+            <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="flex items-center gap-2 mb-1">
+                <CreditCard size={14} className="text-amber-400" />
+                <span className="text-amber-400 text-xs font-semibold">Pembayaran Hutang</span>
+              </div>
+
+              {activeDebts.length === 0 ? (
+                <div className="text-center py-2">
+                  <p className="text-slate-500 text-xs">Belum ada hutang aktif</p>
+                  <a href="/debts" className="text-amber-400 text-xs hover:underline mt-1 block">
+                    + Tambah hutang dulu
+                  </a>
+                </div>
+              ) : (
+                <>
+                  {/* Debt Selector */}
+                  <div>
+                    <label className="text-slate-400 text-xs font-medium block mb-1.5">
+                      Hutang yang dibayar (opsional)
+                    </label>
+                    <select
+                      id="debt-selector"
+                      value={selectedDebtId}
+                      onChange={(e) => setSelectedDebtId(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-all appearance-none"
+                    >
+                      <option value="">-- Pilih hutang --</option>
+                      {activeDebts.map((debt) => (
+                        <option key={debt.id} value={debt.id}>
+                          {debt.name} (sisa {formatRupiahNum(debt.remainingAmount)})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Payment amount */}
+                  {selectedDebtId && (
+                    <div className="animate-in fade-in duration-150">
+                      <label className="text-slate-400 text-xs font-medium block mb-1.5">
+                        Nominal yang dibayarkan ke hutang ini
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">Rp</span>
+                        <input
+                          id="debt-payment-amount"
+                          type="text"
+                          inputMode="numeric"
+                          value={formatRupiah(debtPaymentAmount)}
+                          onChange={(e) => setDebtPaymentAmount(e.target.value)}
+                          placeholder="0"
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-12 pr-4 py-3 text-white text-sm font-semibold focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-all"
+                        />
+                      </div>
+                      {selectedDebtId && (
+                        <p className="text-slate-600 text-[10px] mt-1.5">
+                          Sisa hutang akan berkurang sebesar nominal yang dimasukkan
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
           {/* Date */}
           <div>

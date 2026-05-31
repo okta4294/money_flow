@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { LayoutDashboard, ArrowLeftRight, Tag, Menu, TrendingUp, LogOut } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Tag, Menu, TrendingUp, LogOut, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -14,6 +14,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/transactions", label: "Transaksi", icon: ArrowLeftRight },
   { href: "/categories", label: "Kategori", icon: Tag },
+  { href: "/debts", label: "Hutang", icon: CreditCard },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -36,11 +37,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="min-h-screen bg-slate-950">
-      <Sidebar />
-
-      {/* Mobile Top Bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+    <>
+      {/* Mobile Top Bar — harus di luar wrapper agar fixed ke viewport */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-slate-950 border-b border-slate-800 px-4 py-3 flex items-center justify-between" style={{ willChange: "transform" }}>
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
             <TrendingUp size={14} className="text-white" />
@@ -55,8 +54,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </button>
       </div>
 
-      {/* Mobile Bottom Nav */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 flex justify-around py-2 shadow-2xl">
+      {/* Mobile Bottom Nav — harus di luar wrapper agar fixed ke viewport */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900 border-t border-slate-800 flex justify-around py-2 shadow-2xl" style={{ willChange: "transform" }}>
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
@@ -74,12 +73,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         })}
       </div>
 
-      {/* Main Content */}
-      <main className="lg:pl-64 pt-14 lg:pt-0 pb-20 lg:pb-0 min-h-screen">
-        <div className="p-4 lg:p-8 max-w-6xl mx-auto">
-          {children}
-        </div>
-      </main>
-    </div>
+      {/* Main Layout */}
+      <div className="min-h-screen bg-slate-950">
+        <Sidebar />
+
+        {/* Main Content */}
+        <main className="lg:pl-64 pt-14 lg:pt-0 pb-20 lg:pb-0 min-h-screen">
+          <div className="p-4 lg:p-8 max-w-6xl mx-auto">
+            {children}
+          </div>
+        </main>
+      </div>
+    </>
   );
 }

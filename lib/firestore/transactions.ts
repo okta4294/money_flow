@@ -24,6 +24,8 @@ export interface Transaction {
   note: string;
   date: string; // ISO date string YYYY-MM-DD
   createdAt: Timestamp;
+  debtId?: string;
+  debtPaymentAmount?: number;
 }
 
 export interface TransactionInput {
@@ -33,6 +35,8 @@ export interface TransactionInput {
   categoryId: string;
   note: string;
   date: string;
+  debtId?: string;           // ID hutang yang dibayar (opsional)
+  debtPaymentAmount?: number; // Nominal yang dialokasikan untuk hutang ini
 }
 
 const transactionsRef = (userId: string) =>

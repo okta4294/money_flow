@@ -30,7 +30,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="h-screen bg-slate-950 flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -38,8 +38,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <>
-      {/* Mobile Top Bar — harus di luar wrapper agar fixed ke viewport */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-slate-950 border-b border-slate-800 px-4 py-3 flex items-center justify-between" style={{ willChange: "transform" }}>
+      {/* Mobile Top Bar — fixed ke viewport, di luar scroll container */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-slate-950 border-b border-slate-800 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
             <TrendingUp size={14} className="text-white" />
@@ -54,8 +54,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </button>
       </div>
 
-      {/* Mobile Bottom Nav — harus di luar wrapper agar fixed ke viewport */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900 border-t border-slate-800 flex justify-around py-2 shadow-2xl" style={{ willChange: "transform" }}>
+      {/* Mobile Bottom Nav — fixed ke viewport, di luar scroll container */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900 border-t border-slate-800 flex justify-around py-2 shadow-2xl">
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
@@ -73,12 +73,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         })}
       </div>
 
-      {/* Main Layout */}
-      <div className="min-h-screen bg-slate-950">
+      {/* Layout wrapper — h-screen agar tidak overflow ke body */}
+      <div className="h-screen bg-slate-950 flex">
         <Sidebar />
 
-        {/* Main Content */}
-        <main className="lg:pl-64 pt-14 lg:pt-0 pb-20 lg:pb-0 min-h-screen">
+        {/* Main Content — satu-satunya area yang bisa di-scroll */}
+        <main className="flex-1 overflow-y-auto lg:pl-64 pt-14 lg:pt-0 pb-20 lg:pb-0">
           <div className="p-4 lg:p-8 max-w-6xl mx-auto">
             {children}
           </div>

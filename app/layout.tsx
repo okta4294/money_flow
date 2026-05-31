@@ -14,8 +14,8 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="id" className={inter.variable}>
-      <body className="min-h-screen bg-slate-950 font-sans antialiased">
+    <html lang="id" className={`${inter.variable} h-full`}>
+      <body className="h-full bg-slate-950 font-sans antialiased overflow-hidden">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

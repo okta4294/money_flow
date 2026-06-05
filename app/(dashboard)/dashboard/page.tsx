@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useCategories } from "@/hooks/useCategories";
+import { useDebts } from "@/hooks/useDebts";
 import { getInitialBalance } from "@/lib/firestore/balances";
 import { SummaryCards } from "@/components/dashboard/SummaryCards";
 import { SpendingChart } from "@/components/dashboard/SpendingChart";
@@ -23,6 +24,7 @@ export default function DashboardPage() {
 
   const { transactions, loading, totalIncome, totalExpense } = useTransactions(year, month);
   const { categories } = useCategories();
+  const { activeDebts, totalDebt } = useDebts();
 
   const [initialBalance, setInitialBalance] = useState(0);
   const [balanceLoading, setBalanceLoading] = useState(true);
@@ -87,6 +89,8 @@ export default function DashboardPage() {
           initialBalance={initialBalance}
           totalIncome={totalIncome}
           totalExpense={totalExpense}
+          activeDebts={activeDebts}
+          totalDebt={totalDebt}
         />
       )}
 

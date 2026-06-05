@@ -16,6 +16,13 @@ interface AISummaryCardProps {
   totalExpense: number;
   activeDebts: any[];
   totalDebt: number;
+  prevMonthData?: {
+    month: number;
+    year: number;
+    transactions: Transaction[];
+    totalIncome: number;
+    totalExpense: number;
+  };
 }
 
 export function AISummaryCard({
@@ -27,6 +34,7 @@ export function AISummaryCard({
   totalExpense,
   activeDebts,
   totalDebt,
+  prevMonthData,
 }: AISummaryCardProps) {
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
@@ -84,6 +92,7 @@ export function AISummaryCard({
           transactions,
           activeDebts,
           totalDebt,
+          prevMonthData,
         }),
       });
 

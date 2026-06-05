@@ -7,7 +7,7 @@ const genAI = new GoogleGenerativeAI(apiKey);
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { month, year, initialBalance, totalIncome, totalExpense, transactions, activeDebts = [], totalDebt = 0 } = body;
+    const { month, year, initialBalance, totalIncome, totalExpense, transactions, activeDebts = [], totalDebt = 0, prevMonthData } = body;
 
     if (!apiKey) {
       return NextResponse.json({ success: false, error: "API Key Gemini belum dikonfigurasi di server." }, { status: 500 });
@@ -45,28 +45,56 @@ export async function POST(req: Request) {
       ? activeDebts.map((d: any) => `- ${d.name}: Rp ${d.remainingAmount}`).join("\n")
       : "Tidak ada hutang.";
 
+    // Memproses data bulan sebelumnya jika ada
+    let prevFormattedTransactions = "Tidak ada data bulan sebelumnya.";
+    if (prevMonthData && prevMonthData.transactions && prevMonthData.transactions.length > 0) {
+      const prevCategories: Record<string, { total: number }> = {};
+      prevMonthData.transactions.forEach((t: any) => {
+        if (t.type === "expense") {
+          if (!prevCategories[t.category]) {
+            prevCategories[t.category] = { total: 0 };
+          }
+          prevCategories[t.category].total += t.amount;
+        }
+      });
+      prevFormattedTransactions = Object.entries(prevCategories)
+        .sort((a, b) => b[1].total - a[1].total)
+        .map(([cat, data]) => `- ${cat}: Rp ${data.total}`)
+        .join("\n");
+    }
+
+    const prevMonthSummary = prevMonthData ? `
+Ringkasan Bulan Sebelumnya (${prevMonthData.month}/${prevMonthData.year}):
+- Pemasukan: Rp ${prevMonthData.totalIncome}
+- Pengeluaran: Rp ${prevMonthData.totalExpense}
+
+Pengeluaran per Kategori (Bulan Sebelumnya):
+${prevFormattedTransactions}
+` : "";
+
     const prompt = `
 Penasihat keuangan KRITIS & BLAK-BLAKAN. Analisis keuangan bln ${month}/${year}. Roasting keras jika boros, puji tipis jika hemat.
 WAJIB gunakan BAHASA INDONESIA yang gaul, santai tapi nyelekit.
 
-Ringkasan:
+Ringkasan Bulan Ini (${month}/${year}):
 - Saldo Awal: Rp ${initialBalance}
 - Pemasukan: Rp ${totalIncome}
 - Pengeluaran: Rp ${totalExpense}
 - Sisa: Rp ${initialBalance + totalIncome - totalExpense}
 - Total Hutang Aktif: Rp ${totalDebt}
 
-Pengeluaran per Kategori:
+Pengeluaran per Kategori (Bulan Ini):
 ${formattedTransactions}
 
 Rincian Hutang Aktif:
 ${formattedDebts}
-
+${prevMonthSummary}
 Peran: Penasihat keuangan galak. Output: Markdown rinci. 
 Analisis data keuangan berikut:
 1. Ringkasan Pedas: Evaluasi komprehensif performa bulan ini.
-2. Analisis Kritis: Identifikasi dan kritik tajam sumber kebocoran pengeluaran terbesar beserta peringatan terkait hutang (jika ada).
-3. Rekomendasi Taktis: Langkah spesifik dan tegas perbaikan bulan depan.
+2. Perbandingan vs Bulan Lalu: Bandingkan pengeluaran dan pemasukan bulan ini dengan bulan lalu. Beri kritik ekstra pedas jika pengeluaran membengkak atau trennya memburuk!
+3. Analisis Kritis: Identifikasi dan kritik tajam sumber kebocoran pengeluaran terbesar beserta peringatan terkait hutang (jika ada).
+4. Rekomendasi Taktis: Langkah spesifik dan tegas perbaikan bulan depan.
 `;
 
     let text = "";

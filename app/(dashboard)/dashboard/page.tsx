@@ -23,6 +23,17 @@ export default function DashboardPage() {
   const [month, setMonth] = useState(now.getMonth() + 1);
 
   const { transactions, loading, totalIncome, totalExpense } = useTransactions(year, month);
+  
+  // Ambil data bulan sebelumnya untuk AI Roasting
+  const prevDate = new Date(year, month - 2);
+  const prevYear = prevDate.getFullYear();
+  const prevMonth = prevDate.getMonth() + 1;
+  const { 
+    transactions: prevTransactions, 
+    totalIncome: prevTotalIncome, 
+    totalExpense: prevTotalExpense 
+  } = useTransactions(prevYear, prevMonth);
+
   const { categories } = useCategories();
   const { activeDebts, totalDebt } = useDebts();
 
@@ -91,6 +102,13 @@ export default function DashboardPage() {
           totalExpense={totalExpense}
           activeDebts={activeDebts}
           totalDebt={totalDebt}
+          prevMonthData={{
+            month: prevMonth,
+            year: prevYear,
+            transactions: prevTransactions,
+            totalIncome: prevTotalIncome,
+            totalExpense: prevTotalExpense,
+          }}
         />
       )}
 

@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, BrainCircuit, AlertCircle } from "lucide-react";
+import { Sparkles, BrainCircuit, AlertCircle, Lock, ShieldAlert } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Transaction } from "@/lib/firestore/transactions";
+import { useAuth } from "@/lib/auth-context";
+import { checkAiLimit, markAiUsage, isSuperUser } from "@/lib/firestore/ai-usage";
 
 interface AISummaryCardProps {
   transactions: Transaction[];
@@ -25,11 +27,47 @@ export function AISummaryCard({
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const isAnonymous = user?.isAnonymous;
+
+  const [limitReached, setLimitReached] = useState(false);
+  const [checkingLimit, setCheckingLimit] = useState(true);
+
+  // Cek limit harian saat pertama kali load
+  useState(() => {
+    let mounted = true;
+    async function initLimit() {
+      if (!user || user.isAnonymous) {
+        if (mounted) setCheckingLimit(false);
+        return;
+      }
+      setCheckingLimit(true);
+      try {
+        const canUse = await checkAiLimit(user.uid, user.email);
+        if (mounted) setLimitReached(!canUse);
+      } catch (err) {
+        console.error("Gagal mengecek limit AI:", err);
+      } finally {
+        if (mounted) setCheckingLimit(false);
+      }
+    }
+    initLimit();
+    return () => { mounted = false; };
+  });
 
   const handleGenerate = async () => {
+    if (!user || user.isAnonymous) return;
+
     setLoading(true);
     setError(null);
     try {
+      // Re-verifikasi limitasi sebelum hit API agar lebih aman
+      const canUse = await checkAiLimit(user.uid, user.email);
+      if (!canUse) {
+        setLimitReached(true);
+        throw new Error("Batas penggunaan harian (1x/hari) telah tercapai. Silakan coba lagi besok");
+      }
+
       const response = await fetch("/api/summary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -49,6 +87,13 @@ export function AISummaryCard({
       }
 
       setSummary(data.text);
+
+      // Catat penggunaan sukses di Firestore
+      await markAiUsage(user.uid, user.email);
+      
+      // Update status limit setelah pemakaian
+      const canStillUse = await checkAiLimit(user.uid, user.email);
+      setLimitReached(!canStillUse);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -56,13 +101,15 @@ export function AISummaryCard({
     }
   };
 
+  const isSuper = isSuperUser(user?.email);
+
   return (
     <div className="relative overflow-hidden rounded-2xl border border-indigo-500/30 bg-white/80 dark:bg-slate-900/60 backdrop-blur-md p-6 lg:p-8 mt-6 shadow-sm dark:shadow-none">
       {/* Background glowing gradients */}
       <div className="absolute -top-20 -left-20 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-fuchsia-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6">
+      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex-1 space-y-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
@@ -70,13 +117,13 @@ export function AISummaryCard({
             </div>
             <div>
               <h2 className="text-slate-900 dark:text-white font-bold text-lg">AI Financial Roasting</h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm">Biar Gemini yang nge-judge pengeluaranmu bulan ini.</p>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">Biarkan AI <mark></mark>memasak anda.</p>
             </div>
           </div>
 
           {!summary && !loading && !error && (
             <p className="text-slate-700 dark:text-slate-300 text-sm max-w-2xl leading-relaxed">
-              Dapatkan analisis tajam dan blak-blakan mengenai kebiasaan belanjamu. Temukan kebocoran dana dan dapatkan saran konkret untuk bulan depan!
+              Dapatkan analisis untuk pengeluaranmu yang banyak tapi pemasukan sedikit itu
             </p>
           )}
 
@@ -109,11 +156,31 @@ export function AISummaryCard({
         <div className="flex-shrink-0">
           <button
             onClick={handleGenerate}
-            disabled={loading}
-            className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+            disabled={loading || isAnonymous || limitReached || checkingLimit}
+            title={
+              isAnonymous 
+                ? "Daftar akun gratis untuk menggunakan fitur AI" 
+                : limitReached 
+                  ? "Batas penggunaan harian tercapai" 
+                  : isSuper 
+                    ? "Anda menggunakan Super Akun (Tanpa Batas)" 
+                    : "Sisa jatah harian: 1x"
+            }
+            className={`w-full md:w-auto flex items-center justify-center gap-2 px-5 py-2.5 text-white text-sm font-semibold rounded-xl transition-all ${
+              isAnonymous || limitReached
+                ? "bg-slate-400 dark:bg-slate-800 cursor-not-allowed opacity-70"
+                : "bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+            }`}
           >
-            <Sparkles size={16} />
-            {summary ? "Analisis Ulang" : "Analisis Sekarang"}
+            {checkingLimit ? (
+              <span className="flex items-center gap-2">Memeriksa Akses...</span>
+            ) : isAnonymous ? (
+              <><Lock size={16} /> Login untuk mencoba fitur</>
+            ) : limitReached ? (
+              <><ShieldAlert size={16} /> Jatah Harian Habis</>
+            ) : (
+              <><Sparkles size={16} /> {summary ? "Analisis Ulang" : "Analisis Sekarang"} {isSuper && "✨"}</>
+            )}
           </button>
         </div>
       </div>

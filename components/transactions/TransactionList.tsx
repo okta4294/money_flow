@@ -69,14 +69,14 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
     return (
       <div className="space-y-3">
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 animate-pulse">
+          <div key={i} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-4 animate-pulse">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-slate-800" />
+              <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-800" />
               <div className="flex-1 space-y-2">
-                <div className="h-3.5 bg-slate-800 rounded w-24" />
-                <div className="h-2.5 bg-slate-800 rounded w-16" />
+                <div className="h-3.5 bg-slate-200 dark:bg-slate-800 rounded w-24" />
+                <div className="h-2.5 bg-slate-200 dark:bg-slate-800 rounded w-16" />
               </div>
-              <div className="h-4 bg-slate-800 rounded w-20" />
+              <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20" />
             </div>
           </div>
         ))}
@@ -87,11 +87,11 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
   if (transactions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-4 text-2xl">
+        <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-4 text-2xl">
           📭
         </div>
-        <p className="text-slate-400 text-sm font-medium">Belum ada transaksi</p>
-        <p className="text-slate-600 text-xs mt-1">Tambahkan transaksi pertama Anda</p>
+        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Belum ada transaksi</p>
+        <p className="text-slate-400 dark:text-slate-600 text-xs mt-1">Tambahkan transaksi pertama Anda</p>
       </div>
     );
   }
@@ -129,7 +129,7 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
               {dayTxs.map((t) => (
                 <div
                   key={t.id}
-                  className="group bg-slate-900/50 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3 hover:border-slate-700 transition-all duration-200"
+                  className="group bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 flex items-center gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 shadow-sm dark:shadow-none"
                 >
                   {/* Icon */}
                   <div
@@ -152,10 +152,10 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-white text-sm font-medium truncate">{t.category}</p>
+                    <p className="text-slate-900 dark:text-white text-sm font-medium truncate">{t.category}</p>
                     <div className="flex items-center gap-2 mt-0.5">
                       {t.accountName && (
-                        <span className="inline-flex items-center text-[9px] font-medium px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
+                        <span className="inline-flex items-center text-[9px] font-medium px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                           {t.accountName}
                         </span>
                       )}
@@ -185,7 +185,7 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
                   <div className="flex items-center gap-1 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => onEdit(t)}
-                      className="w-7 h-7 rounded-lg hover:bg-slate-700 text-slate-500 hover:text-white flex items-center justify-center transition-all"
+                      className="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-all"
                     >
                       <Pencil size={13} />
                     </button>

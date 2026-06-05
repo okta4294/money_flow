@@ -9,6 +9,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { LayoutDashboard, ArrowLeftRight, Tag, Menu, TrendingUp, LogOut, CreditCard, Landmark } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -31,7 +32,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (loading || !user) {
     return (
-      <div className="h-screen bg-slate-950 flex items-center justify-center">
+      <div className="h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -40,23 +41,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <>
       {/* Mobile Top Bar — fixed ke viewport, di luar scroll container */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-slate-950 border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
             <TrendingUp size={14} className="text-white" />
           </div>
-          <span className="text-white font-bold text-sm">Money Flow</span>
+          <span className="text-slate-900 dark:text-white font-bold text-sm">Money Flow</span>
         </div>
-        <button
-          onClick={signOut}
-          className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition-all"
-        >
-          <LogOut size={16} />
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            onClick={signOut}
+            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+          >
+            <LogOut size={16} />
+          </button>
+        </div>
       </div>
 
       {/* Mobile Bottom Nav — fixed ke viewport, di luar scroll container */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900 border-t border-slate-800 flex justify-around py-2 shadow-2xl">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex justify-around py-2 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] dark:shadow-2xl">
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
@@ -64,10 +68,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               key={href}
               href={href}
               className={`flex flex-col items-center justify-center py-1 px-3 text-[10px] font-medium transition-colors ${
-                active ? "text-emerald-400" : "text-slate-500 hover:text-slate-300"
+                active ? "text-emerald-500 dark:text-emerald-400" : "text-slate-500 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-300"
               }`}
             >
-              <Icon size={18} className={`mb-1 transition-all ${active ? "text-emerald-400 scale-110" : "text-slate-500"}`} />
+              <Icon size={18} className={`mb-1 transition-all ${active ? "text-emerald-500 dark:text-emerald-400 scale-110" : "text-slate-400 dark:text-slate-500"}`} />
               {label}
             </Link>
           );
@@ -75,7 +79,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
 
       {/* Layout wrapper — h-screen agar tidak overflow ke body */}
-      <div className="h-screen bg-slate-950 flex">
+      <div className="h-screen bg-slate-50 dark:bg-slate-950 flex">
         <Sidebar />
 
         {/* Main Content — satu-satunya area yang bisa di-scroll */}

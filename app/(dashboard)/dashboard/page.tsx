@@ -11,6 +11,7 @@ import { InitialBalanceModal } from "@/components/dashboard/InitialBalanceModal"
 import { TransactionList } from "@/components/transactions/TransactionList";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { MonthSelector } from "@/components/layout/MonthSelector";
+import { AISummaryCard } from "@/components/dashboard/AISummaryCard";
 import { Transaction } from "@/lib/firestore/transactions";
 import { Plus, Pencil } from "lucide-react";
 
@@ -53,15 +54,15 @@ export default function DashboardPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-white text-2xl font-bold">Dashboard</h1>
-          <p className="text-slate-400 text-sm mt-0.5">Ringkasan kemiskinan anda</p>
+          <h1 className="text-slate-900 dark:text-white text-2xl font-bold">Dashboard</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Ringkasan kemiskinan anda</p>
         </div>
         <div className="flex items-center gap-3">
           <MonthSelector year={year} month={month} onChange={(y, m) => { setYear(y); setMonth(m); }} />
           <button
             id="set-initial-balance-btn"
             onClick={() => setShowBalanceModal(true)}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs font-medium transition-all border border-slate-700"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-medium transition-all border border-slate-200 dark:border-slate-700"
           >
             <Pencil size={13} />
             Saldo Awal
@@ -77,14 +78,26 @@ export default function DashboardPage() {
         loading={loading || balanceLoading}
       />
 
+      {/* AI Roasting Summary */}
+      {!loading && !balanceLoading && (
+        <AISummaryCard
+          transactions={transactions}
+          month={month}
+          year={year}
+          initialBalance={initialBalance}
+          totalIncome={totalIncome}
+          totalExpense={totalExpense}
+        />
+      )}
+
       {/* Charts */}
       <SpendingChart transactions={transactions} categories={categories} />
 
       {/* Recent Transactions */}
-      <div className="bg-slate-900/30 border border-slate-800 rounded-2xl p-5">
+      <div className="bg-white dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-white font-semibold text-sm">Transaksi Terbaru</h2>
-          <a href="/transactions" className="text-emerald-400 hover:text-emerald-300 text-xs font-medium transition-colors">
+          <h2 className="text-slate-900 dark:text-white font-semibold text-sm">Transaksi Terbaru</h2>
+          <a href="/transactions" className="text-emerald-500 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 text-xs font-medium transition-colors">
             Lihat semua →
           </a>
         </div>

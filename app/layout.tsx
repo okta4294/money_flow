@@ -17,7 +17,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="id" className={`${inter.variable} h-full`} suppressHydrationWarning>
-      <body className="h-full bg-slate-50 dark:bg-slate-950 font-sans antialiased overflow-hidden text-slate-900 dark:text-slate-50 transition-colors duration-200">
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+      </head>
+      <body className="h-full overflow-hidden transition-colors duration-200 bg-slate-50 dark:bg-background text-slate-900 dark:text-on-background">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>

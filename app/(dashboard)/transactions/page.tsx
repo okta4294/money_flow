@@ -30,49 +30,55 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="flex flex-col gap-6">
+      {/* Header & Filters */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
         <div>
-          <h1 className="text-white text-2xl font-bold">Transaksi</h1>
-          <p className="text-slate-400 text-sm mt-0.5">Semua catatan pemasukan & pengeluaran</p>
+          <h2 className="font-headline-lg-mobile md:font-headline-lg font-bold text-on-surface">Transaksi</h2>
+          <p className="font-body-md text-on-surface-variant mt-1">Semua catatan pemasukan & pengeluaran</p>
         </div>
-        <MonthSelector year={year} month={month} onChange={(y, m) => { setYear(y); setMonth(m); }} />
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-4">
-          <p className="text-slate-400 text-xs mb-1">Total Pemasukan</p>
-          <p className="text-emerald-400 font-bold text-base">{formatRupiah(totalIncome)}</p>
-        </div>
-        <div className="bg-rose-500/5 border border-rose-500/15 rounded-xl p-4">
-          <p className="text-slate-400 text-xs mb-1">Total Pengeluaran</p>
-          <p className="text-rose-400 font-bold text-base">{formatRupiah(totalExpense)}</p>
+        <div className="flex items-center gap-2 bg-surface-container-high rounded-full p-1 border border-outline-variant/20 self-start md:self-auto">
+          <MonthSelector year={year} month={month} onChange={(y, m) => { setYear(y); setMonth(m); }} />
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex gap-2">
-        {(["all", "income", "expense"] as const).map((f) => (
-          <button
-            key={f}
-            id={`filter-${f}`}
-            onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
-              filter === f
-                ? f === "income"
-                  ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
-                  : f === "expense"
-                  ? "bg-rose-500/15 text-rose-400 border-rose-500/30"
-                  : "bg-slate-700 text-white border-slate-600"
-                : "text-slate-400 border-slate-800 hover:text-white hover:border-slate-700"
-			}`}
-          >
-            {f === "all" ? "Semua" : f === "income" ? "Pemasukan" : "Pengeluaran"}
-          </button>
-        ))}
-        <span className="ml-auto text-slate-500 text-sm self-center">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="glass-card rounded-xl p-4 border-t border-t-[#10b981]/50 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-[#10b981]/10 rounded-full blur-xl -mr-4 -mt-4"></div>
+          <p className="font-label-sm text-on-surface-variant mb-1 relative z-10">Total Pemasukan</p>
+          <p className="font-headline-md font-bold text-[#10b981] relative z-10">{formatRupiah(totalIncome)}</p>
+        </div>
+        <div className="glass-card rounded-xl p-4 border-t border-t-[#ef4444]/50 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-[#ef4444]/10 rounded-full blur-xl -mr-4 -mt-4"></div>
+          <p className="font-label-sm text-on-surface-variant mb-1 relative z-10">Total Pengeluaran</p>
+          <p className="font-headline-md font-bold text-[#ef4444] relative z-10">{formatRupiah(totalExpense)}</p>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="flex items-center justify-between overflow-x-auto pb-2 no-scrollbar">
+        <div className="flex gap-2">
+          {(["all", "income", "expense"] as const).map((f) => {
+            const isSelected = filter === f;
+            const labels = { all: "Semua", income: "Pemasukan", expense: "Pengeluaran" };
+            return (
+              <button
+                key={f}
+                id={`filter-${f}`}
+                onClick={() => setFilter(f)}
+                className={`px-4 py-1.5 rounded-full font-label-md transition-colors border whitespace-nowrap ${
+                  isSelected
+                    ? "bg-secondary-container text-on-secondary-container border-secondary-container/50"
+                    : "bg-surface-container-high text-on-surface-variant hover:text-on-surface border-outline-variant/30"
+                }`}
+              >
+                {labels[f]}
+              </button>
+            );
+          })}
+        </div>
+        <span className="font-label-sm text-on-surface-variant whitespace-nowrap ml-4">
           {filtered.length} transaksi
         </span>
       </div>
@@ -86,11 +92,11 @@ export default function TransactionsPage() {
 
       {/* FAB */}
       <button
-        id="add-transaction-fab-transactions"
+        id="add-transaction-fab"
         onClick={() => { setEditTransaction(null); setShowForm(true); }}
-        className="fixed bottom-24 right-4 lg:bottom-8 lg:right-8 w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 transition-all duration-200 z-20"
+        className="fixed bottom-24 md:bottom-8 right-4 md:right-8 w-14 h-14 bg-emerald-500 dark:bg-primary-fixed-dim hover:bg-emerald-600 dark:hover:bg-primary-container rounded-full shadow-lg shadow-emerald-500/30 dark:shadow-[0_0_20px_rgba(0,220,229,0.3)] flex items-center justify-center text-white dark:text-on-primary-container transition-transform hover:scale-105 z-40"
       >
-        <Plus size={24} className="text-white" />
+        <span className="material-symbols-outlined text-[28px]">add</span>
       </button>
 
       <TransactionForm

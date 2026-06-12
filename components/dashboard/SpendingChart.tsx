@@ -201,12 +201,12 @@ export function SpendingChart({ transactions, categories }: SpendingChartProps) 
   const hasData = transactions.length > 0;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-stack-lg">
       {/* Doughnut */}
-      <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
-        <h3 className="text-slate-900 dark:text-white font-semibold text-sm mb-4">Pengeluaran per Kategori</h3>
+      <div className="glass-card rounded-xl p-6">
+        <h3 className="font-label-md text-label-md font-semibold text-on-surface mb-6">Pengeluaran per Kategori</h3>
         {!hasData ? (
-          <div className="h-56 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">
+          <div className="h-56 flex items-center justify-center text-on-surface-variant text-sm">
             Belum ada data transaksi
           </div>
         ) : (
@@ -217,10 +217,10 @@ export function SpendingChart({ transactions, categories }: SpendingChartProps) 
       </div>
 
       {/* Bar */}
-      <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
-        <h3 className="text-slate-900 dark:text-white font-semibold text-sm mb-4">Pemasukan vs Pengeluaran</h3>
+      <div className="glass-card rounded-xl p-6">
+        <h3 className="font-label-md text-label-md font-semibold text-on-surface mb-6">Pemasukan vs Pengeluaran</h3>
         {!hasData ? (
-          <div className="h-56 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">
+          <div className="h-56 flex items-center justify-center text-on-surface-variant text-sm">
             Belum ada data transaksi
           </div>
         ) : (

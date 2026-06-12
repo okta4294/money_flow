@@ -2,27 +2,33 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { LayoutDashboard, ArrowLeftRight, Tag, Menu, TrendingUp, LogOut, CreditCard, Landmark } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import Image from "next/image";
+import { useTheme } from "next-themes";
+import { motion, AnimatePresence } from "framer-motion";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/transactions", label: "Transaksi", icon: ArrowLeftRight },
-  { href: "/categories", label: "Kategori", icon: Tag },
-  { href: "/accounts", label: "Akun", icon: Landmark },
-  { href: "/debts", label: "Hutang", icon: CreditCard },
+  { href: "/dashboard", label: "Home", icon: "dashboard" },
+  { href: "/transactions", label: "History", icon: "sync_alt" },
+  { href: "/accounts", label: "Accounts", icon: "account_balance" },
+  { href: "/categories", label: "Kategori", icon: "sell" },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -32,61 +38,88 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (loading || !user) {
     return (
-      <div className="h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+      <div className="h-screen bg-slate-50 dark:bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-emerald-500 dark:border-primary-fixed-dim border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
     <>
-      {/* Mobile Top Bar — fixed ke viewport, di luar scroll container */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-            <TrendingUp size={14} className="text-white" />
-          </div>
-          <span className="text-slate-900 dark:text-white font-bold text-sm">Money Flow</span>
+      {/* Top App Bar (Mobile) */}
+      <header className="flex justify-between items-center w-full px-margin-mobile h-16 fixed top-0 z-50 bg-white/80 dark:bg-surface/80 backdrop-blur-md border-b border-slate-200 dark:border-outline-variant/10 md:hidden transition-colors">
+        <div className="flex items-center gap-3">
+          {user?.photoURL ? (
+            <Image
+              src={user.photoURL}
+              alt="User Avatar"
+              width={32}
+              height={32}
+              className="w-8 h-8 rounded-full border border-slate-200 dark:border-outline-variant/30 object-cover"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-primary-container flex items-center justify-center text-emerald-700 dark:text-on-primary-container font-bold text-sm">
+              {(user?.displayName || user?.email || "U")[0].toUpperCase()}
+            </div>
+          )}
+          <h1 className="font-headline-md text-[20px] font-bold text-emerald-600 dark:text-primary-fixed-dim">Money Flow</h1>
         </div>
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <button
-            onClick={signOut}
-            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
-          >
-            <LogOut size={16} />
+        <div className="flex items-center gap-1">
+          {mounted && (
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="w-10 h-10 flex items-center justify-center rounded-full text-slate-500 dark:text-primary-fixed-dim hover:bg-slate-100 dark:hover:bg-surface-variant/50 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[20px]">
+                {theme === "dark" ? "light_mode" : "dark_mode"}
+              </span>
+            </button>
+          )}
+          <button className="w-10 h-10 flex items-center justify-center rounded-full text-slate-500 dark:text-primary-fixed-dim hover:bg-slate-100 dark:hover:bg-surface-variant/50 transition-colors">
+            <span className="material-symbols-outlined text-[20px]">search</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Mobile Bottom Nav — fixed ke viewport, di luar scroll container */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex justify-around py-2 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] dark:shadow-2xl">
-        {navItems.map(({ href, label, icon: Icon }) => {
+      {/* Bottom Nav Bar (Mobile) */}
+      <nav className="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-white/90 dark:bg-surface-container/90 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] border-t border-slate-200 dark:border-white/5 md:hidden transition-colors">
+        {navItems.map(({ href, label, icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
               key={href}
               href={href}
-              className={`flex flex-col items-center justify-center py-1 px-3 text-[10px] font-medium transition-colors ${
-                active ? "text-emerald-500 dark:text-emerald-400" : "text-slate-500 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-300"
+              className={`flex flex-col items-center justify-center w-16 transition-all duration-200 ${
+                active
+                  ? "bg-emerald-50 dark:bg-secondary-container text-emerald-600 dark:text-on-secondary-container rounded-xl px-4 py-1 scale-110"
+                  : "text-slate-400 dark:text-on-surface-variant opacity-70 hover:text-emerald-600 dark:hover:text-primary-fixed-dim"
               }`}
             >
-              <Icon size={18} className={`mb-1 transition-all ${active ? "text-emerald-500 dark:text-emerald-400 scale-110" : "text-slate-400 dark:text-slate-500"}`} />
-              {label}
+              <span className="material-symbols-outlined text-[20px] mb-1">{icon}</span>
+              <span className="font-label-sm text-[10px] whitespace-nowrap">{label}</span>
             </Link>
           );
         })}
-      </div>
+      </nav>
 
-      {/* Layout wrapper — h-screen agar tidak overflow ke body */}
-      <div className="h-screen bg-slate-50 dark:bg-slate-950 flex">
+      {/* Layout wrapper */}
+      <div className="h-screen bg-slate-50 dark:bg-background flex transition-colors">
         <Sidebar />
 
-        {/* Main Content — satu-satunya area yang bisa di-scroll */}
-        <main className="flex-1 overflow-y-auto lg:pl-64 pt-14 lg:pt-0 pb-20 lg:pb-0">
-          <div className="p-4 lg:p-8 max-w-6xl mx-auto">
-            {children}
-          </div>
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto w-full md:pl-[280px] pt-16 md:pt-0 pb-24 md:pb-0 relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="p-margin-mobile md:p-gutter flex flex-col gap-stack-lg max-w-container-max mx-auto h-full"
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </>

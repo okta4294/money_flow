@@ -46,6 +46,6 @@ hooks/               → useTransactions, useCategories, useDebts (semua realtim
 
 **Saat mengubah skema Firestore** (field baru di transaksi/hutang/kategori), update interface TypeScript di `lib/firestore/*.ts` dan pastikan field opsional menggunakan `?` agar kompatibel dengan data lama.
 
-**AI Financial Roasting (Gemini):** Menggunakan `@google/generative-ai` dengan model `gemini-3.5-flash`. Konfigurasi server-side berada di `app/api/summary/route.ts`. Pastikan *prompt* tetap menggunakan Bahasa Indonesia dengan gaya "nyelekit". Token input dihemat dengan mengelompokkan jumlah pengeluaran berdasarkan kategori. API key wajib ada di `.env.local` sebagai `GEMINI_API_KEY`.
+**AI Financial Roasting (Gemini):** Menggunakan `@google/generative-ai` dengan model utama `gemini-2.5-flash` dan fallback `gemini-2.5-pro`. Konfigurasi server-side berada di `app/api/summary/route.ts`. Pastikan *prompt* tetap menggunakan Bahasa Indonesia dengan gaya "nyelekit". Token input dihemat dengan mengelompokkan jumlah pengeluaran berdasarkan kategori. API key wajib ada di `.env.local` sebagai `GEMINI_API_KEY`.
 
 **Light & Dark Mode:** Pergantian tema difasilitasi oleh `next-themes` pada `app/layout.tsx`. Selalu gunakan varian kelas Tailwind `dark:` (contoh: `bg-slate-50 dark:bg-slate-950`) saat menambah atau merubah komponen antarmuka, untuk memastikan kesesuaian kontras warna.

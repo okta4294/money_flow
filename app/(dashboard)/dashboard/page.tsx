@@ -14,7 +14,7 @@ import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { MonthSelector } from "@/components/layout/MonthSelector";
 import { AISummaryCard } from "@/components/dashboard/AISummaryCard";
 import { Transaction } from "@/lib/firestore/transactions";
-import { Plus, Pencil } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -63,80 +63,103 @@ export default function DashboardPage() {
   const recentTransactions = transactions.slice(0, 5);
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="flex flex-col flex-1 h-full max-w-[1440px] mx-auto w-full pb-8">
+      {/* Desktop Header */}
+      <div className="hidden md:flex justify-between items-end mb-6">
         <div>
-          <h1 className="text-slate-900 dark:text-white text-2xl font-bold">Dashboard</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Ringkasan kemiskinan anda</p>
+          <h2 className="font-headline-lg font-bold text-slate-900 dark:text-primary-fixed tracking-tight">Overview</h2>
+          <p className="font-body-md text-slate-500 dark:text-on-surface-variant">Ringkasan keuangan anda</p>
         </div>
-        <div className="flex items-center gap-3">
-          <MonthSelector year={year} month={month} onChange={(y, m) => { setYear(y); setMonth(m); }} />
+        <div className="flex items-center gap-4">
+          <div className="flex items-center bg-white dark:bg-surface-container-high rounded-lg p-1 border border-slate-200 dark:border-transparent">
+            <MonthSelector year={year} month={month} onChange={(y, m) => { setYear(y); setMonth(m); }} />
+          </div>
           <button
             id="set-initial-balance-btn"
             onClick={() => setShowBalanceModal(true)}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-medium transition-all border border-slate-200 dark:border-slate-700"
+            className="flex items-center gap-2 bg-white dark:bg-surface-container-highest px-4 py-2 rounded-lg text-slate-700 dark:text-on-surface font-label-md border border-slate-200 dark:border-outline-variant/30 hover:bg-slate-50 dark:hover:bg-surface-variant transition-colors"
           >
-            <Pencil size={13} />
+            <span className="material-symbols-outlined text-[16px]">edit</span>
             Saldo Awal
           </button>
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <SummaryCards
-        initialBalance={initialBalance}
-        totalIncome={totalIncome}
-        totalExpense={totalExpense}
-        loading={loading || balanceLoading}
-      />
-
-      {/* AI Roasting Summary */}
-      {!loading && !balanceLoading && (
-        <AISummaryCard
-          transactions={transactions}
-          month={month}
-          year={year}
-          initialBalance={initialBalance}
-          totalIncome={totalIncome}
-          totalExpense={totalExpense}
-          activeDebts={activeDebts}
-          totalDebt={totalDebt}
-          prevMonthData={{
-            month: prevMonth,
-            year: prevYear,
-            transactions: prevTransactions,
-            totalIncome: prevTotalIncome,
-            totalExpense: prevTotalExpense,
-          }}
-        />
-      )}
-
-      {/* Charts */}
-      <SpendingChart transactions={transactions} categories={categories} />
-
-      {/* Recent Transactions */}
-      <div className="bg-white dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-slate-900 dark:text-white font-semibold text-sm">Transaksi Terbaru</h2>
-          <a href="/transactions" className="text-emerald-500 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 text-xs font-medium transition-colors">
-            Lihat semua →
-          </a>
+      {/* Dashboard Content Grid */}
+      <div className="grid grid-cols-12 gap-6 w-full">
+        
+        {/* Total Balance & Quick Stats Row */}
+        <div className="col-span-12 lg:col-span-8">
+          <SummaryCards
+            initialBalance={initialBalance}
+            totalIncome={totalIncome}
+            totalExpense={totalExpense}
+            loading={loading || balanceLoading}
+          />
         </div>
-        <TransactionList
-          transactions={recentTransactions}
-          loading={loading}
-          onEdit={handleEdit}
-        />
+
+        {/* AI Financial Roaster */}
+        <div className="col-span-12 lg:col-span-4 h-full min-h-[300px]">
+          {(!loading && !balanceLoading) ? (
+            <AISummaryCard
+              transactions={transactions}
+              month={month}
+              year={year}
+              initialBalance={initialBalance}
+              totalIncome={totalIncome}
+              totalExpense={totalExpense}
+              activeDebts={activeDebts}
+              totalDebt={totalDebt}
+              prevMonthData={{
+                month: prevMonth,
+                year: prevYear,
+                transactions: prevTransactions,
+                totalIncome: prevTotalIncome,
+                totalExpense: prevTotalExpense,
+              }}
+            />
+          ) : (
+            <div className="bg-white dark:glass-panel border border-slate-200 dark:border-white/5 rounded-xl p-6 h-full w-full animate-pulse flex flex-col">
+              <div className="h-8 w-40 bg-slate-100 dark:bg-surface-bright rounded mb-6"></div>
+              <div className="flex-1 space-y-4">
+                <div className="h-4 w-full bg-slate-100 dark:bg-surface-bright rounded"></div>
+                <div className="h-4 w-full bg-slate-100 dark:bg-surface-bright rounded"></div>
+                <div className="h-4 w-3/4 bg-slate-100 dark:bg-surface-bright rounded"></div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Charts Row */}
+        <div className="col-span-12">
+          <SpendingChart transactions={transactions} categories={categories} />
+        </div>
+
+        {/* Recent Transactions Table */}
+        <div className="col-span-12 bg-white dark:glass-panel border border-slate-200 dark:border-white/5 rounded-xl p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="font-headline-md text-xl font-bold text-slate-900 dark:text-on-surface">Recent Transactions</h3>
+            <a href="/transactions" className="font-label-md text-emerald-600 dark:text-primary-fixed hover:underline flex items-center gap-1 transition-colors">
+              View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </a>
+          </div>
+          <TransactionList
+            transactions={recentTransactions}
+            loading={loading}
+            onEdit={handleEdit}
+            variant="table"
+          />
+        </div>
+
       </div>
 
       {/* FAB */}
       <button
         id="add-transaction-fab"
         onClick={() => { setEditTransaction(null); setShowTransactionForm(true); }}
-        className="fixed bottom-24 right-4 lg:bottom-8 lg:right-8 w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 transition-all duration-200 z-20"
+        className="fixed bottom-24 md:bottom-8 right-4 md:right-8 w-14 h-14 bg-emerald-500 dark:bg-primary-fixed-dim hover:bg-emerald-600 dark:hover:bg-primary-container rounded-full shadow-lg shadow-emerald-500/30 dark:shadow-[0_0_20px_rgba(0,220,229,0.3)] flex items-center justify-center text-white dark:text-on-primary-container transition-transform hover:scale-105 z-40"
       >
-        <Plus size={24} className="text-white" />
+        <span className="material-symbols-outlined text-[28px]">add</span>
       </button>
 
       {/* Modals */}

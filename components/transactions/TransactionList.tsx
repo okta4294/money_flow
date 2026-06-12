@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Trash2, TrendingUp, TrendingDown, CreditCard } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { deleteTransaction, Transaction } from "@/lib/firestore/transactions";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface TransactionListProps {
   transactions: Transaction[];
   loading: boolean;
   onEdit: (t: Transaction) => void;
+  variant?: "list" | "table";
 }
 
 function formatRupiah(amount: number) {
@@ -41,17 +42,15 @@ function groupByDate(transactions: Transaction[]): Record<string, Transaction[]>
   }, {} as Record<string, Transaction[]>);
 }
 
-/** Hitung total pengeluaran dalam satu grup hari */
 function getDailyExpense(txs: Transaction[]): number {
   return txs.filter((t) => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
 }
 
-/** Hitung total pemasukan dalam satu grup hari */
 function getDailyIncome(txs: Transaction[]): number {
   return txs.filter((t) => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
 }
 
-export function TransactionList({ transactions, loading, onEdit }: TransactionListProps) {
+export function TransactionList({ transactions, loading, onEdit, variant = "list" }: TransactionListProps) {
   const { user } = useAuth();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -66,17 +65,26 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
   };
 
   if (loading) {
+    if (variant === "table") {
+      return (
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-16 w-full bg-slate-100 dark:bg-surface-bright/50 rounded-lg animate-pulse" />
+          ))}
+        </div>
+      );
+    }
     return (
       <div className="space-y-3">
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-4 animate-pulse">
+          <div key={i} className="bg-white dark:glass-panel border border-slate-200 dark:border-white/5 rounded-xl p-4 animate-pulse">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-800" />
+              <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-surface-bright" />
               <div className="flex-1 space-y-2">
-                <div className="h-3.5 bg-slate-200 dark:bg-slate-800 rounded w-24" />
-                <div className="h-2.5 bg-slate-200 dark:bg-slate-800 rounded w-16" />
+                <div className="h-3.5 bg-slate-100 dark:bg-surface-bright rounded w-24" />
+                <div className="h-2.5 bg-slate-100 dark:bg-surface-bright rounded w-16" />
               </div>
-              <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20" />
+              <div className="h-4 bg-slate-100 dark:bg-surface-bright rounded w-20" />
             </div>
           </div>
         ))}
@@ -86,12 +94,81 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
 
   if (transactions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-4 text-2xl">
+      <motion.div 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        className="flex flex-col items-center justify-center py-16 text-center"
+      >
+        <div className="w-16 h-16 bg-slate-100 dark:bg-surface-container-high rounded-2xl flex items-center justify-center mb-4 text-2xl">
           📭
         </div>
-        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Belum ada transaksi</p>
-        <p className="text-slate-400 dark:text-slate-600 text-xs mt-1">Tambahkan transaksi pertama Anda</p>
+        <p className="font-label-md text-slate-500 dark:text-on-surface-variant font-medium">Belum ada transaksi</p>
+        <p className="font-label-sm text-slate-400 dark:text-on-surface-variant/70 mt-1">Tambahkan transaksi pertama Anda</p>
+      </motion.div>
+    );
+  }
+
+  if (variant === "table") {
+    const recentTransactions = [...transactions].sort((a, b) => {
+      const aTime = a.createdAt?.seconds || 0;
+      const bTime = b.createdAt?.seconds || 0;
+      return bTime - aTime;
+    }).slice(0, 5);
+
+    return (
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-slate-200 dark:border-white/10 text-slate-500 dark:text-on-surface-variant font-label-sm">
+              <th className="pb-3 font-medium whitespace-nowrap">Transaction</th>
+              <th className="pb-3 font-medium whitespace-nowrap">Category</th>
+              <th className="pb-3 font-medium whitespace-nowrap">Date</th>
+              <th className="pb-3 font-medium text-right whitespace-nowrap">Amount</th>
+            </tr>
+          </thead>
+          <tbody className="text-slate-900 dark:text-on-surface font-body-md">
+            {recentTransactions.map((t) => (
+              <tr 
+                key={t.id} 
+                onClick={() => onEdit(t)}
+                className="border-b border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+              >
+                <td className="py-4 flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                    t.type === "income" 
+                      ? "bg-emerald-50 dark:bg-primary-fixed/10 text-emerald-500 dark:text-primary-fixed" 
+                      : t.debtId
+                        ? "bg-amber-50 dark:bg-amber-500/10 text-amber-500"
+                        : "bg-rose-50 dark:bg-surface-container-high text-rose-500 dark:text-on-surface-variant"
+                  }`}>
+                    {t.type === "income" ? (
+                      <span className="material-symbols-outlined text-[20px]">trending_up</span>
+                    ) : t.debtId ? (
+                      <span className="material-symbols-outlined text-[20px]">credit_card</span>
+                    ) : (
+                      <span className="material-symbols-outlined text-[20px]">restaurant</span>
+                    )}
+                  </div>
+                  <div className="flex flex-col min-w-[120px]">
+                    <span className="font-semibold block truncate">{t.category}</span>
+                    {t.note && <span className="text-[11px] text-slate-500 dark:text-on-surface-variant truncate">{t.note}</span>}
+                  </div>
+                </td>
+                <td className="py-4 text-slate-500 dark:text-on-surface-variant">
+                  {t.type === "income" ? "Income" : "Expense"}
+                </td>
+                <td className="py-4 text-slate-500 dark:text-on-surface-variant whitespace-nowrap">
+                  {formatDate(t.date)}
+                </td>
+                <td className={`py-4 text-right font-medium whitespace-nowrap ${
+                  t.type === "income" ? "text-emerald-500 dark:text-primary-fixed" : "text-slate-900 dark:text-on-surface"
+                }`}>
+                  {t.type === "income" ? "+" : "-"}{formatRupiah(t.amount)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     );
   }
@@ -100,7 +177,7 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
   const sortedDates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {sortedDates.map((date) => {
         const dayTxs = grouped[date];
         const dailyExpense = getDailyExpense(dayTxs);
@@ -108,97 +185,103 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
 
         return (
           <div key={date}>
-            {/* Date Header with daily summary */}
-            <div className="flex items-center justify-between mb-2 px-1">
-              <p className="text-slate-500 text-xs font-medium">{formatDate(date)}</p>
-              <div className="flex items-center gap-2">
+            {/* Date Header */}
+            <div className="flex justify-between items-end mb-3 border-b border-slate-200 dark:border-outline-variant/10 pb-2">
+              <h3 className="font-label-sm text-slate-500 dark:text-on-surface-variant">{formatDate(date)}</h3>
+              <div className="flex gap-3 font-label-sm">
                 {dailyIncome > 0 && (
-                  <span className="text-emerald-500 text-[11px] font-semibold">
-                    +{formatRupiah(dailyIncome)}
-                  </span>
+                  <span className="text-emerald-500 dark:text-[#10b981]">+{formatRupiah(dailyIncome)}</span>
                 )}
                 {dailyExpense > 0 && (
-                  <span className="text-rose-400 text-[11px] font-semibold">
-                    -{formatRupiah(dailyExpense)}
-                  </span>
+                  <span className="text-rose-500 dark:text-[#ef4444]">- {formatRupiah(dailyExpense)}</span>
                 )}
               </div>
             </div>
 
-            <div className="space-y-2">
-              {dayTxs.map((t) => (
-                <div
-                  key={t.id}
-                  className="group bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 flex items-center gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 shadow-sm dark:shadow-none"
-                >
-                  {/* Icon */}
-                  <div
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      t.type === "income"
-                        ? "bg-emerald-500/10 text-emerald-400"
-                        : t.debtId
-                        ? "bg-amber-500/10 text-amber-400"
-                        : "bg-rose-500/10 text-rose-400"
-                    }`}
+            <div className="space-y-3">
+              <AnimatePresence>
+                {dayTxs.map((t) => (
+                  <motion.div
+                    key={t.id}
+                    layout
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    whileHover={{ scale: 1.01 }}
+                    transition={{ duration: 0.2 }}
+                    className="bg-white dark:glass-panel border border-slate-200 dark:border-transparent rounded-xl p-3 flex items-center justify-between hover:border-slate-300 dark:hover:bg-surface-container-high/50 transition-colors cursor-pointer group shadow-sm dark:shadow-none"
                   >
-                    {t.type === "income" ? (
-                      <TrendingUp size={16} />
-                    ) : t.debtId ? (
-                      <CreditCard size={16} />
-                    ) : (
-                      <TrendingDown size={16} />
-                    )}
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-slate-900 dark:text-white text-sm font-medium truncate">{t.category}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      {t.accountName && (
-                        <span className="inline-flex items-center text-[9px] font-medium px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                          {t.accountName}
-                        </span>
-                      )}
-                      {t.note && (
-                        <p className="text-slate-500 text-xs truncate">{t.note}</p>
-                      )}
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform shrink-0 ${
+                          t.type === "income"
+                            ? "bg-emerald-50 dark:bg-[#10b981]/10 text-emerald-500 dark:text-[#10b981]"
+                            : t.debtId
+                            ? "bg-amber-50 dark:bg-amber-500/10 text-amber-500"
+                            : "bg-rose-50 dark:bg-[#ef4444]/10 text-rose-500 dark:text-[#ef4444]"
+                        }`}
+                      >
+                        {t.type === "income" ? (
+                          <span className="material-symbols-outlined text-[20px]">trending_up</span>
+                        ) : t.debtId ? (
+                          <span className="material-symbols-outlined text-[20px]">credit_card</span>
+                        ) : (
+                          <span className="material-symbols-outlined text-[20px]">trending_down</span>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-body-md font-semibold text-slate-900 dark:text-on-surface">{t.category}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          {t.accountName && (
+                            <span className="bg-slate-100 dark:bg-surface-variant text-slate-600 dark:text-on-surface-variant text-[10px] px-1.5 py-0.5 rounded font-medium">
+                              {t.accountName}
+                            </span>
+                          )}
+                          {t.note && (
+                            <span className="font-label-sm text-slate-500 dark:text-on-surface-variant/70">
+                              {t.note}
+                            </span>
+                          )}
+                        </div>
+                        {t.debtId && (
+                          <p className="text-amber-500/80 dark:text-amber-500/70 text-[10px] flex items-center gap-1 mt-0.5">
+                            <span className="material-symbols-outlined text-[12px]">credit_card</span>
+                            Pembayaran hutang
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    {t.debtId && (
-                      <p className="text-amber-500/70 text-[10px] flex items-center gap-1 mt-0.5">
-                        <CreditCard size={9} />
-                        Pembayaran hutang
+
+                    <div className="flex flex-col items-end">
+                      <p
+                        className={`font-body-md font-semibold ${
+                          t.type === "income" ? "text-emerald-500 dark:text-[#10b981]" : "text-rose-500 dark:text-[#ef4444]"
+                        }`}
+                      >
+                        {t.type === "income" ? "+" : "-"}
+                        {formatRupiah(t.amount)}
                       </p>
-                    )}
-                  </div>
-
-                  {/* Amount */}
-                  <span
-                    className={`text-sm font-semibold flex-shrink-0 ${
-                      t.type === "income" ? "text-emerald-400" : "text-rose-400"
-                    }`}
-                  >
-                    {t.type === "income" ? "+" : "-"}
-                    {formatRupiah(t.amount)}
-                  </span>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-1 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => onEdit(t)}
-                      className="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-all"
-                    >
-                      <Pencil size={13} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(t.id)}
-                      disabled={deletingId === t.id}
-                      className="w-7 h-7 rounded-lg hover:bg-rose-500/10 text-slate-500 hover:text-rose-400 flex items-center justify-center transition-all"
-                    >
-                      <Trash2 size={13} />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                      
+                      {/* Actions (visible on hover) */}
+                      <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity mt-1">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onEdit(t); }}
+                          className="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-surface-variant text-slate-400 hover:text-slate-700 dark:text-on-surface-variant dark:hover:text-on-surface flex items-center justify-center transition-all"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">edit</span>
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDelete(t.id); }}
+                          disabled={deletingId === t.id}
+                          className="w-7 h-7 rounded-lg hover:bg-rose-50 dark:hover:bg-error-container/20 text-slate-400 hover:text-rose-600 dark:text-on-surface-variant dark:hover:text-error flex items-center justify-center transition-all"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">delete</span>
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           </div>
         );

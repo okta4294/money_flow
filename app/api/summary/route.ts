@@ -41,7 +41,7 @@ export async function POST(req: Request) {
           .join("\n")
       : "Tidak ada pengeluaran.";
 
-    const formattedDebts = activeDebts.length > 0 
+    const formattedDebts = activeDebts.length > 0
       ? activeDebts.map((d: any) => `- ${d.name}: Rp ${d.remainingAmount}`).join("\n")
       : "Tidak ada hutang.";
 
@@ -89,7 +89,7 @@ ${formattedTransactions}
 Rincian Hutang Aktif:
 ${formattedDebts}
 ${prevMonthSummary}
-Peran: Penasihat keuangan galak. Output: Markdown rinci. 
+Peran: Penasihat keuangan galak. Output: Markdown rinci.
 Analisis data keuangan berikut:
 1. Ringkasan Pedas: Evaluasi komprehensif performa bulan ini.
 2. Perbandingan vs Bulan Lalu: Bandingkan pengeluaran dan pemasukan bulan ini dengan bulan lalu. Beri kritik ekstra pedas jika pengeluaran membengkak atau trennya memburuk!
@@ -98,23 +98,34 @@ Analisis data keuangan berikut:
 `;
 
     let text = "";
-    try {
-      const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
-      const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: prompt }] }]
-      });
-      text = result.response.text();
-    } catch (primaryError: any) {
-      console.warn("Model 3.5-flash limit atau gagal, mencoba beralih ke 2.5-flash...", primaryError?.message);
-      
+    // Function to attempt generation with a given model name, with optional retry
+    const tryGenerate = async (modelName: string, attempt = 1, maxAttempts = 3): Promise<string> => {
       try {
-        const fallbackModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const fallbackResult = await fallbackModel.generateContent({
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent({
           contents: [{ role: "user", parts: [{ text: prompt }] }]
         });
-        text = fallbackResult.response.text();
+        return result.response.text();
+      } catch (err: any) {
+        if (attempt < maxAttempts) {
+          // wait for (2^attempt) * 500 ms before retry
+          await new Promise(res => setTimeout(res, 500 * 2 ** attempt));
+          return tryGenerate(modelName, attempt + 1, maxAttempts);
+        }
+        throw err;
+      }
+    };
+
+    try {
+      // Primary model: gemini-2.5-flash (stable)
+      text = await tryGenerate("gemini-2.5-flash");
+    } catch (primaryError: any) {
+      console.warn("Model gemini-2.5-flash limit atau gagal, mencoba fallback ke gemini-2.5-pro...", primaryError?.message);
+      try {
+        // Fallback model: gemini-2.5-pro
+        text = await tryGenerate("gemini-2.5-pro");
       } catch (fallbackError: any) {
-        throw new Error("Kedua model AI (3.5 & 2.5) sedang tidak tersedia: " + (fallbackError?.message || String(fallbackError)));
+        throw new Error("Kedua model AI (gemini-2.5-flash & gemini-2.5-pro) sedang tidak tersedia: " + (fallbackError?.message || String(fallbackError)));
       }
     }
 

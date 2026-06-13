@@ -15,8 +15,9 @@ import { motion, AnimatePresence } from "framer-motion";
 const navItems = [
   { href: "/dashboard", label: "Home", icon: "dashboard" },
   { href: "/transactions", label: "History", icon: "sync_alt" },
-  { href: "/accounts", label: "Accounts", icon: "account_balance" },
   { href: "/categories", label: "Kategori", icon: "sell" },
+  { href: "/accounts", label: "Accounts", icon: "account_balance" },
+  { href: "/debts", label: "Hutang", icon: "credit_card" },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -89,9 +90,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Link
               key={href}
               href={href}
-              className={`flex flex-col items-center justify-center w-16 transition-all duration-200 ${
+              className={`flex flex-col items-center justify-center flex-1 transition-all duration-200 ${
                 active
-                  ? "bg-emerald-50 dark:bg-secondary-container text-emerald-600 dark:text-on-secondary-container rounded-xl px-4 py-1 scale-110"
+                  ? "bg-emerald-50 dark:bg-secondary-container text-emerald-600 dark:text-on-secondary-container rounded-xl py-1 scale-105"
                   : "text-slate-400 dark:text-on-surface-variant opacity-70 hover:text-emerald-600 dark:hover:text-primary-fixed-dim"
               }`}
             >
@@ -107,7 +108,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <Sidebar />
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto w-full md:pl-[280px] pt-16 md:pt-0 pb-24 md:pb-0 relative">
+        <main className="flex-1 overflow-y-auto w-full md:pl-[280px] pt-16 md:pt-0 pb-32 md:pb-0 relative">
           <AnimatePresence mode="wait">
             <motion.div
               key={pathname}
@@ -115,7 +116,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="p-margin-mobile md:p-gutter flex flex-col gap-stack-lg max-w-container-max mx-auto h-full"
+              className="p-margin-mobile md:p-gutter flex flex-col gap-stack-lg max-w-container-max mx-auto min-h-full"
             >
               {children}
             </motion.div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Plus, CreditCard } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useCategories } from "@/hooks/useCategories";
 import { useDebts } from "@/hooks/useDebts";
@@ -167,7 +166,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
             {editData ? "Edit Transaksi" : "Tambah Transaksi"}
           </h2>
           <button onClick={onClose} className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-            <X size={20} />
+            <i className="fa-solid fa-xmark text-xl"></i>
           </button>
         </div>
 
@@ -239,10 +238,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                           : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-white shadow-sm dark:shadow-none"
                       }`}
                     >
-                      <span
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: cat.color }}
-                      />
+                      <i className={`${cat.icon && cat.icon.includes("fa-") ? cat.icon : "fa-solid fa-circle"} text-lg drop-shadow-sm`}></i>
                       <span className="truncate w-full text-center">{cat.name}</span>
                     </button>
                   ))}
@@ -307,7 +303,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           {showDebtDropdown && (
             <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="flex items-center gap-2 mb-1">
-                <CreditCard size={14} className="text-amber-400" />
+                <i className="fa-solid fa-credit-card text-amber-400 text-sm"></i>
                 <span className="text-amber-400 text-xs font-semibold">Pembayaran Hutang</span>
               </div>
 

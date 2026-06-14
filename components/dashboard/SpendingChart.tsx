@@ -32,8 +32,13 @@ interface SpendingChartProps {
 }
 
 const CHART_COLORS = [
-  "#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#ef4444",
-  "#ec4899", "#14b8a6", "#f97316", "#6366f1", "#0ea5e9",
+  "#63f7ff", // primary-fixed
+  "#a855f7", // vivid purple
+  "#00dce5", // primary-fixed-dim
+  "#d2bbff", // secondary
+  "#6001d1", // secondary-container
+  "#00f5ff", // primary-container
+  "#c9aeff", // on-secondary-container
 ];
 
 export function SpendingChart({ transactions, categories }: SpendingChartProps) {
@@ -85,13 +90,18 @@ export function SpendingChart({ transactions, categories }: SpendingChartProps) 
           legend: {
             position: "bottom",
             labels: {
-              color: "#94a3b8",
+              color: "#dae2fd", // on-surface
               padding: 12,
               font: { size: 11 },
               usePointStyle: true,
             },
           },
           tooltip: {
+            backgroundColor: "rgba(11, 19, 38, 0.9)",
+            borderColor: "rgba(99, 247, 255, 0.2)",
+            borderWidth: 1,
+            titleColor: "#ffffff",
+            bodyColor: "#b9caca",
             callbacks: {
               label: (ctx) => {
                 const val = ctx.raw as number;
@@ -140,16 +150,16 @@ export function SpendingChart({ transactions, categories }: SpendingChartProps) 
           {
             label: "Pemasukan",
             data: allLabels.map((l) => incomeByCategory[l] || 0),
-            backgroundColor: "#10b98166",
-            borderColor: "#10b981",
+            backgroundColor: "rgba(99, 247, 255, 0.4)", // primary-fixed with alpha
+            borderColor: "#63f7ff",
             borderWidth: 1.5,
             borderRadius: 6,
           },
           {
             label: "Pengeluaran",
             data: allLabels.map((l) => expenseByCategory[l] || 0),
-            backgroundColor: "#ef444466",
-            borderColor: "#ef4444",
+            backgroundColor: "rgba(255, 180, 171, 0.4)", // error with alpha
+            borderColor: "#ffb4ab",
             borderWidth: 1.5,
             borderRadius: 6,
           },
@@ -161,12 +171,17 @@ export function SpendingChart({ transactions, categories }: SpendingChartProps) 
         plugins: {
           legend: {
             labels: {
-              color: "#94a3b8",
+              color: "#dae2fd",
               font: { size: 11 },
               usePointStyle: true,
             },
           },
           tooltip: {
+            backgroundColor: "rgba(11, 19, 38, 0.9)",
+            borderColor: "rgba(99, 247, 255, 0.2)",
+            borderWidth: 1,
+            titleColor: "#ffffff",
+            bodyColor: "#b9caca",
             callbacks: {
               label: (ctx) => {
                 const val = ctx.raw as number;
@@ -177,17 +192,17 @@ export function SpendingChart({ transactions, categories }: SpendingChartProps) 
         },
         scales: {
           x: {
-            ticks: { color: "#64748b", font: { size: 10 } },
-            grid: { color: "#1e293b" },
+            ticks: { color: "#b9caca", font: { size: 10 } },
+            grid: { color: "rgba(255, 255, 255, 0.05)" },
           },
           y: {
             ticks: {
-              color: "#64748b",
+              color: "#b9caca",
               font: { size: 10 },
               callback: (v) =>
                 new Intl.NumberFormat("id-ID", { notation: "compact" }).format(v as number),
             },
-            grid: { color: "#1e293b" },
+            grid: { color: "rgba(255, 255, 255, 0.05)" },
           },
         },
       },
@@ -201,31 +216,33 @@ export function SpendingChart({ transactions, categories }: SpendingChartProps) 
   const hasData = transactions.length > 0;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-stack-lg">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-gutter mt-4">
       {/* Doughnut */}
-      <div className="glass-card rounded-xl p-6">
-        <h3 className="font-label-md text-label-md font-semibold text-on-surface mb-6">Pengeluaran per Kategori</h3>
+      <div className="glass-panel rounded-2xl p-stack-lg flex flex-col relative overflow-hidden">
+        <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-secondary-container/10 rounded-full blur-3xl"></div>
+        <h3 className="font-headline-md text-headline-md text-white mb-6 relative z-10">Pengeluaran per Kategori</h3>
         {!hasData ? (
-          <div className="h-56 flex items-center justify-center text-on-surface-variant text-sm">
+          <div className="flex-1 flex items-center justify-center relative min-h-[250px] z-10 text-on-surface-variant font-label-md">
             Belum ada data transaksi
           </div>
         ) : (
-          <div className="h-56 relative">
-            <canvas ref={doughnutRef} />
+          <div className="flex-1 flex items-center justify-center relative min-h-[250px] z-10">
+            <canvas ref={doughnutRef} className="chart-glow" />
           </div>
         )}
       </div>
 
       {/* Bar */}
-      <div className="glass-card rounded-xl p-6">
-        <h3 className="font-label-md text-label-md font-semibold text-on-surface mb-6">Pemasukan vs Pengeluaran</h3>
+      <div className="glass-panel rounded-2xl p-stack-lg flex flex-col relative overflow-hidden">
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-primary-fixed/10 rounded-full blur-3xl"></div>
+        <h3 className="font-headline-md text-headline-md text-white mb-6 relative z-10">Pemasukan vs Pengeluaran</h3>
         {!hasData ? (
-          <div className="h-56 flex items-center justify-center text-on-surface-variant text-sm">
+          <div className="flex-1 flex items-center justify-center relative min-h-[250px] z-10 text-on-surface-variant font-label-md">
             Belum ada data transaksi
           </div>
         ) : (
-          <div className="h-56 relative">
-            <canvas ref={barRef} />
+          <div className="flex-1 flex items-end justify-between gap-2 min-h-[250px] pb-4 border-b border-white/10 relative z-10">
+            <canvas ref={barRef} className="chart-glow" />
           </div>
         )}
       </div>

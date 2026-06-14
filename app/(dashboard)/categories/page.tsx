@@ -10,14 +10,14 @@ export default function CategoriesPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-white text-2xl font-bold">Kategori</h1>
-        <p className="text-slate-400 text-sm mt-0.5">
+        <h1 className="font-headline-lg-mobile md:font-headline-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-primary-fixed/70">Kategori</h1>
+        <p className="font-body-md text-on-surface-variant mt-1">
           Kelola kategori pemasukan dan pengeluaran Anda
         </p>
       </div>
 
       {/* Info Banner */}
-      <div className="bg-blue-500/5 border border-blue-500/15 rounded-xl px-4 py-3 text-blue-300 text-sm">
+      <div className="glass-panel border-l-4 border-l-primary-fixed rounded-xl px-4 py-3 text-on-surface-variant font-body-md">
         💡 Buat kategori sesuai kebutuhan Anda. Tambahkan kategori pemasukan dan pengeluaran sendiri.
       </div>
 

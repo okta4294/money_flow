@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, CreditCard, Calendar } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { addDebt, updateDebt, Debt, DebtInput } from "@/lib/firestore/debts";
 
@@ -81,14 +80,14 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-amber-500/15 flex items-center justify-center">
-              <CreditCard size={16} className="text-amber-400" />
+              <i className="fa-solid fa-credit-card text-amber-400 text-base"></i>
             </div>
             <h2 className="text-white font-semibold text-lg">
               {editData ? "Edit Hutang" : "Tambah Hutang/Paylater"}
             </h2>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
-            <X size={20} />
+            <i className="fa-solid fa-xmark text-xl"></i>
           </button>
         </div>
 
@@ -131,7 +130,7 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
           <div>
             <label className="text-slate-400 text-xs font-medium block mb-1.5">
               <span className="flex items-center gap-1.5">
-                <Calendar size={12} />
+                <i className="fa-solid fa-calendar text-[12px]"></i>
                 Jatuh Tempo (opsional)
               </span>
             </label>

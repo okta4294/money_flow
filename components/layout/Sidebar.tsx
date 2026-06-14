@@ -4,128 +4,88 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { ThemeToggle } from "./ThemeToggle";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
-  { href: "/transactions", label: "Transaksi", icon: "sync_alt" },
-  { href: "/categories", label: "Kategori", icon: "sell" },
-  { href: "/accounts", label: "Akun", icon: "account_balance" },
-  { href: "/debts", label: "Hutang", icon: "credit_card" },
+  { href: "/dashboard", label: "Dashboard", icon: "fa-solid fa-border-all" },
+  { href: "/transactions", label: "Transaksi", icon: "fa-solid fa-right-left" },
+  { href: "/categories", label: "Kategori", icon: "fa-solid fa-tags" },
+  { href: "/accounts", label: "Akun", icon: "fa-solid fa-building-columns" },
+  { href: "/debts", label: "Hutang", icon: "fa-solid fa-money-bill-trend-up" },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
-    <aside className="hidden lg:flex flex-col w-[280px] h-screen fixed left-0 top-0 bg-white dark:bg-surface-container border-r border-slate-200 dark:border-outline-variant/10 py-6 px-4 z-40 transition-colors duration-200">
-      {/* Logo */}
-      <div className="flex items-center gap-3 mb-10 px-2">
-        <div className="w-10 h-10 flex items-center justify-center">
-          <Image src="/logo.svg" alt="Money Flow Logo" width={40} height={40} className="drop-shadow-md" />
-        </div>
-        <div>
-          <h1 className="font-headline-md text-emerald-600 dark:text-primary-fixed-dim text-lg">Money Flow</h1>
-          <p className="font-label-sm text-slate-500 dark:text-on-surface-variant/60">Pencatatan Keuangan</p>
-        </div>
-      </div>
-
-      {/* Nav */}
-      <nav className="flex-1 space-y-2">
-        {navItems.map(({ href, label, icon }) => {
-          const active = pathname === href;
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                active
-                  ? "bg-emerald-50 dark:bg-secondary-container/20 text-emerald-600 dark:text-secondary-fixed-dim border border-emerald-100 dark:border-secondary-container/30"
-                  : "text-slate-500 dark:text-on-surface-variant hover:bg-slate-50 dark:hover:bg-surface-variant/50"
-              }`}
-            >
-              <span className={`material-symbols-outlined text-[20px] ${active ? "text-emerald-600 dark:text-secondary-fixed-dim" : "text-slate-500 dark:text-on-surface-variant"}`}>
-                {icon}
-              </span>
-              <span className={`font-label-md ${active ? "font-semibold" : ""}`}>{label}</span>
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* User Footer */}
-      <div className="mt-auto border-t border-slate-200 dark:border-outline-variant/10 pt-4 flex flex-col gap-2">
-        {mounted && (
-          <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-on-surface-variant hover:bg-slate-50 dark:hover:bg-surface-variant/50 transition-colors w-full"
-          >
-            <span className="material-symbols-outlined text-[18px]">
-              {theme === "dark" ? "light_mode" : "dark_mode"}
-            </span>
-            <span className="font-label-md">
-              {theme === "dark" ? "Mode Terang" : "Mode Gelap"}
-            </span>
-          </button>
-        )}
-
-        {user?.isAnonymous ? (
-          <div className="mb-2">
-            <div className="flex items-center gap-3 px-2 py-2 mb-2">
-              <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-surface-variant flex items-center justify-center text-slate-500 dark:text-on-surface-variant">
-                <span className="material-symbols-outlined">person</span>
-              </div>
-              <div className="overflow-hidden flex-1">
-                <p className="font-label-md text-slate-900 dark:text-on-surface truncate">Tamu</p>
-                <p className="font-label-sm text-slate-500 dark:text-on-surface-variant/70 truncate">Data tidak tersimpan</p>
-              </div>
-            </div>
-            <a
-              href="/login"
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-emerald-600 dark:text-primary-fixed-dim bg-emerald-50 dark:bg-primary-fixed-dim/10 hover:bg-emerald-100 dark:hover:bg-primary-fixed-dim/20 border border-emerald-200 dark:border-primary-fixed-dim/20 transition-all duration-200 mb-1"
-            >
-              Buat Akun / Masuk
-            </a>
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 px-2 py-2 mb-2">
+    <nav className="glass-panel fixed left-4 top-4 bottom-4 w-[280px] rounded-2xl z-50 flex-col justify-between hidden md:flex shadow-2xl">
+      <div className="flex flex-col gap-stack-lg p-stack-md flex-1">
+        {/* Header */}
+        <div className="flex items-center gap-stack-md px-stack-md py-4">
+          <div className="w-10 h-10 flex items-center justify-center">
             {user?.photoURL ? (
-              <Image
-                src={user.photoURL}
-                alt={user.displayName || "User"}
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-outline-variant/30"
-              />
+              <Image src={user.photoURL} alt="User Avatar" width={40} height={40} className="rounded-full border border-primary-fixed/30" />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-primary-fixed-dim flex items-center justify-center text-emerald-700 dark:text-on-primary-fixed text-lg font-bold">
-                {(user?.displayName || user?.email || "U")[0].toUpperCase()}
+              <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-lg border border-primary-fixed/30 shadow-[0_0_10px_rgba(99,247,255,0.2)]">
+                {(user?.displayName || user?.email || "M")[0].toUpperCase()}
               </div>
             )}
-            <div className="overflow-hidden">
-              <p className="font-label-md text-slate-900 dark:text-on-surface truncate">
-                {user?.displayName || "Pengguna"}
-              </p>
-              <p className="font-label-sm text-slate-500 dark:text-on-surface-variant/70 truncate">{user?.email}</p>
-            </div>
           </div>
-        )}
-        <button
-          onClick={signOut}
-          className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-on-surface-variant hover:text-red-500 dark:hover:text-error hover:bg-red-50 dark:hover:bg-error-container/10 transition-colors"
-        >
-          <span className="material-symbols-outlined text-[18px]">logout</span>
-          <span className="font-label-md">Keluar</span>
-        </button>
+          <div>
+            <h1 className="font-headline-md text-headline-md font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-fixed to-secondary-fixed drop-shadow-[0_0_5px_rgba(99,247,255,0.3)]">Money Flow</h1>
+            <p className="font-label-sm text-label-sm text-primary-fixed/60">Financial Mastery</p>
+          </div>
+        </div>
+
+        {/* Navigation Links */}
+        <ul className="flex flex-col gap-stack-sm">
+          {navItems.map(({ href, label, icon }) => {
+            const active = pathname === href;
+            return (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className={`flex items-center gap-stack-md px-stack-md py-3 rounded-xl active:scale-95 transform transition-all ${
+                    active
+                      ? "text-primary-fixed bg-primary-fixed/10 border border-primary-fixed/20 shadow-[0_0_15px_rgba(99,247,255,0.1)]"
+                      : "text-on-surface-variant hover:text-primary-fixed hover:bg-primary-fixed/5"
+                  }`}
+                >
+                  <i className={`${icon} ${active ? "text-primary-fixed" : "text-on-surface-variant"} text-xl w-6 text-center`}></i>
+                  <span className="font-label-md text-label-md">{label}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+
+        {/* CTA (Add Transaction) is moved to floating action button or handled per page, but we can keep a stub or remove it since it was handled by FAB previously */}
       </div>
-    </aside>
+
+      {/* Footer Links / User Actions */}
+      <div className="flex flex-col gap-stack-sm p-stack-md mb-4 border-t border-white/5 pt-4">
+        {user?.isAnonymous && (
+          <a
+            href="/login"
+            className="flex items-center gap-stack-md px-stack-md py-3 text-primary-fixed hover:bg-primary-fixed/5 transition-colors duration-200 rounded-xl active:scale-95 transform shadow-[0_0_10px_rgba(99,247,255,0.1)] mb-2"
+          >
+            <i className="fa-solid fa-user-plus w-6 text-center text-xl"></i>
+            <span className="font-label-md text-label-md">Buat Akun / Masuk</span>
+          </a>
+        )}
+        
+        <div className="flex items-center justify-between mt-2">
+          <ThemeToggle />
+          <button
+            onClick={signOut}
+            className="flex items-center justify-center w-10 h-10 text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors duration-200 rounded-full active:scale-95 transform"
+            title="Keluar"
+          >
+            <i className="fa-solid fa-arrow-right-from-bracket text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -17,13 +18,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="id" className={`${inter.variable} h-full`} suppressHydrationWarning>
-      <head>
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-      </head>
-      <body className="h-full overflow-hidden transition-colors duration-200 bg-slate-50 dark:bg-background text-slate-900 dark:text-on-background">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+
+      <body className="h-full overflow-hidden bg-slate-50 text-slate-900 dark:bg-[#0B1326] dark:text-[#dbe2fd] antialiased">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
+        <Script src="https://kit.fontawesome.com/9d2a010394.js" crossOrigin="anonymous" strategy="afterInteractive" />
       </body>
     </html>
   );

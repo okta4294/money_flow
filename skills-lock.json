@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "add-icon": {
+      "source": "FortAwesome/fontawesome-agent-tools",
+      "sourceType": "github",
+      "skillPath": "plugins/icons/skills/add-icon/SKILL.md",
+      "computedHash": "572cd829f86cb1db0a4fa32ff6411f0a22d21672a960f7570b95002599e98300"
+    },
+    "suggest-icon": {
+      "source": "FortAwesome/fontawesome-agent-tools",
+      "sourceType": "github",
+      "skillPath": "plugins/icons/skills/suggest-icon/SKILL.md",
+      "computedHash": "4d8af59c0d1d8b78a1e2f012028266d0083478778ed04c86a8f1e61ae50e3e1f"
+    }
+  }
+}

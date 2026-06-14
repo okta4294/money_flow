@@ -6,7 +6,6 @@ import { TransactionList } from "@/components/transactions/TransactionList";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { MonthSelector } from "@/components/layout/MonthSelector";
 import { Transaction } from "@/lib/firestore/transactions";
-import { Plus } from "lucide-react";
 
 export default function TransactionsPage() {
   const now = new Date();
@@ -34,25 +33,25 @@ export default function TransactionsPage() {
       {/* Header & Filters */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
         <div>
-          <h2 className="font-headline-lg-mobile md:font-headline-lg font-bold text-on-surface">Transaksi</h2>
+          <h2 className="font-headline-lg-mobile md:font-headline-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-primary-fixed/70">Transaksi</h2>
           <p className="font-body-md text-on-surface-variant mt-1">Semua catatan pemasukan & pengeluaran</p>
         </div>
-        <div className="flex items-center gap-2 bg-surface-container-high rounded-full p-1 border border-outline-variant/20 self-start md:self-auto">
+        <div className="flex items-center gap-2 glass-panel rounded-full p-1 self-start md:self-auto border border-white/5">
           <MonthSelector year={year} month={month} onChange={(y, m) => { setYear(y); setMonth(m); }} />
         </div>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="glass-card rounded-xl p-4 border-t border-t-[#10b981]/50 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-16 h-16 bg-[#10b981]/10 rounded-full blur-xl -mr-4 -mt-4"></div>
+        <div className="glass-panel rounded-xl p-4 border-t border-t-primary-container/30 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-24 h-24 bg-primary-fixed-dim/10 rounded-full blur-2xl"></div>
           <p className="font-label-sm text-on-surface-variant mb-1 relative z-10">Total Pemasukan</p>
-          <p className="font-headline-md font-bold text-[#10b981] relative z-10">{formatRupiah(totalIncome)}</p>
+          <p className="font-headline-md font-bold text-primary-fixed-dim drop-shadow-[0_0_10px_rgba(0,220,229,0.5)] relative z-10">{formatRupiah(totalIncome)}</p>
         </div>
-        <div className="glass-card rounded-xl p-4 border-t border-t-[#ef4444]/50 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-16 h-16 bg-[#ef4444]/10 rounded-full blur-xl -mr-4 -mt-4"></div>
+        <div className="glass-panel rounded-xl p-4 border-t border-t-error/30 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-24 h-24 bg-error/10 rounded-full blur-2xl"></div>
           <p className="font-label-sm text-on-surface-variant mb-1 relative z-10">Total Pengeluaran</p>
-          <p className="font-headline-md font-bold text-[#ef4444] relative z-10">{formatRupiah(totalExpense)}</p>
+          <p className="font-headline-md font-bold text-error drop-shadow-[0_0_10px_rgba(255,180,171,0.5)] relative z-10">{formatRupiah(totalExpense)}</p>
         </div>
       </div>
 
@@ -69,8 +68,8 @@ export default function TransactionsPage() {
                 onClick={() => setFilter(f)}
                 className={`px-4 py-1.5 rounded-full font-label-md transition-colors border whitespace-nowrap ${
                   isSelected
-                    ? "bg-secondary-container text-on-secondary-container border-secondary-container/50"
-                    : "bg-surface-container-high text-on-surface-variant hover:text-on-surface border-outline-variant/30"
+                    ? "bg-secondary-container/80 text-on-secondary-container border-secondary-container/50 shadow-[0_0_12px_rgba(96,1,209,0.4)]"
+                    : "glass-panel border-white/5 text-on-surface-variant hover:text-white"
                 }`}
               >
                 {labels[f]}
@@ -94,9 +93,9 @@ export default function TransactionsPage() {
       <button
         id="add-transaction-fab"
         onClick={() => { setEditTransaction(null); setShowForm(true); }}
-        className="fixed bottom-24 md:bottom-8 right-4 md:right-8 w-14 h-14 bg-emerald-500 dark:bg-primary-fixed-dim hover:bg-emerald-600 dark:hover:bg-primary-container rounded-full shadow-lg shadow-emerald-500/30 dark:shadow-[0_0_20px_rgba(0,220,229,0.3)] flex items-center justify-center text-white dark:text-on-primary-container transition-transform hover:scale-105 z-40"
+        className="fixed bottom-24 md:bottom-8 right-4 md:right-8 w-14 h-14 bg-gradient-to-r from-secondary-container to-primary-fixed rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(96,1,209,0.5)] hover:scale-105 transition-all z-40 border border-white/20 text-white"
       >
-        <span className="material-symbols-outlined text-[28px]">add</span>
+        <i className="fa-solid fa-plus text-2xl"></i>
       </button>
 
       <TransactionForm

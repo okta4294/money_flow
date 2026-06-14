@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, X, Landmark, Wallet, Banknote, HelpCircle } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useAccounts } from "@/hooks/useAccounts";
 import { addAccount, updateAccount, deleteAccount, AccountInput, AccountType } from "@/lib/firestore/accounts";
@@ -13,11 +12,11 @@ const COLORS = [
   "#8b5cf6", "#ec4899", "#14b8a6", "#64748b"
 ];
 
-const ACCOUNT_TYPES: { value: AccountType; label: string; icon: React.ElementType }[] = [
-  { value: "bank", label: "Bank", icon: Landmark },
-  { value: "ewallet", label: "E-Wallet", icon: Wallet },
-  { value: "cash", label: "Cash / Tunai", icon: Banknote },
-  { value: "other", label: "Lainnya", icon: HelpCircle },
+const ACCOUNT_TYPES: { value: AccountType; label: string; icon: string }[] = [
+  { value: "bank", label: "Bank", icon: "fa-solid fa-building-columns" },
+  { value: "ewallet", label: "E-Wallet", icon: "fa-solid fa-wallet" },
+  { value: "cash", label: "Cash / Tunai", icon: "fa-solid fa-money-bill-wave" },
+  { value: "other", label: "Lainnya", icon: "fa-solid fa-circle-question" },
 ];
 
 export function AccountManager() {
@@ -111,8 +110,8 @@ export function AccountManager() {
 
   const getIcon = (accType: string) => {
     const config = ACCOUNT_TYPES.find((t) => t.value === accType);
-    const Icon = config?.icon || HelpCircle;
-    return <Icon size={16} />;
+    const iconClass = config?.icon || "fa-solid fa-circle-question";
+    return <i className={`${iconClass} text-base`}></i>;
   };
 
   if (loading) {
@@ -135,7 +134,7 @@ export function AccountManager() {
           className="h-24 rounded-2xl border-2 border-dashed border-slate-800 flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-emerald-400 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all group"
         >
           <div className="w-8 h-8 rounded-full bg-slate-800 group-hover:bg-emerald-500/20 flex items-center justify-center transition-colors">
-            <Plus size={16} />
+            <i className="fa-solid fa-plus text-base"></i>
           </div>
           <span className="text-sm font-medium">Tambah Akun</span>
         </button>
@@ -180,13 +179,13 @@ export function AccountManager() {
                   onClick={() => handleOpenEdit(acc)}
                   className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg transition-all"
                 >
-                  <Pencil size={14} />
+                  <i className="fa-solid fa-pencil text-[14px]"></i>
                 </button>
                 <button
                   onClick={() => handleDelete(acc.id)}
                   className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all"
                 >
-                  <Trash2 size={14} />
+                  <i className="fa-solid fa-trash text-[14px]"></i>
                 </button>
               </div>
             </div>
@@ -204,7 +203,7 @@ export function AccountManager() {
                 {editingId ? "Edit Akun" : "Tambah Akun"}
               </h2>
               <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white">
-                <X size={20} />
+                <i className="fa-solid fa-xmark text-xl"></i>
               </button>
             </div>
 
@@ -235,7 +234,7 @@ export function AccountManager() {
                           : "bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700"
                       }`}
                     >
-                      <t.icon size={16} />
+                      <i className={`${t.icon} text-base`}></i>
                       {t.label}
                     </button>
                   ))}

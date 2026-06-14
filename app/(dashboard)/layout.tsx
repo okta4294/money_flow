@@ -11,13 +11,14 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 const navItems = [
-  { href: "/dashboard", label: "Home", icon: "dashboard" },
-  { href: "/transactions", label: "History", icon: "sync_alt" },
-  { href: "/categories", label: "Kategori", icon: "sell" },
-  { href: "/accounts", label: "Accounts", icon: "account_balance" },
-  { href: "/debts", label: "Hutang", icon: "credit_card" },
+  { href: "/dashboard", label: "Home", icon: "fa-solid fa-border-all" },
+  { href: "/transactions", label: "History", icon: "fa-solid fa-right-left" },
+  { href: "/categories", label: "Kategori", icon: "fa-solid fa-tags" },
+  { href: "/accounts", label: "Accounts", icon: "fa-solid fa-building-columns" },
+  { href: "/debts", label: "Hutang", icon: "fa-solid fa-money-bill-trend-up" },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -39,16 +40,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (loading || !user) {
     return (
-      <div className="h-screen bg-slate-50 dark:bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-emerald-500 dark:border-primary-fixed-dim border-t-transparent rounded-full animate-spin" />
+      <div className="h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary-fixed border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
     <>
-      {/* Top App Bar (Mobile) */}
-      <header className="flex justify-between items-center w-full px-margin-mobile h-16 fixed top-0 z-50 bg-white/80 dark:bg-surface/80 backdrop-blur-md border-b border-slate-200 dark:border-outline-variant/10 md:hidden transition-colors">
+      <header className="flex justify-between items-center w-full px-6 h-16 fixed top-0 z-50 glass-panel border-b border-white/10 md:hidden transition-colors">
         <div className="flex items-center gap-3">
           {user?.photoURL ? (
             <Image
@@ -56,34 +56,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               alt="User Avatar"
               width={32}
               height={32}
-              className="w-8 h-8 rounded-full border border-slate-200 dark:border-outline-variant/30 object-cover"
+              className="w-8 h-8 rounded-full border border-white/10 object-cover"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-primary-container flex items-center justify-center text-emerald-700 dark:text-on-primary-container font-bold text-sm">
+            <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-sm">
               {(user?.displayName || user?.email || "U")[0].toUpperCase()}
             </div>
           )}
-          <h1 className="font-headline-md text-[20px] font-bold text-emerald-600 dark:text-primary-fixed-dim">Money Flow</h1>
+          <h1 className="font-headline-md text-[20px] font-bold text-primary-fixed-dim drop-shadow-[0_0_8px_rgba(99,247,255,0.4)]">Money Flow</h1>
         </div>
-        <div className="flex items-center gap-1">
-          {mounted && (
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="w-10 h-10 flex items-center justify-center rounded-full text-slate-500 dark:text-primary-fixed-dim hover:bg-slate-100 dark:hover:bg-surface-variant/50 transition-colors"
-            >
-              <span className="material-symbols-outlined text-[20px]">
-                {theme === "dark" ? "light_mode" : "dark_mode"}
-              </span>
-            </button>
-          )}
-          <button className="w-10 h-10 flex items-center justify-center rounded-full text-slate-500 dark:text-primary-fixed-dim hover:bg-slate-100 dark:hover:bg-surface-variant/50 transition-colors">
-            <span className="material-symbols-outlined text-[20px]">search</span>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button className="w-10 h-10 flex items-center justify-center rounded-full text-primary-fixed hover:bg-white/5 transition-colors">
+            <i className="fa-solid fa-magnifying-glass text-xl"></i>
           </button>
         </div>
       </header>
 
-      {/* Bottom Nav Bar (Mobile) */}
-      <nav className="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-white/90 dark:bg-surface-container/90 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] border-t border-slate-200 dark:border-white/5 md:hidden transition-colors">
+      <nav className="fixed bottom-0 w-full z-50 flex justify-around items-center px-6 py-3 pb-safe glass-panel border-t border-white/10 md:hidden transition-colors">
         {navItems.map(({ href, label, icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
@@ -92,11 +82,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               href={href}
               className={`flex flex-col items-center justify-center flex-1 transition-all duration-200 ${
                 active
-                  ? "bg-emerald-50 dark:bg-secondary-container text-emerald-600 dark:text-on-secondary-container rounded-xl py-1 scale-105"
-                  : "text-slate-400 dark:text-on-surface-variant opacity-70 hover:text-emerald-600 dark:hover:text-primary-fixed-dim"
+                  ? "bg-secondary-container/20 border border-secondary-container/30 text-secondary-fixed rounded-xl py-1 scale-105 shadow-[0_0_15px_rgba(111,0,190,0.2)]"
+                  : "text-on-surface-variant opacity-70 hover:text-primary-fixed"
               }`}
             >
-              <span className="material-symbols-outlined text-[20px] mb-1">{icon}</span>
+              <i className={`${icon} text-xl mb-1`}></i>
               <span className="font-label-sm text-[10px] whitespace-nowrap">{label}</span>
             </Link>
           );
@@ -104,7 +94,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </nav>
 
       {/* Layout wrapper */}
-      <div className="h-screen bg-slate-50 dark:bg-background flex transition-colors">
+      <div className="h-screen bg-background flex transition-colors">
         <Sidebar />
 
         {/* Main Content */}
@@ -116,7 +106,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="p-margin-mobile md:p-gutter flex flex-col gap-stack-lg max-w-container-max mx-auto min-h-full"
+              className="px-6 py-6 md:p-8 flex flex-col gap-6 max-w-[1440px] mx-auto min-h-full pb-32"
             >
               {children}
             </motion.div>

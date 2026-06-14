@@ -65,25 +65,24 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col flex-1 h-full max-w-[1440px] mx-auto w-full pb-8">
       {/* Desktop Header */}
-      <div className="hidden md:flex justify-between items-end mb-6">
-        <div>
-          <h2 className="font-headline-lg font-bold text-slate-900 dark:text-primary-fixed tracking-tight">Overview</h2>
-          <p className="font-body-md text-slate-500 dark:text-on-surface-variant">Ringkasan keuangan anda</p>
+      <header className="glass-panel rounded-2xl sticky top-4 z-40 w-full justify-between items-center h-20 px-margin-desktop mb-6 hidden md:flex">
+        <div className="flex-1">
+          <h2 className="font-headline-lg text-headline-lg text-transparent bg-clip-text bg-gradient-to-r from-white to-primary-fixed/70 font-bold tracking-tight">Overview</h2>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center bg-white dark:bg-surface-container-high rounded-lg p-1 border border-slate-200 dark:border-transparent">
+        <div className="flex items-center gap-stack-md">
+          <div className="flex items-center glass-panel rounded-lg p-1 border border-white/10">
             <MonthSelector year={year} month={month} onChange={(y, m) => { setYear(y); setMonth(m); }} />
           </div>
           <button
             id="set-initial-balance-btn"
             onClick={() => setShowBalanceModal(true)}
-            className="flex items-center gap-2 bg-white dark:bg-surface-container-highest px-4 py-2 rounded-lg text-slate-700 dark:text-on-surface font-label-md border border-slate-200 dark:border-outline-variant/30 hover:bg-slate-50 dark:hover:bg-surface-variant transition-colors"
+            className="border border-primary-fixed/30 text-primary-fixed font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-primary-fixed/10 hover:shadow-[0_0_15px_rgba(99,247,255,0.2)] transition-all flex items-center gap-2"
           >
-            <span className="material-symbols-outlined text-[16px]">edit</span>
+            <i className="fa-solid fa-pencil text-sm"></i>
             Saldo Awal
           </button>
         </div>
-      </div>
+      </header>
 
       {/* Dashboard Content Grid */}
       <div className="grid grid-cols-12 gap-6 w-full">
@@ -119,12 +118,12 @@ export default function DashboardPage() {
               }}
             />
           ) : (
-            <div className="bg-white dark:glass-panel border border-slate-200 dark:border-white/5 rounded-xl p-6 h-full w-full animate-pulse flex flex-col">
-              <div className="h-8 w-40 bg-slate-100 dark:bg-surface-bright rounded mb-6"></div>
+            <div className="glass-panel rounded-2xl p-stack-lg h-full w-full animate-pulse flex flex-col">
+              <div className="h-8 w-40 bg-surface-bright rounded mb-6"></div>
               <div className="flex-1 space-y-4">
-                <div className="h-4 w-full bg-slate-100 dark:bg-surface-bright rounded"></div>
-                <div className="h-4 w-full bg-slate-100 dark:bg-surface-bright rounded"></div>
-                <div className="h-4 w-3/4 bg-slate-100 dark:bg-surface-bright rounded"></div>
+                <div className="h-4 w-full bg-surface-bright rounded"></div>
+                <div className="h-4 w-full bg-surface-bright rounded"></div>
+                <div className="h-4 w-3/4 bg-surface-bright rounded"></div>
               </div>
             </div>
           )}
@@ -136,11 +135,11 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Transactions Table */}
-        <div className="col-span-12 bg-white dark:glass-panel border border-slate-200 dark:border-white/5 rounded-xl p-6">
+        <div className="col-span-12 mt-4 glass-panel rounded-2xl p-stack-lg">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="font-headline-md text-xl font-bold text-slate-900 dark:text-on-surface">Recent Transactions</h3>
-            <a href="/transactions" className="font-label-md text-emerald-600 dark:text-primary-fixed hover:underline flex items-center gap-1 transition-colors">
-              View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+            <h3 className="font-headline-md text-headline-md text-white">Recent Transactions</h3>
+            <a href="/transactions" className="text-primary-fixed font-label-md text-label-md hover:underline drop-shadow-[0_0_5px_rgba(99,247,255,0.4)] flex items-center gap-1 transition-colors">
+              View All <i className="fa-solid fa-arrow-right text-sm"></i>
             </a>
           </div>
           <TransactionList
@@ -157,9 +156,9 @@ export default function DashboardPage() {
       <button
         id="add-transaction-fab"
         onClick={() => { setEditTransaction(null); setShowTransactionForm(true); }}
-        className="fixed bottom-24 md:bottom-8 right-4 md:right-8 w-14 h-14 bg-emerald-500 dark:bg-primary-fixed-dim hover:bg-emerald-600 dark:hover:bg-primary-container rounded-full shadow-lg shadow-emerald-500/30 dark:shadow-[0_0_20px_rgba(0,220,229,0.3)] flex items-center justify-center text-white dark:text-on-primary-container transition-transform hover:scale-105 z-40"
+        className="fixed bottom-24 md:bottom-8 right-4 md:right-8 w-14 h-14 bg-gradient-to-r from-secondary-container to-primary-fixed rounded-full shadow-[0_0_20px_rgba(96,1,209,0.5)] flex items-center justify-center text-white transition-transform hover:scale-105 z-40 border border-white/20"
       >
-        <span className="material-symbols-outlined text-[28px]">add</span>
+        <i className="fa-solid fa-plus text-2xl"></i>
       </button>
 
       {/* Modals */}

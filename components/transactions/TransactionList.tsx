@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { deleteTransaction, Transaction } from "@/lib/firestore/transactions";
+import { useCategories } from "@/hooks/useCategories";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface TransactionListProps {
@@ -52,7 +53,17 @@ function getDailyIncome(txs: Transaction[]): number {
 
 export function TransactionList({ transactions, loading, onEdit, variant = "list" }: TransactionListProps) {
   const { user } = useAuth();
+  const { incomeCategories, expenseCategories } = useCategories();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const getCategoryIcon = (t: Transaction) => {
+    const allCategories = [...incomeCategories, ...expenseCategories];
+    const cat = allCategories.find((c) => c.id === t.categoryId || c.name === t.category);
+    if (cat?.icon && cat.icon.includes("fa-")) return cat.icon;
+    if (t.type === "income") return "fa-solid fa-arrow-trend-up";
+    if (t.debtId) return "fa-solid fa-credit-card";
+    return "fa-solid fa-receipt";
+  };
 
   const handleDelete = async (id: string) => {
     if (!user || !confirm("Hapus transaksi ini?")) return;
@@ -77,14 +88,14 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
     return (
       <div className="space-y-3">
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="bg-white dark:glass-panel border border-slate-200 dark:border-white/5 rounded-xl p-4 animate-pulse">
+          <div key={i} className="glass-panel rounded-xl p-4 animate-pulse">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-surface-bright" />
+              <div className="w-10 h-10 rounded-full bg-surface-bright" />
               <div className="flex-1 space-y-2">
-                <div className="h-3.5 bg-slate-100 dark:bg-surface-bright rounded w-24" />
-                <div className="h-2.5 bg-slate-100 dark:bg-surface-bright rounded w-16" />
+                <div className="h-3.5 bg-surface-bright rounded w-24" />
+                <div className="h-2.5 bg-surface-bright rounded w-16" />
               </div>
-              <div className="h-4 bg-slate-100 dark:bg-surface-bright rounded w-20" />
+              <div className="h-4 bg-surface-bright rounded w-20" />
             </div>
           </div>
         ))}
@@ -119,49 +130,41 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-slate-200 dark:border-white/10 text-slate-500 dark:text-on-surface-variant font-label-sm">
+            <tr className="border-b border-primary-fixed/20 text-primary-fixed/70 font-label-sm text-label-sm">
               <th className="pb-3 font-medium whitespace-nowrap">Transaction</th>
-              <th className="pb-3 font-medium whitespace-nowrap">Category</th>
+              <th className="pb-3 font-medium whitespace-nowrap">Type</th>
               <th className="pb-3 font-medium whitespace-nowrap">Date</th>
               <th className="pb-3 font-medium text-right whitespace-nowrap">Amount</th>
             </tr>
           </thead>
-          <tbody className="text-slate-900 dark:text-on-surface font-body-md">
+          <tbody className="text-on-surface font-body-md">
             {recentTransactions.map((t) => (
               <tr 
                 key={t.id} 
                 onClick={() => onEdit(t)}
-                className="border-b border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer group"
               >
                 <td className="py-4 flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border ${
                     t.type === "income" 
-                      ? "bg-emerald-50 dark:bg-primary-fixed/10 text-emerald-500 dark:text-primary-fixed" 
-                      : t.debtId
-                        ? "bg-amber-50 dark:bg-amber-500/10 text-amber-500"
-                        : "bg-rose-50 dark:bg-surface-container-high text-rose-500 dark:text-on-surface-variant"
+                      ? "bg-primary-fixed/20 border-primary-fixed/30 text-primary-fixed shadow-[0_0_10px_rgba(99,247,255,0.2)]" 
+                      : "bg-surface-container-lowest/60 border-white/10 text-on-surface-variant"
                   }`}>
-                    {t.type === "income" ? (
-                      <span className="material-symbols-outlined text-[20px]">trending_up</span>
-                    ) : t.debtId ? (
-                      <span className="material-symbols-outlined text-[20px]">credit_card</span>
-                    ) : (
-                      <span className="material-symbols-outlined text-[20px]">restaurant</span>
-                    )}
+                    <i className={`${getCategoryIcon(t)} text-lg`}></i>
                   </div>
                   <div className="flex flex-col min-w-[120px]">
-                    <span className="font-semibold block truncate">{t.category}</span>
-                    {t.note && <span className="text-[11px] text-slate-500 dark:text-on-surface-variant truncate">{t.note}</span>}
+                    <span className="text-white block truncate">{t.category}</span>
+                    {t.note && <span className="text-[11px] text-on-surface-variant truncate">{t.note}</span>}
                   </div>
                 </td>
-                <td className="py-4 text-slate-500 dark:text-on-surface-variant">
+                <td className="py-4 text-on-surface-variant">
                   {t.type === "income" ? "Income" : "Expense"}
                 </td>
-                <td className="py-4 text-slate-500 dark:text-on-surface-variant whitespace-nowrap">
+                <td className="py-4 text-on-surface-variant whitespace-nowrap">
                   {formatDate(t.date)}
                 </td>
                 <td className={`py-4 text-right font-medium whitespace-nowrap ${
-                  t.type === "income" ? "text-emerald-500 dark:text-primary-fixed" : "text-slate-900 dark:text-on-surface"
+                  t.type === "income" ? "text-primary-fixed drop-shadow-[0_0_8px_rgba(99,247,255,0.4)]" : "text-error drop-shadow-[0_0_5px_rgba(255,180,171,0.3)]"
                 }`}>
                   {t.type === "income" ? "+" : "-"}{formatRupiah(t.amount)}
                 </td>
@@ -186,14 +189,14 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
         return (
           <div key={date}>
             {/* Date Header */}
-            <div className="flex justify-between items-end mb-3 border-b border-slate-200 dark:border-outline-variant/10 pb-2">
-              <h3 className="font-label-sm text-slate-500 dark:text-on-surface-variant">{formatDate(date)}</h3>
+            <div className="flex justify-between items-end mb-3 border-b border-white/10 pb-2">
+              <h3 className="font-label-sm text-on-surface-variant">{formatDate(date)}</h3>
               <div className="flex gap-3 font-label-sm">
                 {dailyIncome > 0 && (
-                  <span className="text-emerald-500 dark:text-[#10b981]">+{formatRupiah(dailyIncome)}</span>
+                  <span className="text-primary-fixed">+{formatRupiah(dailyIncome)}</span>
                 )}
                 {dailyExpense > 0 && (
-                  <span className="text-rose-500 dark:text-[#ef4444]">- {formatRupiah(dailyExpense)}</span>
+                  <span className="text-error">- {formatRupiah(dailyExpense)}</span>
                 )}
               </div>
             </div>
@@ -209,43 +212,35 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
                     exit={{ opacity: 0, scale: 0.95 }}
                     whileHover={{ scale: 1.01 }}
                     transition={{ duration: 0.2 }}
-                    className="bg-white dark:glass-panel border border-slate-200 dark:border-transparent rounded-xl p-3 flex items-center justify-between hover:border-slate-300 dark:hover:bg-surface-container-high/50 transition-colors cursor-pointer group shadow-sm dark:shadow-none"
+                    className="glass-panel rounded-xl p-3 flex items-center justify-between hover:bg-white/5 transition-colors cursor-pointer group shadow-sm border border-white/5"
                   >
                     <div className="flex items-center gap-4">
                       <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform shrink-0 ${
+                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform shrink-0 border ${
                           t.type === "income"
-                            ? "bg-emerald-50 dark:bg-[#10b981]/10 text-emerald-500 dark:text-[#10b981]"
-                            : t.debtId
-                            ? "bg-amber-50 dark:bg-amber-500/10 text-amber-500"
-                            : "bg-rose-50 dark:bg-[#ef4444]/10 text-rose-500 dark:text-[#ef4444]"
+                            ? "bg-primary-fixed/20 border-primary-fixed/30 text-primary-fixed shadow-[0_0_10px_rgba(99,247,255,0.2)]"
+                            : "bg-surface-container-lowest/60 border-white/10 text-on-surface-variant"
                         }`}
                       >
-                        {t.type === "income" ? (
-                          <span className="material-symbols-outlined text-[20px]">trending_up</span>
-                        ) : t.debtId ? (
-                          <span className="material-symbols-outlined text-[20px]">credit_card</span>
-                        ) : (
-                          <span className="material-symbols-outlined text-[20px]">trending_down</span>
-                        )}
+                        <i className={`${getCategoryIcon(t)} text-lg`}></i>
                       </div>
                       <div>
-                        <p className="font-body-md font-semibold text-slate-900 dark:text-on-surface">{t.category}</p>
+                        <p className="font-body-md text-white">{t.category}</p>
                         <div className="flex items-center gap-2 mt-0.5">
                           {t.accountName && (
-                            <span className="bg-slate-100 dark:bg-surface-variant text-slate-600 dark:text-on-surface-variant text-[10px] px-1.5 py-0.5 rounded font-medium">
+                            <span className="bg-surface-variant text-on-surface-variant text-[10px] px-1.5 py-0.5 rounded font-medium">
                               {t.accountName}
                             </span>
                           )}
                           {t.note && (
-                            <span className="font-label-sm text-slate-500 dark:text-on-surface-variant/70">
+                            <span className="font-label-sm text-on-surface-variant/70">
                               {t.note}
                             </span>
                           )}
                         </div>
                         {t.debtId && (
-                          <p className="text-amber-500/80 dark:text-amber-500/70 text-[10px] flex items-center gap-1 mt-0.5">
-                            <span className="material-symbols-outlined text-[12px]">credit_card</span>
+                          <p className="text-secondary-fixed-dim text-[10px] flex items-center gap-1 mt-0.5">
+                            <i className="fa-solid fa-credit-card"></i>
                             Pembayaran hutang
                           </p>
                         )}
@@ -254,8 +249,8 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
 
                     <div className="flex flex-col items-end">
                       <p
-                        className={`font-body-md font-semibold ${
-                          t.type === "income" ? "text-emerald-500 dark:text-[#10b981]" : "text-rose-500 dark:text-[#ef4444]"
+                        className={`font-body-md font-medium ${
+                          t.type === "income" ? "text-primary-fixed drop-shadow-[0_0_8px_rgba(99,247,255,0.4)]" : "text-error drop-shadow-[0_0_5px_rgba(255,180,171,0.3)]"
                         }`}
                       >
                         {t.type === "income" ? "+" : "-"}
@@ -266,16 +261,16 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
                       <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity mt-1">
                         <button
                           onClick={(e) => { e.stopPropagation(); onEdit(t); }}
-                          className="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-surface-variant text-slate-400 hover:text-slate-700 dark:text-on-surface-variant dark:hover:text-on-surface flex items-center justify-center transition-all"
+                          className="w-7 h-7 rounded-lg hover:bg-surface-variant text-on-surface-variant hover:text-white flex items-center justify-center transition-all"
                         >
-                          <span className="material-symbols-outlined text-[16px]">edit</span>
+                          <i className="fa-solid fa-pencil text-[14px]"></i>
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); handleDelete(t.id); }}
                           disabled={deletingId === t.id}
-                          className="w-7 h-7 rounded-lg hover:bg-rose-50 dark:hover:bg-error-container/20 text-slate-400 hover:text-rose-600 dark:text-on-surface-variant dark:hover:text-error flex items-center justify-center transition-all"
+                          className="w-7 h-7 rounded-lg hover:bg-error/20 text-on-surface-variant hover:text-error flex items-center justify-center transition-all"
                         >
-                          <span className="material-symbols-outlined text-[16px]">delete</span>
+                          <i className="fa-solid fa-trash text-[14px]"></i>
                         </button>
                       </div>
                     </div>

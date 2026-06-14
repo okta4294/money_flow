@@ -1,6 +1,5 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const MONTHS = [
   "Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -36,7 +35,7 @@ export function MonthSelector({ year, month, onChange }: MonthSelectorProps) {
         onClick={prev}
         className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-variant text-on-surface hover:bg-surface-variant/80 transition-colors"
       >
-        <ChevronLeft size={16} />
+        <i className="fa-solid fa-chevron-left text-sm"></i>
       </button>
 
       <div className="flex items-center px-2">
@@ -56,7 +55,7 @@ export function MonthSelector({ year, month, onChange }: MonthSelectorProps) {
         disabled={isCurrentMonth}
         className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-variant text-on-surface hover:bg-surface-variant/80 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
-        <ChevronRight size={16} />
+        <i className="fa-solid fa-chevron-right text-sm"></i>
       </button>
     </div>
   );

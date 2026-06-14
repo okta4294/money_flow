@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { X, PiggyBank } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { setInitialBalance } from "@/lib/firestore/balances";
 
@@ -66,12 +65,12 @@ export function InitialBalanceModal({
           onClick={onClose}
           className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
         >
-          <X size={20} />
+          <i className="fa-solid fa-xmark text-xl"></i>
         </button>
 
         {/* Icon */}
         <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-4">
-          <PiggyBank size={24} className="text-emerald-400" />
+          <i className="fa-solid fa-piggy-bank text-emerald-400 text-2xl"></i>
         </div>
 
         <h2 className="text-slate-900 dark:text-white font-semibold text-lg mb-1">Saldo Awal</h2>

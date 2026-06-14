@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Trash2, CreditCard, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { deleteDebt, Debt } from "@/lib/firestore/debts";
 
@@ -36,16 +35,16 @@ function isOverdue(dueDate?: string): boolean {
 function ProgressBar({ paid, total }: { paid: number; total: number }) {
   const pct = total > 0 ? Math.min((paid / total) * 100, 100) : 0;
   return (
-    <div className="w-full bg-slate-800 rounded-full h-1.5 mt-2.5">
+    <div className="w-full bg-surface-container-high rounded-full h-1.5 mt-2.5 overflow-hidden">
       <div
-        className="h-1.5 rounded-full transition-all duration-500"
+        className="h-1.5 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(99,247,255,0.4)]"
         style={{
           width: `${pct}%`,
           background: pct >= 100
-            ? "linear-gradient(90deg, #10b981, #059669)"
+            ? "linear-gradient(90deg, #00dce5, #63f7ff)" // primary-fixed
             : pct > 50
-            ? "linear-gradient(90deg, #f59e0b, #d97706)"
-            : "linear-gradient(90deg, #ef4444, #dc2626)",
+            ? "linear-gradient(90deg, #6001d1, #d2bbff)" // secondary
+            : "linear-gradient(90deg, #93000a, #ffb4ab)", // error
         }}
       />
     </div>
@@ -70,16 +69,16 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
     return (
       <div className="space-y-3">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 animate-pulse">
+          <div key={i} className="glass-panel border border-white/5 rounded-xl p-4 animate-pulse">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-slate-800" />
+              <div className="w-10 h-10 rounded-xl bg-surface-bright" />
               <div className="flex-1 space-y-2">
-                <div className="h-3.5 bg-slate-800 rounded w-28" />
-                <div className="h-2.5 bg-slate-800 rounded w-20" />
+                <div className="h-3.5 bg-surface-bright rounded w-28" />
+                <div className="h-2.5 bg-surface-bright rounded w-20" />
               </div>
-              <div className="h-5 bg-slate-800 rounded w-24" />
+              <div className="h-5 bg-surface-bright rounded w-24" />
             </div>
-            <div className="h-1.5 bg-slate-800 rounded-full mt-4" />
+            <div className="h-1.5 bg-surface-bright rounded-full mt-4" />
           </div>
         ))}
       </div>
@@ -89,13 +88,13 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
   if (debts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-4 text-2xl">
+        <div className="w-16 h-16 bg-surface-container-high border border-white/5 rounded-2xl flex items-center justify-center mb-4 text-2xl">
           {filter === "paid" ? "✅" : "🎉"}
         </div>
-        <p className="text-slate-400 text-sm font-medium">
+        <p className="text-on-surface-variant text-sm font-medium">
           {filter === "paid" ? "Belum ada hutang yang lunas" : "Tidak ada hutang aktif"}
         </p>
-        <p className="text-slate-600 text-xs mt-1">
+        <p className="text-on-surface-variant/70 text-xs mt-1">
           {filter === "paid" ? "Bayar hutang untuk melihat riwayatnya" : "Tambah hutang/paylater Anda di sini"}
         </p>
       </div>
@@ -114,24 +113,24 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
         return (
           <div
             key={debt.id}
-            className={`group bg-slate-900/50 border rounded-xl p-4 hover:border-slate-700 transition-all duration-200 ${
+            className={`group glass-panel border rounded-xl p-4 transition-all duration-200 ${
               isPaid
-                ? "border-emerald-500/20"
+                ? "border-primary-fixed/20 hover:border-primary-fixed/40"
                 : overdue
-                ? "border-red-500/30"
-                : "border-slate-800"
+                ? "border-error/30 hover:border-error/50"
+                : "border-white/5 hover:border-white/20"
             }`}
           >
             <div className="flex items-start gap-3">
               {/* Icon */}
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                isPaid ? "bg-emerald-500/10" : overdue ? "bg-red-500/10" : "bg-amber-500/10"
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border ${
+                isPaid ? "bg-primary-fixed/10 border-primary-fixed/20 text-primary-fixed shadow-[0_0_10px_rgba(99,247,255,0.2)]" : overdue ? "bg-error/10 border-error/20 text-error shadow-[0_0_10px_rgba(255,180,171,0.2)]" : "bg-white/5 border-white/10 text-white"
               }`}>
                 {isPaid
-                  ? <CheckCircle2 size={18} className="text-emerald-400" />
+                  ? <i className="fa-solid fa-circle-check text-lg"></i>
                   : overdue
-                  ? <AlertTriangle size={18} className="text-red-400" />
-                  : <CreditCard size={18} className="text-amber-400" />
+                  ? <i className="fa-solid fa-triangle-exclamation text-lg"></i>
+                  : <i className="fa-solid fa-credit-card text-lg"></i>
                 }
               </div>
 
@@ -142,16 +141,16 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                     <p className="text-white text-sm font-medium truncate">{debt.name}</p>
                     <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                       {debt.dueDate && (
-                        <span className={`flex items-center gap-1 text-xs ${
-                          overdue && !isPaid ? "text-red-400" : "text-slate-500"
+                        <span className={`flex items-center gap-1 text-[11px] ${
+                          overdue && !isPaid ? "text-error" : "text-on-surface-variant"
                         }`}>
-                          <Clock size={10} />
+                          <i className="fa-solid fa-clock text-[10px]"></i>
                           {formatDate(debt.dueDate)}
                           {overdue && !isPaid && " · Terlambat!"}
                         </span>
                       )}
                       {debt.note && (
-                        <span className="text-slate-600 text-xs truncate max-w-[140px]">{debt.note}</span>
+                        <span className="text-on-surface-variant/70 text-[11px] truncate max-w-[140px]">{debt.note}</span>
                       )}
                     </div>
                   </div>
@@ -160,16 +159,16 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                   <div className="flex items-center gap-1 flex-shrink-0 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => onEdit(debt)}
-                      className="w-7 h-7 rounded-lg hover:bg-slate-700 text-slate-500 hover:text-white flex items-center justify-center transition-all"
+                      className="w-7 h-7 rounded-lg hover:bg-surface-variant text-on-surface-variant hover:text-white flex items-center justify-center transition-all border border-transparent hover:border-white/10"
                     >
-                      <Pencil size={13} />
+                      <i className="fa-solid fa-pencil text-[13px]"></i>
                     </button>
                     <button
                       onClick={() => handleDelete(debt)}
                       disabled={deletingId === debt.id}
-                      className="w-7 h-7 rounded-lg hover:bg-rose-500/10 text-slate-500 hover:text-rose-400 flex items-center justify-center transition-all"
+                      className="w-7 h-7 rounded-lg hover:bg-error/20 text-on-surface-variant hover:text-error flex items-center justify-center transition-all border border-transparent hover:border-error/20"
                     >
-                      <Trash2 size={13} />
+                      <i className="fa-solid fa-trash text-[13px]"></i>
                     </button>
                   </div>
                 </div>
@@ -177,17 +176,17 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                 {/* Amounts */}
                 <div className="flex items-baseline justify-between mt-2.5">
                   <div>
-                    <span className="text-slate-500 text-[10px]">Sudah bayar </span>
-                    <span className="text-emerald-400 text-xs font-semibold">
+                    <span className="text-on-surface-variant text-[10px]">Sudah bayar </span>
+                    <span className="text-primary-fixed-dim text-xs font-semibold drop-shadow-[0_0_5px_rgba(0,220,229,0.3)]">
                       {formatRupiah(debt.paidAmount)}
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-slate-500 text-[10px]">Sisa </span>
-                    <span className={`text-sm font-bold ${isPaid ? "text-emerald-400" : "text-amber-400"}`}>
+                    <span className="text-on-surface-variant text-[10px]">Sisa </span>
+                    <span className={`text-sm font-bold ${isPaid ? "text-primary-fixed-dim drop-shadow-[0_0_5px_rgba(0,220,229,0.3)]" : "text-white"}`}>
                       {formatRupiah(debt.remainingAmount)}
                     </span>
-                    <span className="text-slate-600 text-[10px]"> / {formatRupiah(debt.totalAmount)}</span>
+                    <span className="text-on-surface-variant/70 text-[10px]"> / {formatRupiah(debt.totalAmount)}</span>
                   </div>
                 </div>
 
@@ -196,11 +195,11 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
 
                 {/* Percentage */}
                 <div className="flex justify-between mt-1">
-                  <span className="text-slate-600 text-[10px]">
+                  <span className="text-on-surface-variant/70 text-[10px]">
                     {isPaid ? "✓ Lunas" : `${Math.round(pct)}% terbayar`}
                   </span>
                   {isPaid && (
-                    <span className="text-emerald-500 text-[10px] font-medium">Selesai</span>
+                    <span className="text-primary-fixed text-[10px] font-medium">Selesai</span>
                   )}
                 </div>
               </div>

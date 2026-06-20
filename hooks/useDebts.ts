@@ -29,5 +29,18 @@ export function useDebts() {
   const paidDebts = debts.filter((d) => d.status === "paid");
   const totalDebt = activeDebts.reduce((sum, d) => sum + d.remainingAmount, 0);
 
-  return { debts, activeDebts, paidDebts, totalDebt, loading };
+  // Estimasi hutang jatuh tempo bulan depan — hanya yang ada dueDate
+  const now = new Date();
+  const nextMonth = now.getMonth() + 2; // getMonth() 0-indexed, bulan depan = +2
+  const nextYear = nextMonth > 12 ? now.getFullYear() + 1 : now.getFullYear();
+  const normalizedNextMonth = nextMonth > 12 ? 1 : nextMonth;
+  const nextMonthDebtEstimate = activeDebts
+    .filter((d) => {
+      if (!d.dueDate) return false;
+      const due = new Date(d.dueDate + "T00:00:00");
+      return due.getFullYear() === nextYear && due.getMonth() + 1 === normalizedNextMonth;
+    })
+    .reduce((sum, d) => sum + d.remainingAmount, 0);
+
+  return { debts, activeDebts, paidDebts, totalDebt, nextMonthDebtEstimate, loading };
 }

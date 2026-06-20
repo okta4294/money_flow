@@ -15,7 +15,7 @@ function formatRupiah(n: number) {
 }
 
 export default function DebtsPage() {
-  const { debts, activeDebts, paidDebts, totalDebt, loading } = useDebts();
+  const { debts, activeDebts, paidDebts, totalDebt, nextMonthDebtEstimate, loading } = useDebts();
   const [showForm, setShowForm] = useState(false);
   const [editDebt, setEditDebt] = useState<Debt | null>(null);
   const [filter, setFilter] = useState<"active" | "paid" | "all">("active");
@@ -50,7 +50,7 @@ export default function DebtsPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         {/* Total Sisa */}
         <div className="glass-panel border-t border-t-error/30 rounded-2xl p-5 relative overflow-hidden">
           <div className="absolute -top-4 -right-4 w-20 h-20 bg-error/10 rounded-full blur-2xl" />
@@ -100,6 +100,27 @@ export default function DebtsPage() {
             <span className="font-headline-md font-bold text-white relative z-10">{formatRupiah(totalOriginal)}</span>
           )}
           <p className="font-label-sm text-on-surface-variant/70 mt-1 relative z-10">{debts.length} total hutang tercatat</p>
+        </div>
+
+        {/* Estimasi Tagihan Bulan Depan */}
+        <div className="glass-panel border-t border-t-amber-500/30 rounded-2xl p-5 relative overflow-hidden">
+          <div className="absolute -top-4 -right-4 w-20 h-20 bg-amber-500/10 rounded-full blur-2xl" />
+          <div className="flex items-center justify-between mb-3 relative z-10">
+            <span className="font-label-sm text-on-surface-variant">Estimasi Bulan Depan</span>
+            <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+              <i className="fa-solid fa-calendar-days text-amber-400 text-lg"></i>
+            </div>
+          </div>
+          {loading ? (
+            <div className="h-8 w-32 bg-surface-bright rounded-lg animate-pulse relative z-10" />
+          ) : nextMonthDebtEstimate > 0 ? (
+            <span className="font-headline-md font-bold text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.4)] relative z-10">{formatRupiah(nextMonthDebtEstimate)}</span>
+          ) : (
+            <span className="font-headline-md font-bold text-on-surface-variant relative z-10">Rp 0</span>
+          )}
+          <p className="font-label-sm text-on-surface-variant/70 mt-1 relative z-10">
+            {nextMonthDebtEstimate > 0 ? "hutang jatuh tempo bulan depan" : "tidak ada jatuh tempo"}
+          </p>
         </div>
       </div>
 

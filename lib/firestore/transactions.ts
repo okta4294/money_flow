@@ -15,7 +15,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 
-export type TransactionType = "income" | "expense";
+export type TransactionType = "income" | "expense" | "transfer";
 
 export interface Transaction {
   id: string;
@@ -28,8 +28,10 @@ export interface Transaction {
   createdAt: Timestamp;
   debtId?: string;
   debtPaymentAmount?: number;
-  accountId?: string;    // ID akun sumber dana (opsional)
-  accountName?: string;  // Nama akun sumber dana
+  accountId?: string;             // ID akun sumber dana
+  accountName?: string;           // Nama akun sumber dana
+  destinationAccountId?: string;  // ID akun tujuan (transfer)
+  destinationAccountName?: string; // Nama akun tujuan (transfer)
 }
 
 export interface TransactionInput {
@@ -39,10 +41,12 @@ export interface TransactionInput {
   categoryId: string;
   note: string;
   date: string;
-  debtId?: string;           // ID hutang yang dibayar (opsional)
-  debtPaymentAmount?: number; // Nominal yang dialokasikan untuk hutang ini
+  debtId?: string;              // ID hutang yang dibayar (opsional)
+  debtPaymentAmount?: number;   // Nominal yang dialokasikan untuk hutang ini
   accountId?: string;
   accountName?: string;
+  destinationAccountId?: string;
+  destinationAccountName?: string;
 }
 
 const transactionsRef = (userId: string) =>

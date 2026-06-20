@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useAccounts } from "@/hooks/useAccounts";
 import { addAccount, updateAccount, deleteAccount, AccountInput, AccountType } from "@/lib/firestore/accounts";
-import { collection, query, where, getAggregateFromServer, sum } from "firebase/firestore";
+import { collection, query, where, getAggregateFromServer, sum, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 const COLORS = [
@@ -38,21 +38,28 @@ export function AccountManager() {
     const fetchBalances = async () => {
       const newBalances: Record<string, number> = {};
       
-      // Calculate balances sequentially or concurrently
       await Promise.all(accounts.map(async (acc) => {
         const transactionsRef = collection(db, "users", user.uid, "transactions");
         
-        // Income for this account
         const qIncome = query(transactionsRef, where("accountId", "==", acc.id), where("type", "==", "income"));
-        const snapIncome = await getAggregateFromServer(qIncome, { total: sum("amount") });
-        const income = snapIncome.data().total || 0;
-
-        // Expense for this account
         const qExpense = query(transactionsRef, where("accountId", "==", acc.id), where("type", "==", "expense"));
-        const snapExpense = await getAggregateFromServer(qExpense, { total: sum("amount") });
-        const expense = snapExpense.data().total || 0;
+        // ponytail: transfer pakai getDocs + sum client-side untuk hindari composite index
+        const qTransferOut = query(transactionsRef, where("accountId", "==", acc.id), where("type", "==", "transfer"));
+        const qTransferIn = query(transactionsRef, where("destinationAccountId", "==", acc.id));
 
-        newBalances[acc.id] = income - expense;
+        const [snapIncome, snapExpense, snapTrOut, snapTrIn] = await Promise.all([
+          getAggregateFromServer(qIncome, { total: sum("amount") }),
+          getAggregateFromServer(qExpense, { total: sum("amount") }),
+          getDocs(qTransferOut),
+          getDocs(qTransferIn),
+        ]);
+
+        const income = snapIncome.data().total || 0;
+        const expense = snapExpense.data().total || 0;
+        const transferOut = snapTrOut.docs.reduce((s, d) => s + (d.data().amount || 0), 0);
+        const transferIn = snapTrIn.docs.reduce((s, d) => s + (d.data().amount || 0), 0);
+
+        newBalances[acc.id] = income - expense - transferOut + transferIn;
       }));
 
       setBalances(newBalances);

@@ -42,10 +42,11 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
   const now = new Date();
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
-  const [type, setType] = useState<"income" | "expense">("expense");
+  const [type, setType] = useState<"income" | "expense" | "transfer">("expense");
   const [amount, setAmount] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [accountId, setAccountId] = useState("");
+  const [destinationAccountId, setDestinationAccountId] = useState("");
   const [note, setNote] = useState("");
   const [date, setDate] = useState(today);
   const [loading, setLoading] = useState(false);
@@ -63,6 +64,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
       setAmount(editData.amount.toString());
       setCategoryId(editData.categoryId);
       setAccountId(editData.accountId || "");
+      setDestinationAccountId(editData.destinationAccountId || "");
       setNote(editData.note || "");
       setDate(editData.date);
       setSelectedDebtId(editData.debtId || "");
@@ -72,6 +74,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
       setAmount("");
       setCategoryId("");
       setAccountId("");
+      setDestinationAccountId("");
       setNote("");
       setDate(today);
       setSelectedDebtId("");
@@ -85,6 +88,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
       setCategoryId("");
       setSelectedDebtId("");
       setDebtPaymentAmount("");
+      setDestinationAccountId("");
     }
   }, [type]);
 
@@ -115,26 +119,38 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
     e.preventDefault();
     if (!user) return;
     if (numericAmount <= 0) { setError("Masukkan jumlah yang valid"); return; }
-    if (!categoryId) { setError("Pilih kategori"); return; }
-    if (showDebtDropdown && selectedDebtId && numericDebtPayment <= 0) {
-      setError("Masukkan nominal pembayaran hutang");
-      return;
+
+    if (type === "transfer") {
+      if (!accountId) { setError("Pilih akun sumber"); return; }
+      if (!destinationAccountId) { setError("Pilih akun tujuan"); return; }
+      if (accountId === destinationAccountId) { setError("Akun sumber dan tujuan tidak boleh sama"); return; }
+    } else {
+      if (!categoryId) { setError("Pilih kategori"); return; }
+      if (showDebtDropdown && selectedDebtId && numericDebtPayment <= 0) {
+        setError("Masukkan nominal pembayaran hutang");
+        return;
+      }
     }
 
     setError("");
     setLoading(true);
     try {
       const selectedAccount = accounts.find((a) => a.id === accountId);
+      const selectedDestAccount = accounts.find((a) => a.id === destinationAccountId);
 
       const data: TransactionInput = {
         amount: numericAmount,
         type,
-        category: selectedCategory?.name || "",
-        categoryId,
+        // ponytail: transfer tidak pakai category/categoryId, kosongkan saja
+        category: type === "transfer" ? "Transfer" : (selectedCategory?.name || ""),
+        categoryId: type === "transfer" ? "" : categoryId,
         note,
         date,
         ...(accountId ? { accountId, accountName: selectedAccount?.name } : {}),
-        ...(showDebtDropdown && selectedDebtId
+        ...(type === "transfer" && destinationAccountId
+          ? { destinationAccountId, destinationAccountName: selectedDestAccount?.name }
+          : {}),
+        ...(type !== "transfer" && showDebtDropdown && selectedDebtId
           ? { debtId: selectedDebtId, debtPaymentAmount: numericDebtPayment }
           : {}),
       };
@@ -143,8 +159,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
         await updateTransaction(user.uid, editData.id, data);
       } else {
         await addTransaction(user.uid, data);
-        // Pay down the selected debt if chosen
-        if (showDebtDropdown && selectedDebtId && numericDebtPayment > 0) {
+        if (type !== "transfer" && showDebtDropdown && selectedDebtId && numericDebtPayment > 0) {
           await payDebt(user.uid, selectedDebtId, numericDebtPayment);
         }
       }
@@ -194,6 +209,17 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           >
             Pemasukan
           </button>
+          <button
+            type="button"
+            onClick={() => setType("transfer")}
+            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+              type === "transfer"
+                ? "bg-sky-50 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-500/30"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            }`}
+          >
+            Transfer
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -214,7 +240,8 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
             </div>
           </div>
 
-          {/* Category */}
+          {/* Category — hanya untuk income/expense */}
+          {type !== "transfer" && (
           <div>
             <label className="text-slate-500 dark:text-slate-400 text-xs font-medium block mb-1.5">Kategori</label>
             {categories.length === 0 ? (
@@ -246,8 +273,79 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
               </div>
             )}
           </div>
+          )}
 
-          {/* Account Source / Destination */}
+          {/* Transfer UI — pilih sumber & tujuan */}
+          {type === "transfer" ? (
+            <div className="bg-sky-500/5 border border-sky-500/20 rounded-xl p-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="flex items-center gap-2 mb-1">
+                <i className="fa-solid fa-right-left text-sky-400 text-sm"></i>
+                <span className="text-sky-400 text-xs font-semibold">Transfer Antar Akun</span>
+              </div>
+              {accounts.length < 2 ? (
+                <div className="text-center py-2">
+                  <p className="text-slate-500 text-xs">Butuh minimal 2 akun untuk transfer</p>
+                  <a href="/accounts" className="text-sky-400 text-xs hover:underline mt-1 block">+ Tambah akun</a>
+                </div>
+              ) : (
+                <>
+                  {/* Sumber */}
+                  <div>
+                    <label className="text-slate-400 text-xs font-medium block mb-1.5">Dari Akun <span className="text-rose-400">*</span></label>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {accounts.map((acc) => (
+                        <button
+                          key={acc.id}
+                          type="button"
+                          onClick={() => setAccountId(acc.id)}
+                          className={`flex flex-col items-center gap-1 py-1.5 px-1 rounded-lg border text-[11px] font-medium transition-all duration-150 ${
+                            accountId === acc.id
+                              ? "border-sky-500/50 bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400"
+                              : destinationAccountId === acc.id
+                              ? "border-slate-300 dark:border-slate-600 opacity-40 cursor-not-allowed bg-white dark:bg-slate-800/50 text-slate-400"
+                              : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600"
+                          }`}
+                          disabled={destinationAccountId === acc.id}
+                        >
+                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: acc.color }} />
+                          <span className="truncate w-full text-center">{acc.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Panah */}
+                  <div className="flex items-center justify-center">
+                    <i className="fa-solid fa-arrow-down text-sky-400/60 text-sm"></i>
+                  </div>
+                  {/* Tujuan */}
+                  <div>
+                    <label className="text-slate-400 text-xs font-medium block mb-1.5">Ke Akun <span className="text-rose-400">*</span></label>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {accounts.map((acc) => (
+                        <button
+                          key={acc.id}
+                          type="button"
+                          onClick={() => setDestinationAccountId(acc.id)}
+                          className={`flex flex-col items-center gap-1 py-1.5 px-1 rounded-lg border text-[11px] font-medium transition-all duration-150 ${
+                            destinationAccountId === acc.id
+                              ? "border-sky-500/50 bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400"
+                              : accountId === acc.id
+                              ? "border-slate-300 dark:border-slate-600 opacity-40 cursor-not-allowed bg-white dark:bg-slate-800/50 text-slate-400"
+                              : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600"
+                          }`}
+                          disabled={accountId === acc.id}
+                        >
+                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: acc.color }} />
+                          <span className="truncate w-full text-center">{acc.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+          /* Account Source / Destination — income/expense */
           <div>
             <label className="text-slate-500 dark:text-slate-400 text-xs font-medium block mb-1.5">
               {type === "income" ? "Sumber Dana (opsional)" : "Rekening (opsional)"}
@@ -298,6 +396,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
               </div>
             )}
           </div>
+          )}
 
           {/* Debt Payment Section — shown when category contains "hutang"/"paylater" */}
           {showDebtDropdown && (
@@ -412,6 +511,8 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
               className={`flex-1 py-3 rounded-xl text-white text-sm font-semibold transition-all shadow-lg disabled:opacity-50 ${
                 type === "expense"
                   ? "bg-rose-500 hover:bg-rose-400 shadow-rose-500/20"
+                  : type === "transfer"
+                  ? "bg-sky-500 hover:bg-sky-400 shadow-sky-500/20"
                   : "bg-emerald-500 hover:bg-emerald-400 shadow-emerald-500/20"
               }`}
             >

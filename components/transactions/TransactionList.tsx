@@ -57,6 +57,7 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const getCategoryIcon = (t: Transaction) => {
+    if (t.type === "transfer") return "fa-solid fa-right-left";
     const allCategories = [...incomeCategories, ...expenseCategories];
     const cat = allCategories.find((c) => c.id === t.categoryId || c.name === t.category);
     if (cat?.icon && cat.icon.includes("fa-")) return cat.icon;
@@ -158,15 +159,17 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
                   </div>
                 </td>
                 <td className="py-4 text-on-surface-variant">
-                  {t.type === "income" ? "Income" : "Expense"}
+                  {t.type === "income" ? "Income" : t.type === "transfer" ? "Transfer" : "Expense"}
                 </td>
                 <td className="py-4 text-on-surface-variant whitespace-nowrap">
                   {formatDate(t.date)}
                 </td>
                 <td className={`py-4 text-right font-medium whitespace-nowrap ${
-                  t.type === "income" ? "text-primary-fixed drop-shadow-[0_0_8px_rgba(99,247,255,0.4)]" : "text-error drop-shadow-[0_0_5px_rgba(255,180,171,0.3)]"
+                  t.type === "income" ? "text-primary-fixed drop-shadow-[0_0_8px_rgba(99,247,255,0.4)]" 
+                  : t.type === "transfer" ? "text-sky-400"
+                  : "text-error drop-shadow-[0_0_5px_rgba(255,180,171,0.3)]"
                 }`}>
-                  {t.type === "income" ? "+" : "-"}{formatRupiah(t.amount)}
+                  {t.type === "income" ? "+" : t.type === "transfer" ? "" : "-"}{formatRupiah(t.amount)}
                 </td>
               </tr>
             ))}
@@ -219,13 +222,19 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
                         className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform shrink-0 border ${
                           t.type === "income"
                             ? "bg-primary-fixed/20 border-primary-fixed/30 text-primary-fixed shadow-[0_0_10px_rgba(99,247,255,0.2)]"
+                            : t.type === "transfer"
+                            ? "bg-sky-500/15 border-sky-500/30 text-sky-400"
                             : "bg-surface-container-lowest/60 border-white/10 text-on-surface-variant"
                         }`}
                       >
                         <i className={`${getCategoryIcon(t)} text-lg`}></i>
                       </div>
                       <div>
-                        <p className="font-body-md text-white">{t.category}</p>
+                        <p className="font-body-md text-white">
+                          {t.type === "transfer"
+                            ? `${t.accountName || "?"} → ${t.destinationAccountName || "?"}`
+                            : t.category}
+                        </p>
                         <div className="flex items-center gap-2 mt-0.5">
                           {t.accountName && (
                             <span className="bg-surface-variant text-on-surface-variant text-[10px] px-1.5 py-0.5 rounded font-medium">
@@ -250,10 +259,14 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
                     <div className="flex flex-col items-end">
                       <p
                         className={`font-body-md font-medium ${
-                          t.type === "income" ? "text-primary-fixed drop-shadow-[0_0_8px_rgba(99,247,255,0.4)]" : "text-error drop-shadow-[0_0_5px_rgba(255,180,171,0.3)]"
+                          t.type === "income" 
+                            ? "text-primary-fixed drop-shadow-[0_0_8px_rgba(99,247,255,0.4)]" 
+                            : t.type === "transfer"
+                            ? "text-sky-400"
+                            : "text-error drop-shadow-[0_0_5px_rgba(255,180,171,0.3)]"
                         }`}
                       >
-                        {t.type === "income" ? "+" : "-"}
+                        {t.type === "income" ? "+" : t.type === "transfer" ? "" : "-"}
                         {formatRupiah(t.amount)}
                       </p>
                       

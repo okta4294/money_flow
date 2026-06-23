@@ -1,55 +1,62 @@
-# Phantom UI - Design System
+# Neo-Brutalist UI - Design System
 
-Phantom UI is a futuristic, high-fidelity design system crafted for the **Money Flow** application. It blends modern fintech aesthetics with glassmorphism, neon accents, and a deep space-inspired color palette to create a premium, immersive financial management experience.
+The Neo-Brutalist UI is a bold, unapologetic, and highly legible design system crafted for the **Money Flow** application. It embraces the raw aesthetics of early web design but modernizes it with high-contrast colors, thick borders, and hard shadows to create a vibrant and engaging financial management experience.
 
 ## 1. Visual Identity & Mood
-- **Aesthetic**: Futuristic Fintech / Cyber-Glow / Glassmorphism.
-- **Key Characteristics**: Deep contrast, multi-layered transparency (glass), vibrant primary accents, and subtle animations.
-- **Surface Strategy**: Using deep navy backgrounds to reduce eye strain while making data "pop" with neon highlights.
+- **Aesthetic**: Neo-Brutalism / High-Contrast / Playful / Raw.
+- **Key Characteristics**: Thick borders (`neo-brutalist-border`), stark background colors, hard-edged shadows (no blur), and bold typography.
+- **Surface Strategy**: Using stark white or light gray surfaces in light mode and near black or dark gray in dark mode, contrasted with extremely vibrant semantic colors.
 
 ## 2. Color Palette
 
 ### Base Surfaces
-- **Surface**: `#0b1326` (Deep Navy) - The foundation of the dark mode.
-- **Surface Bright**: `#31394e` - Used for elevated containers and interactive cards.
-- **Surface Container Lowest**: `#060d20` - For deep background layers.
+- **Light Mode**:
+  - **Surface**: `#f8f9fa` (Off-white) - Main background.
+  - **Surface Bright**: `#ffffff` (Pure White) - For elevated cards.
+  - **Surface Container**: `#f0eded` - For secondary sections.
+- **Dark Mode**:
+  - **Surface**: `#131313` (Near Black) - Main background.
+  - **Surface Bright**: `#2a2a2a` - For elevated cards.
+  - **Surface Container**: `#1e1e1e` - For secondary sections.
 
-### Brand & Accents
-- **Primary (Electric Teal)**: `#00f5ff` - Used for growth, positive balances, and primary CTAs. Includes a `drop-shadow` glow effect for high emphasis.
-- **Secondary (Vivid Purple)**: Used for AI features, "Financial Roasting," and navigational highlights.
-- **Error (Sunset Red)**: Used for expenses, negative trends, and critical alerts.
+### Semantic & Accent Colors
+- **Primary (Income/Positive)**:
+  - Container: `#ffe170` (Bright Yellow, Light Mode) / `#c3f400` (Lime Green, Dark Mode)
+  - Text: Dark Yellow-Brown (Light) / Lime Green (Dark)
+- **Tertiary (Expense/Negative)**:
+  - Container: `#ffdad7` (Light Pink, Light Mode) / `#ffd7f0` (Pink, Dark Mode)
+  - Text: Crimson Red (Light) / Pink (Dark)
+- **Secondary (Neutral/Transfer)**:
+  - Container: `#e6def8` (Lavender, Light Mode) / `#e8def8` (Light Purple, Dark Mode)
 
 ## 3. Typography
-- **Primary Font**: **Inter** (Sans-serif).
+- **Primary Font**: **Plus Jakarta Sans** (Sans-serif).
 - **Scale**:
-  - **Display**: Large, bold titles for high-level figures (e.g., total balance).
-  - **Headlines**: Semi-bold, used for section titles and card headers.
-  - **Body**: Regular weight for lists and secondary info, optimized for legibility against dark backgrounds.
-  - **Labels**: Small, often uppercase or medium weight for metadata and navigation.
+  - **Display**: Massive, tightly tracked titles for hero numbers (`text-[80px]`).
+  - **Headlines**: Bold, heavy weight for section headers (`font-headline-md`).
+  - **Body**: Highly legible, slightly larger base size.
+  - **Labels**: Small, uppercase, heavily tracked (`tracking-widest`), and bold (`font-label-bold`).
 
 ## 4. Components & Patterns
 
-### Containers (Glassmorphism)
-- **Style**: Background blur (`backdrop-blur-xl`), subtle white borders (`border-white/10`), and semi-transparent fills.
-- **Shadows**: Soft, deep shadows to create depth without feeling heavy.
+### Containers (Cards & Panels)
+- **Style**: Solid background colors with thick borders (`border-2` or `border-[3px]`).
+- **Shadows**: Hard shadows (`neo-brutalist-shadow`) using `box-shadow: 4px 4px 0px 0px rgba(...)` (black in light mode, lighter variants in dark mode). No blur radius.
+- **Corners**: Rounded corners (`rounded-xl` or `rounded-2xl`) combined with hard shadows for a playful yet structured look.
 
-### Navigation
-- **Mobile (BottomNavBar)**: 5-item fixed bar with Home, History, Categories, Accounts, and Debt. Active state features a neon glow and icon scale-up.
-- **Desktop (SideNavBar)**: Persistent sidebar with clear iconography and a "Glassy" active state highlight.
+### Buttons & Interactive Elements
+- **Style**: Thick borders, vibrant backgrounds.
+- **Feedback**: 
+  - `hover`: Translation (move up/left) and shadow expansion.
+  - `active`: Button presses down (`translate-x-1 translate-y-1`) and shadow disappears, giving a tactile "click" feel (`active-press` utility).
 
-### Buttons & CTAs
-- **Primary**: Full-width or large pill shapes with `#00f5ff` background or border and a neon outer glow.
-- **Secondary**: Transparent background with a subtle border or glass effect.
-
-### Form Fields
-- **Inputs**: Minimalist borders, dark backgrounds, and integrated iconography. Focused states trigger a teal highlight.
+### Forms & Inputs
+- **Inputs**: Flat, thick borders, solid background. High-contrast focus states (thickened borders or bright outlines).
 
 ## 5. Spacing & Grid
-- **Scale**: 8px base grid (ROUND_EIGHT).
-- **Mobile Margins**: 16px to 24px gutter.
-- **Desktop Margins**: 32px to 48px standard margin.
-- **Stacking**: Consistent vertical spacing between cards (12px - 16px).
+- **Layout**: CSS Grid (`grid-cols-12` for Dashboard Bento layout) and Flexbox.
+- **Padding/Margin**: Generous padding (`p-6`, `p-8`) inside cards to let content breathe despite the heavy borders.
 
-## 6. Interaction Principles
-- **Feedback**: Scale transitions on press, subtle opacity shifts on hover.
-- **Hierarchy**: Financial figures are always the highest contrast element on the screen.
+## 6. Contrast & Accessibility Rules
+- Containers with vibrant backgrounds (e.g., `bg-primary-container`, `bg-white`) must always use high-contrast text (e.g., `text-black` or `text-on-primary-container`).
+- Dynamic themes (Light/Dark) must ensure that borders and hard shadows adapt (dark in light mode, light in dark mode).

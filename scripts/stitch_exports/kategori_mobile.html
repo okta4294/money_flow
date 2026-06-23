@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WalletZap - Categories</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#f9f7ff",
+                    "surface-tint": "#705d00",
+                    "surface-container-low": "#f6f3f2",
+                    "on-tertiary-container": "#b4252d",
+                    "inverse-surface": "#313030",
+                    "primary-fixed": "#ffe170",
+                    "secondary": "#0047e3",
+                    "surface-container-highest": "#e5e2e1",
+                    "on-primary-container": "#705d00",
+                    "on-background": "#1c1b1b",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed-dim": "#b7c4ff",
+                    "on-error-container": "#93000a",
+                    "primary-fixed-dim": "#e9c400",
+                    "tertiary": "#b4252d",
+                    "surface-variant": "#e5e2e1",
+                    "surface": "#fcf9f8",
+                    "on-tertiary-fixed-variant": "#920418",
+                    "surface-container": "#f0eded",
+                    "on-primary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#ffdad7",
+                    "on-primary-fixed-variant": "#544600",
+                    "inverse-primary": "#e9c400",
+                    "outline": "#7f775f",
+                    "tertiary-fixed-dim": "#ffb3af",
+                    "outline-variant": "#d0c6ab",
+                    "on-primary-fixed": "#221b00",
+                    "error": "#ba1a1a",
+                    "inverse-on-surface": "#f3f0ef",
+                    "on-secondary-fixed": "#001452",
+                    "background": "#fcf9f8",
+                    "on-secondary-fixed-variant": "#0038b7",
+                    "primary-container": "#ffd600",
+                    "surface-container-high": "#eae7e7",
+                    "secondary-container": "#3263ff",
+                    "surface-bright": "#fcf9f8",
+                    "on-tertiary-fixed": "#410005",
+                    "secondary-fixed": "#dde1ff",
+                    "primary": "#705d00",
+                    "surface-dim": "#dcd9d9",
+                    "on-error": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-surface": "#1c1b1b",
+                    "on-surface-variant": "#4d4632",
+                    "tertiary-container": "#ffcdca"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "container-padding": "24px",
+                    "gutter": "16px",
+                    "hard-shadow-offset": "6px",
+                    "border-width": "3px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "label-bold": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "800"}],
+                    "label-bold": ["14px", {"lineHeight": "20px", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "800"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .neo-shadow {
+            box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+        }
+        .neo-shadow-sm {
+            box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+        }
+        .active-tap:active {
+            transform: translate(6px, 6px);
+            box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+        }
+        .active-tap-sm:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 700, 'GRAD' 0, 'opsz' 48;
+            font-size: 32px;
+        }
+        body {
+            background-color: #fcf9f8;
+            color: #1c1b1b;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-container-padding py-4 w-full bg-surface dark:bg-background top-0 sticky z-50 border-b-[3px] border-on-background dark:border-on-surface">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border-[3px] border-on-background bg-primary-container flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A vibrant cartoon-style portrait of a friendly young professional with bold black outlines and a pop-art aesthetic. The character has an expressive face, bright colors, and is set against a solid yellow background that matches the primary theme color. The lighting is flat and high-contrast, typical of modern graphic novels." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxg5GjG8mucQSaSx0gvjgcbOiPZkrrD7bHwRhncSe38AjsItlOK8T_gSLxM0sepn10UP_4-uDWYCRUqVHaAC9YB7MVaawbp7MBaqMEM_7WGZ8hdUOSknADKiL9E9vQM4XrxRDwVqwg2ms7SKEP8ZprUZzY9--UbRnKwTynYOFcQft4mFrYtjzr6QQpvfiOWr3ke_0xWbOyR1Mz_szaMg4S-zCooVDNQP4I_nnQP9nQ0u7jtBlt_S5bQiT3WQK5LllWvMt14rigVWI"/>
+</div>
+<h1 class="font-display-lg text-headline-md text-primary dark:text-primary-fixed uppercase tracking-tighter">WalletZap</h1>
+</div>
+<button class="w-12 h-12 flex items-center justify-center rounded-lg border-[3px] border-on-background bg-surface active-tap-sm neo-shadow-sm">
+<span class="material-symbols-outlined text-on-background">notifications</span>
+</button>
+</header>
+<main class="px-container-padding py-8 space-y-8 max-w-2xl mx-auto">
+<!-- Header Section -->
+<section class="space-y-2">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-background">Categories</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Where did the cash go? Tap a category to see details.</p>
+</section>
+<!-- Bento Grid Categories -->
+<div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+<!-- Food & Drinks (Large/Primary) -->
+<button class="col-span-2 aspect-video md:aspect-auto md:h-48 rounded-lg border-[3px] border-on-background bg-primary-container p-6 flex flex-col justify-between items-start text-left neo-shadow active-tap">
+<div class="w-14 h-14 bg-white border-[3px] border-on-background rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-on-background">restaurant</span>
+</div>
+<div>
+<span class="font-label-bold text-label-bold uppercase tracking-widest text-on-primary-container">Daily Fuel</span>
+<h3 class="font-headline-md text-headline-md text-on-primary-container">Food &amp; Drinks</h3>
+</div>
+</button>
+<!-- Transport -->
+<button class="aspect-square rounded-lg border-[3px] border-on-background bg-secondary-container p-6 flex flex-col justify-between items-start text-left neo-shadow active-tap">
+<div class="w-12 h-12 bg-white border-[3px] border-on-background rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-on-background">directions_car</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-secondary-container leading-tight">Transport</h3>
+</button>
+<!-- Shopping -->
+<button class="aspect-square rounded-lg border-[3px] border-on-background bg-tertiary-container p-6 flex flex-col justify-between items-start text-left neo-shadow active-tap">
+<div class="w-12 h-12 bg-white border-[3px] border-on-background rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-on-background">shopping_bag</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-tertiary-container leading-tight">Shopping</h3>
+</button>
+<!-- Entertainment -->
+<button class="col-span-2 md:col-span-2 aspect-video rounded-lg border-[3px] border-on-background bg-secondary-fixed-dim p-6 flex items-center gap-6 text-left neo-shadow active-tap">
+<div class="w-20 h-20 bg-white border-[3px] border-on-background rounded-2xl flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-background !text-5xl">movie</span>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline-md text-headline-md text-on-secondary-fixed leading-tight">Entertainment</h3>
+<p class="font-body-md text-body-md text-on-secondary-fixed-variant">Movies, Games, Fun</p>
+</div>
+</button>
+<!-- Health -->
+<button class="aspect-square rounded-lg border-[3px] border-on-background bg-on-tertiary-container p-6 flex flex-col justify-between items-start text-left neo-shadow active-tap">
+<div class="w-12 h-12 bg-white border-[3px] border-on-background rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-on-background">medical_services</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-white leading-tight">Health</h3>
+</button>
+<!-- Bills -->
+<button class="aspect-square rounded-lg border-[3px] border-on-background bg-primary-fixed p-6 flex flex-col justify-between items-start text-left neo-shadow active-tap">
+<div class="w-12 h-12 bg-white border-[3px] border-on-background rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-on-background">receipt_long</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-primary-fixed leading-tight">Bills</h3>
+</button>
+<!-- Travel -->
+<button class="col-span-2 aspect-video rounded-lg border-[3px] border-on-background bg-secondary p-6 flex flex-col justify-between items-start text-left neo-shadow active-tap">
+<div class="w-14 h-14 bg-white border-[3px] border-on-background rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-on-background">flight_takeoff</span>
+</div>
+<div class="w-full flex justify-between items-end">
+<h3 class="font-headline-md text-headline-md text-white">Travel &amp; Trips</h3>
+<span class="font-label-bold text-label-bold text-secondary-fixed bg-on-secondary-fixed-variant px-3 py-1 rounded-full border-2 border-white">Next Goal!</span>
+</div>
+</button>
+</div>
+<!-- Fun Stat Card -->
+<section class="w-full rounded-lg border-[3px] border-on-background bg-surface-container-highest p-6 relative overflow-hidden">
+<div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="space-y-2">
+<h4 class="font-headline-md text-headline-md text-on-background">Busiest Category</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">You've visited <strong class="text-tertiary">14 burger joints</strong> this month. Wow!</p>
+</div>
+<button class="px-6 py-3 rounded-full border-[3px] border-on-background bg-primary-container font-label-bold text-label-bold uppercase neo-shadow-sm active-tap-sm">
+                    Show Stats
+                </button>
+</div>
+<!-- Decorative circle -->
+<div class="absolute -right-10 -bottom-10 w-40 h-40 border-[3px] border-on-background rounded-full opacity-10 pointer-events-none"></div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-surface dark:bg-background border-t-[3px] border-on-background dark:border-on-surface">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-on-background dark:text-on-surface py-2 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-75" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-bold text-label-bold">Home</span>
+</a>
+<!-- History -->
+<a class="flex flex-col items-center justify-center text-on-background dark:text-on-surface py-2 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-75" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-bold text-label-bold">History</span>
+</a>
+<!-- Categories (ACTIVE) -->
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary-fixed text-on-primary-container dark:text-on-primary-fixed border-[3px] border-on-background rounded-lg py-1 px-3 -translate-y-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-0 active:shadow-none transition-all duration-75" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">category</span>
+<span class="font-label-bold text-label-bold">Categories</span>
+</a>
+<!-- Accounts -->
+<a class="flex flex-col items-center justify-center text-on-background dark:text-on-surface py-2 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-75" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-label-bold text-label-bold">Accounts</span>
+</a>
+<!-- Debt -->
+<a class="flex flex-col items-center justify-center text-on-background dark:text-on-surface py-2 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-75" href="#">
+<span class="material-symbols-outlined">account_balance</span>
+<span class="font-label-bold text-label-bold">Debt</span>
+</a>
+</nav>
+<!-- FAB Suppression: This is a details/grid screen, FAB suppressed per mandate -->
+<script>
+        // Micro-interaction for category cards
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Haptic feedback simulation or navigation could go here
+                console.log('Category selected: ' + btn.innerText);
+            });
+        });
+    </script>
+</body></html>

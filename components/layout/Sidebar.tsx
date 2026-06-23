@@ -1,17 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { ThemeToggle } from "./ThemeToggle";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: "fa-solid fa-border-all" },
-  { href: "/transactions", label: "Transaksi", icon: "fa-solid fa-right-left" },
-  { href: "/categories", label: "Kategori", icon: "fa-solid fa-tags" },
-  { href: "/accounts", label: "Akun", icon: "fa-solid fa-building-columns" },
-  { href: "/debts", label: "Hutang", icon: "fa-solid fa-money-bill-trend-up" },
+  { href: "/dashboard", label: "Dashboard", icon: "home" },
+  { href: "/transactions", label: "Transactions", icon: "history" },
+  { href: "/categories", label: "Categories", icon: "category" },
+  { href: "/accounts", label: "Accounts", icon: "account_balance_wallet" },
+  { href: "/debts", label: "Debt Tracker", icon: "account_balance" },
 ];
 
 export function Sidebar() {
@@ -19,73 +18,55 @@ export function Sidebar() {
   const { user, signOut } = useAuth();
 
   return (
-    <nav className="glass-panel fixed left-4 top-4 bottom-4 w-[280px] rounded-2xl z-50 flex-col justify-between hidden md:flex shadow-2xl">
-      <div className="flex flex-col gap-stack-lg p-stack-md flex-1">
-        {/* Header */}
-        <div className="flex items-center gap-stack-md px-stack-md py-4">
-          <div className="w-10 h-10 flex items-center justify-center">
-            {user?.photoURL ? (
-              <Image src={user.photoURL} alt="User Avatar" width={40} height={40} className="rounded-full border border-primary-fixed/30" />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-lg border border-primary-fixed/30 shadow-[0_0_10px_rgba(99,247,255,0.2)]">
-                {(user?.displayName || user?.email || "M")[0].toUpperCase()}
-              </div>
-            )}
-          </div>
-          <div>
-            <h1 className="font-headline-md text-headline-md font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-fixed to-secondary-fixed drop-shadow-[0_0_5px_rgba(99,247,255,0.3)]">Money Flow</h1>
-            <p className="font-label-sm text-label-sm text-primary-fixed/60">Financial Mastery</p>
-          </div>
-        </div>
+    <aside className="fixed left-0 top-0 h-full flex-col p-4 z-40 bg-surface neo-brutalist-border border-l-0 border-t-0 border-b-0 w-24 hidden md:flex items-center gap-8 py-8">
+      {/* Header icon / Home */}
+      <Link href="/dashboard" className="p-3 bg-primary-container neo-brutalist-border rounded-lg neo-brutalist-shadow-sm cursor-pointer active-press group hover:bg-secondary-container transition-colors">
+        <span className="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform">bolt</span>
+      </Link>
 
-        {/* Navigation Links */}
-        <ul className="flex flex-col gap-stack-sm">
-          {navItems.map(({ href, label, icon }) => {
-            const active = pathname === href;
-            return (
-              <li key={href}>
-                <Link
-                  href={href}
-                  className={`flex items-center gap-stack-md px-stack-md py-3 rounded-xl active:scale-95 transform transition-all ${
-                    active
-                      ? "text-primary-fixed bg-primary-fixed/10 border border-primary-fixed/20 shadow-[0_0_15px_rgba(99,247,255,0.1)]"
-                      : "text-on-surface-variant hover:text-primary-fixed hover:bg-primary-fixed/5"
-                  }`}
-                >
-                  <i className={`${icon} ${active ? "text-primary-fixed" : "text-on-surface-variant"} text-xl w-6 text-center`}></i>
-                  <span className="font-label-md text-label-md">{label}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+      {/* Main Navigation */}
+      <nav className="flex-1 flex flex-col items-center gap-4 w-full">
+        {navItems.map(({ href, label, icon }) => {
+          const active = pathname === href;
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`p-3 rounded-lg flex items-center justify-center transition-all ${
+                active
+                  ? "bg-primary-container text-on-primary-container neo-brutalist-border neo-brutalist-shadow-sm active-press"
+                  : "text-on-surface-variant hover:bg-surface-container-high"
+              }`}
+              title={label}
+            >
+              <span className="material-symbols-outlined text-2xl">{icon}</span>
+            </Link>
+          );
+        })}
+      </nav>
 
-        {/* CTA (Add Transaction) is moved to floating action button or handled per page, but we can keep a stub or remove it since it was handled by FAB previously */}
-      </div>
-
-      {/* Footer Links / User Actions */}
-      <div className="flex flex-col gap-stack-sm p-stack-md mb-4 border-t border-white/5 pt-4">
+      {/* Footer Navigation */}
+      <div className="flex flex-col gap-4 mt-auto w-full items-center">
         {user?.isAnonymous && (
           <a
             href="/login"
-            className="flex items-center gap-stack-md px-stack-md py-3 text-primary-fixed hover:bg-primary-fixed/5 transition-colors duration-200 rounded-xl active:scale-95 transform shadow-[0_0_10px_rgba(99,247,255,0.1)] mb-2"
+            className="p-3 rounded-lg flex items-center justify-center text-primary-fixed hover:bg-surface-container-high transition-colors"
+            title="Log In"
           >
-            <i className="fa-solid fa-user-plus w-6 text-center text-xl"></i>
-            <span className="font-label-md text-label-md">Buat Akun / Masuk</span>
+            <span className="material-symbols-outlined text-2xl">person_add</span>
           </a>
         )}
-        
-        <div className="flex items-center justify-between mt-2">
+        <div className="p-3">
           <ThemeToggle />
-          <button
-            onClick={signOut}
-            className="flex items-center justify-center w-10 h-10 text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors duration-200 rounded-full active:scale-95 transform"
-            title="Keluar"
-          >
-            <i className="fa-solid fa-arrow-right-from-bracket text-xl"></i>
-          </button>
         </div>
+        <button
+          onClick={signOut}
+          className="p-3 rounded-lg flex items-center justify-center text-error hover:bg-error-container transition-colors"
+          title="Log Out"
+        >
+          <span className="material-symbols-outlined text-2xl">logout</span>
+        </button>
       </div>
-    </nav>
+    </aside>
   );
 }

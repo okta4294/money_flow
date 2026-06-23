@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Finance Dashboard - Comic Edition</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;family=Sora:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#131313",
+                        "secondary": "#d3fbff",
+                        "on-primary-fixed-variant": "#3c4d00",
+                        "on-tertiary-fixed-variant": "#840076",
+                        "primary-container": "#c3f400",
+                        "tertiary-fixed": "#ffd7f0",
+                        "on-background": "#e5e2e1",
+                        "on-secondary": "#00363a",
+                        "surface-dim": "#131313",
+                        "on-primary-container": "#556d00",
+                        "tertiary-container": "#ffd7f0",
+                        "surface-container": "#201f1f",
+                        "outline-variant": "#444933",
+                        "secondary-fixed": "#7df4ff",
+                        "on-error": "#690005",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-bright": "#393939",
+                        "on-surface-variant": "#c4c9ac",
+                        "secondary-fixed-dim": "#00dbe9",
+                        "surface-tint": "#abd600",
+                        "inverse-on-surface": "#313030",
+                        "on-surface": "#e5e2e1",
+                        "surface-container-highest": "#353534",
+                        "on-error-container": "#ffdad6",
+                        "surface-variant": "#353534",
+                        "tertiary": "#ffffff",
+                        "error": "#ffb4ab",
+                        "on-tertiary-fixed": "#3a0033",
+                        "background": "#131313",
+                        "on-secondary-container": "#00686f",
+                        "primary-fixed-dim": "#abd600",
+                        "surface-container-low": "#1c1b1b",
+                        "on-primary-fixed": "#161e00",
+                        "primary": "#ffffff",
+                        "on-primary": "#283500",
+                        "inverse-primary": "#506600",
+                        "on-tertiary-container": "#b700a4",
+                        "surface-container-lowest": "#0e0e0e",
+                        "outline": "#8e9379",
+                        "on-secondary-fixed": "#002022",
+                        "on-tertiary": "#5e0053",
+                        "on-secondary-fixed-variant": "#004f54",
+                        "secondary-container": "#00eefc",
+                        "surface-container-high": "#2a2a2a",
+                        "primary-fixed": "#c3f400",
+                        "error-container": "#93000a",
+                        "tertiary-fixed-dim": "#fface8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xl": "40px",
+                        "margin-desktop": "64px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "unit": "4px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Space Grotesk"],
+                        "headline-sm": ["Sora"],
+                        "display-lg": ["Sora"],
+                        "display-lg-mobile": ["Sora"],
+                        "label-bold": ["Space Grotesk"],
+                        "headline-md": ["Sora"],
+                        "body-lg": ["Space Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-sm": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "display-lg-mobile": ["36px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "label-bold": ["14px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom Utilities to enforce Comic Brutalism where tailwind lacks native config bindings */
+        .brutalist-border { border: 2px solid #000000; }
+        .brutalist-shadow { box-shadow: 4px 4px 0px 0px rgba(0,0,0,1); }
+        .brutalist-shadow-hover:hover { box-shadow: 6px 6px 0px 0px rgba(0,0,0,1); transform: translate(-2px, -2px); }
+        .brutalist-shadow-active:active { box-shadow: 0px 0px 0px 0px rgba(0,0,0,1); transform: translate(4px, 4px); }
+        .meter-fill { transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex selection:bg-primary-container selection:text-black">
+<!-- SideNavBar (From Shared Components JSON) -->
+<aside class="fixed left-0 top-0 h-full flex flex-col p-md z-40 bg-surface-container border-r-2 border-on-surface shadow-[4px_0px_0px_0px_rgba(0,0,0,1)] w-64 hidden md:flex">
+<!-- Header -->
+<div class="flex items-center gap-md mb-xl p-sm">
+<div class="w-12 h-12 bg-primary-container brutalist-border brutalist-shadow flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-black font-bold" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm text-primary-fixed uppercase tracking-tighter leading-none">FINANCE</h1>
+<span class="font-label-bold text-label-bold text-tertiary-fixed">COMIC-EDITION</span>
+</div>
+</div>
+<!-- Main Navigation -->
+<nav class="flex-1 flex flex-col gap-sm">
+<!-- Active Tab: Dashboard -->
+<a class="flex items-center gap-md bg-primary-container text-on-primary-container border-2 border-on-surface shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-body-lg text-body-lg p-sm brutalist-shadow-active transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-bold text-black">Dashboard</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface font-body-lg text-body-lg p-sm hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span>Transactions</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface font-body-lg text-body-lg p-sm hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">category</span>
+<span>Categories</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface font-body-lg text-body-lg p-sm hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span>Accounts</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface font-body-lg text-body-lg p-sm hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">trending_down</span>
+<span>Debt Tracker</span>
+</a>
+</nav>
+<!-- CTA -->
+<button class="mt-xl mb-lg w-full bg-secondary-container text-black font-label-bold text-label-bold uppercase py-md px-sm brutalist-border brutalist-shadow brutalist-shadow-hover brutalist-shadow-active transition-all flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined text-black font-bold">add</span>
+            Add Transaction
+        </button>
+<!-- Footer Navigation -->
+<div class="flex flex-col gap-sm border-t-2 border-outline-variant pt-md">
+<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface font-body-lg text-body-lg p-sm hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">help</span>
+<span>Help</span>
+</a>
+<a class="flex items-center gap-md text-error hover:text-error-container font-body-lg text-body-lg p-sm hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span>Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 p-margin-mobile md:p-margin-desktop overflow-y-auto">
+<!-- Header Section -->
+<header class="flex justify-between items-end mb-xl">
+<div>
+<h2 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface tracking-tighter">OVERVIEW</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">Welcome back. Try not to blow it all today.</p>
+</div>
+<div class="hidden md:flex gap-sm">
+<button class="w-12 h-12 bg-surface-container brutalist-border brutalist-shadow flex items-center justify-center brutalist-shadow-active transition-transform">
+<span class="material-symbols-outlined text-primary-fixed">notifications</span>
+</button>
+<div class="w-12 h-12 brutalist-border brutalist-shadow overflow-hidden bg-primary-container">
+<img class="w-full h-full object-cover grayscale contrast-150 mix-blend-multiply" data-alt="A stylized comic-book style avatar of a confident user with bright yellow highlights and harsh shadows, flat vector aesthetic, high contrast." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfgEwnmKtwVlQTOCaFq9aFyjKl5QC-J4aBulxzx0rMrLc0YyCjRRqYpPIu1teYJVVz7w1tvuLEGzrIAZvFmSjeLvXBJRaB6agu6P_KdW6LLx3xIbjsU2tUQLyejuII0fyGDJOVsgkstamH9i0GFw_Vjhs1soYs296FUtNLcyFpPys_blb0_ZPt-GcNimstEqkZrU4Witkwl6HgVP6GqN3wzRc1-SXTjni8hNEZhGhTfE-gZfH1gRz-7b9vQInjSzuROJIXDRZlYtA"/>
+</div>
+</div>
+</header>
+<!-- 12-Column Grid Layout -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Hero Balance Card (Bento Item 1) -->
+<div class="col-span-12 lg:col-span-8 bg-primary-container brutalist-border brutalist-shadow p-lg flex flex-col justify-between relative overflow-hidden group">
+<!-- Decorative Graphic -->
+<div class="absolute -right-10 -bottom-10 opacity-20 transform rotate-12 group-hover:rotate-6 transition-transform duration-500 pointer-events-none">
+<span class="material-symbols-outlined text-[200px] text-black">attach_money</span>
+</div>
+<div class="relative z-10">
+<div class="inline-block bg-black text-primary-container font-label-bold text-label-bold uppercase px-sm py-xs brutalist-border mb-md">
+                        Total Liquid Assets
+                    </div>
+<h3 class="font-display-lg text-display-lg-mobile md:text-[80px] leading-none text-black tracking-tighter mt-sm">
+                        $12,450<span class="text-headline-md opacity-50">.00</span>
+</h3>
+</div>
+<div class="relative z-10 flex gap-md mt-xl">
+<button class="bg-black text-primary-container font-label-bold text-label-bold uppercase py-sm px-lg brutalist-border brutalist-shadow-hover transition-all">
+                        Transfer Funds
+                    </button>
+<button class="bg-transparent text-black font-label-bold text-label-bold uppercase py-sm px-lg brutalist-border hover:bg-black hover:text-primary-container transition-colors">
+                        View Statement
+                    </button>
+</div>
+</div>
+<!-- AI Roast Card (Bento Item 2) -->
+<div class="col-span-12 lg:col-span-4 bg-tertiary-container brutalist-border brutalist-shadow p-lg flex flex-col relative">
+<div class="absolute -top-6 -right-6 w-16 h-16 bg-black rounded-full brutalist-border flex items-center justify-center animate-bounce z-20">
+<span class="material-symbols-outlined text-tertiary-container text-headline-md" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<div class="border-b-2 border-black pb-sm mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-black">warning</span>
+<h4 class="font-headline-sm text-headline-sm text-black uppercase">AI Roast</h4>
+</div>
+<p class="font-body-lg text-body-lg text-black leading-relaxed flex-1">
+                    "You spent <strong class="bg-black text-tertiary-container px-xs">$400</strong> on 'Food Delivery' this week. Are you actively trying to fund a new wing of the restaurant, or do you just hate cooking that much?"
+                </p>
+<button class="mt-md bg-transparent text-black border-b-2 border-black font-label-bold text-label-bold self-start hover:bg-black hover:text-tertiary-container transition-colors">
+                    Tell me more lies
+                </button>
+</div>
+<!-- Income vs Expenses Chart (Bento Item 3) -->
+<div class="col-span-12 lg:col-span-6 bg-surface-container brutalist-border brutalist-shadow flex flex-col">
+<div class="bg-secondary-container border-b-2 border-black px-lg py-sm flex justify-between items-center">
+<h4 class="font-headline-sm text-headline-sm text-black uppercase">Cash Flow</h4>
+<span class="font-label-bold text-label-bold text-black opacity-70">This Month</span>
+</div>
+<div class="p-lg flex-1 flex flex-col justify-center gap-xl">
+<!-- Income Bar -->
+<div>
+<div class="flex justify-between items-end mb-sm">
+<span class="font-label-bold text-label-bold text-on-surface uppercase flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary-fixed">arrow_upward</span> Income
+                            </span>
+<span class="font-headline-sm text-headline-sm text-primary-fixed">$8,200.00</span>
+</div>
+<div class="h-8 w-full bg-black brutalist-border relative">
+<div class="absolute top-0 left-0 h-full bg-primary-container brutalist-border meter-fill" style="width: 85%;"></div>
+</div>
+</div>
+<!-- Expense Bar -->
+<div>
+<div class="flex justify-between items-end mb-sm">
+<span class="font-label-bold text-label-bold text-on-surface uppercase flex items-center gap-xs">
+<span class="material-symbols-outlined text-tertiary-fixed">arrow_downward</span> Expenses
+                            </span>
+<span class="font-headline-sm text-headline-sm text-tertiary-fixed">$4,650.00</span>
+</div>
+<div class="h-8 w-full bg-black brutalist-border relative">
+<div class="absolute top-0 left-0 h-full bg-tertiary-container brutalist-border meter-fill" style="width: 45%;"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Budget Tracker (Bento Item 4) -->
+<div class="col-span-12 lg:col-span-6 bg-surface-container brutalist-border brutalist-shadow flex flex-col">
+<div class="bg-primary-container border-b-2 border-black px-lg py-sm flex justify-between items-center">
+<h4 class="font-headline-sm text-headline-sm text-black uppercase">Budget Heat</h4>
+<button class="material-symbols-outlined text-black hover:scale-110 transition-transform">more_horiz</button>
+</div>
+<div class="p-lg flex flex-col gap-lg flex-1 justify-center">
+<!-- Food -->
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-tertiary-container brutalist-border flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-black">restaurant</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-baseline mb-xs">
+<span class="font-label-bold text-label-bold text-on-surface uppercase">Food</span>
+<span class="font-body-md text-body-md text-on-surface-variant"><strong class="text-tertiary-fixed">120%</strong> / $500</span>
+</div>
+<div class="h-4 w-full bg-black brutalist-border relative">
+<!-- Overbudget visual -->
+<div class="absolute top-0 left-0 h-full bg-tertiary-container border-r-2 border-black meter-fill z-10" style="width: 100%;"></div>
+<div class="absolute top-0 left-0 h-full bg-error border-r-2 border-black meter-fill animate-pulse z-20" style="width: 20%; left: 100%;"></div>
+</div>
+</div>
+</div>
+<!-- Entertainment -->
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-secondary-container brutalist-border flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-black">confirmation_number</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-baseline mb-xs">
+<span class="font-label-bold text-label-bold text-on-surface uppercase">Entertainment</span>
+<span class="font-body-md text-body-md text-on-surface-variant"><strong class="text-secondary-fixed">65%</strong> / $300</span>
+</div>
+<div class="h-4 w-full bg-black brutalist-border relative">
+<div class="absolute top-0 left-0 h-full bg-secondary-container border-r-2 border-black meter-fill" style="width: 65%;"></div>
+</div>
+</div>
+</div>
+<!-- Transport -->
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-primary-container brutalist-border flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-black">directions_car</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-baseline mb-xs">
+<span class="font-label-bold text-label-bold text-on-surface uppercase">Transport</span>
+<span class="font-body-md text-body-md text-on-surface-variant"><strong class="text-primary-fixed">40%</strong> / $150</span>
+</div>
+<div class="h-4 w-full bg-black brutalist-border relative">
+<div class="absolute top-0 left-0 h-full bg-primary-container border-r-2 border-black meter-fill" style="width: 40%;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Transactions (Bento Item 5) -->
+<div class="col-span-12 bg-surface-container brutalist-border brutalist-shadow overflow-hidden">
+<div class="border-b-2 border-black px-lg py-md flex justify-between items-center bg-surface-variant">
+<h4 class="font-headline-sm text-headline-sm text-on-surface uppercase">Recent Hits</h4>
+<a class="font-label-bold text-label-bold text-primary-fixed hover:underline flex items-center" href="#">View All <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+</div>
+<div class="flex flex-col">
+<!-- Transaction Item -->
+<div class="flex items-center justify-between p-lg border-b-2 border-black hover:bg-surface-bright transition-colors group">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 bg-black brutalist-border flex items-center justify-center group-hover:bg-tertiary-container transition-colors">
+<span class="material-symbols-outlined text-white group-hover:text-black">shopping_bag</span>
+</div>
+<div>
+<h5 class="font-label-bold text-label-bold text-on-surface">MegaCorp Tech Store</h5>
+<span class="font-body-md text-body-md text-on-surface-variant">Gadgets • Today, 2:45 PM</span>
+</div>
+</div>
+<span class="font-headline-sm text-headline-sm text-tertiary-fixed">-$299.99</span>
+</div>
+<!-- Transaction Item -->
+<div class="flex items-center justify-between p-lg border-b-2 border-black hover:bg-surface-bright transition-colors group">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 bg-black brutalist-border flex items-center justify-center group-hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-white group-hover:text-black">payments</span>
+</div>
+<div>
+<h5 class="font-label-bold text-label-bold text-on-surface">Freelance Design Check</h5>
+<span class="font-body-md text-body-md text-on-surface-variant">Income • Yesterday</span>
+</div>
+</div>
+<span class="font-headline-sm text-headline-sm text-primary-fixed">+$1,500.00</span>
+</div>
+<!-- Transaction Item -->
+<div class="flex items-center justify-between p-lg hover:bg-surface-bright transition-colors group">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 bg-black brutalist-border flex items-center justify-center group-hover:bg-secondary-container transition-colors">
+<span class="material-symbols-outlined text-white group-hover:text-black">local_cafe</span>
+</div>
+<div>
+<h5 class="font-label-bold text-label-bold text-on-surface">Artisan Roasters</h5>
+<span class="font-body-md text-body-md text-on-surface-variant">Food • Mar 12</span>
+</div>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface">-$6.50</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

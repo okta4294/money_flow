@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Finance-Punch Categories</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&amp;family=Space+Grotesk:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#131313",
+                        "secondary": "#d3fbff",
+                        "on-primary-fixed-variant": "#3c4d00",
+                        "on-tertiary-fixed-variant": "#840076",
+                        "primary-container": "#c3f400",
+                        "tertiary-fixed": "#ffd7f0",
+                        "on-background": "#e5e2e1",
+                        "on-secondary": "#00363a",
+                        "surface-dim": "#131313",
+                        "on-primary-container": "#556d00",
+                        "tertiary-container": "#ffd7f0",
+                        "surface-container": "#201f1f",
+                        "outline-variant": "#444933",
+                        "secondary-fixed": "#7df4ff",
+                        "on-error": "#690005",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-bright": "#393939",
+                        "on-surface-variant": "#c4c9ac",
+                        "secondary-fixed-dim": "#00dbe9",
+                        "surface-tint": "#abd600",
+                        "inverse-on-surface": "#313030",
+                        "on-surface": "#e5e2e1",
+                        "surface-container-highest": "#353534",
+                        "on-error-container": "#ffdad6",
+                        "surface-variant": "#353534",
+                        "tertiary": "#ffffff",
+                        "error": "#ffb4ab",
+                        "on-tertiary-fixed": "#3a0033",
+                        "background": "#131313",
+                        "on-secondary-container": "#00686f",
+                        "primary-fixed-dim": "#abd600",
+                        "surface-container-low": "#1c1b1b",
+                        "on-primary-fixed": "#161e00",
+                        "primary": "#ffffff",
+                        "on-primary": "#283500",
+                        "inverse-primary": "#506600",
+                        "on-tertiary-container": "#b700a4",
+                        "surface-container-lowest": "#0e0e0e",
+                        "outline": "#8e9379",
+                        "on-secondary-fixed": "#002022",
+                        "on-tertiary": "#5e0053",
+                        "on-secondary-fixed-variant": "#004f54",
+                        "secondary-container": "#00eefc",
+                        "surface-container-high": "#2a2a2a",
+                        "primary-fixed": "#c3f400",
+                        "error-container": "#93000a",
+                        "tertiary-fixed-dim": "#fface8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xl": "40px",
+                        "margin-desktop": "64px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "unit": "4px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Space Grotesk"],
+                        "headline-sm": ["Sora"],
+                        "display-lg": ["Sora"],
+                        "display-lg-mobile": ["Sora"],
+                        "label-bold": ["Space Grotesk"],
+                        "headline-md": ["Sora"],
+                        "body-lg": ["Space Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-sm": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "display-lg-mobile": ["36px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "label-bold": ["14px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #131313; /* surface */
+            color: #e5e2e1; /* on-surface */
+        }
+        .comic-border {
+            border: 2px solid #000000;
+        }
+        .comic-shadow {
+            box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+        }
+        .comic-shadow-lg {
+            box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+        }
+        .comic-interactive:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+        }
+        .comic-interactive:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+        }
+    </style>
+</head>
+<body class="flex bg-surface font-body-md min-h-screen">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col p-md z-40 bg-surface-container border-r-2 border-[#000000] w-64">
+<div class="mb-xl">
+<h1 class="font-display-lg text-primary-fixed uppercase tracking-tighter drop-shadow-[2px_2px_0px_#000000]">FINANCE</h1>
+<p class="font-label-bold text-on-surface-variant uppercase tracking-widest mt-unit">COMIC-EDITION</p>
+</div>
+<button class="mb-xl w-full py-md px-lg bg-primary-fixed text-[#000000] font-label-bold uppercase comic-border comic-shadow comic-interactive transition-all">
+            Add Transaction
+        </button>
+<ul class="flex-1 flex flex-col gap-sm">
+<li>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-lg">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-body-lg">Transactions</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md p-md bg-primary-container text-on-primary-container border-2 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" href="#">
+<span class="material-symbols-outlined" data-icon="category">category</span>
+<span class="font-body-lg font-bold">Categories</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-body-lg">Accounts</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="trending_down">trending_down</span>
+<span class="font-body-lg">Debt Tracker</span>
+</a>
+</li>
+</ul>
+<div class="mt-auto flex flex-col gap-sm pt-md border-t-2 border-[#000000]">
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-body-lg">Help</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:text-on-surface hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-body-lg">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="ml-64 flex-1 flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-margin-desktop h-20 bg-surface border-b-2 border-[#000000] z-30 sticky top-0">
+<h2 class="font-headline-md text-primary drop-shadow-[2px_2px_0px_#000000]">CATEGORIES</h2>
+<div class="flex items-center gap-md">
+<button class="p-sm text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-full comic-border active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-sm text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-full comic-border active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="w-10 h-10 rounded-full comic-border overflow-hidden ml-sm">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A stylized graphic novel illustration of a confident young investor with neon green glasses, set against a dark, gritty cyberpunk background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlINRzrXtZl5OWHJ_fmVoSOab2OxHjUtQdXMlcK7Y4AfgOBPCnpGWIHLTUAliHYDu-0N-Kh59DNv6OIi75mN386mrMmr-MKuc6k1ahRugs1du5T78qs_JIkdi6akcHRVRqwLdPWI1jh2ZLDkL2fwp4loHYVtsz3vFm2CqJRSZwBI6-8-MmXHCC3I0Bzc0QKFqnicl2Jw8sAdK4dI_tLmoh7I73zPrGnHT4iGm1T7w_hPnthkIqh34xQUOxlZTWgMqMHfQVIkPPTAA"/>
+</div>
+</div>
+</header>
+<!-- Canvas Body -->
+<div class="p-margin-desktop flex-1 flex flex-col gap-xl">
+<!-- Category Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter">
+<!-- Food & Drinks -->
+<div class="bg-surface-container comic-border comic-shadow-lg comic-interactive transition-all cursor-pointer overflow-hidden flex flex-col h-48">
+<div class="bg-primary-fixed text-[#000000] p-md border-b-2 border-[#000000] flex justify-between items-center">
+<h3 class="font-headline-sm uppercase">Food &amp; Drinks</h3>
+<span class="material-symbols-outlined text-headline-md" data-weight="fill">restaurant</span>
+</div>
+<div class="p-lg flex-1 flex flex-col justify-end">
+<span class="font-label-bold text-on-surface-variant uppercase mb-unit">Monthly Spend</span>
+<span class="font-display-lg text-primary">$450</span>
+</div>
+</div>
+<!-- Transport -->
+<div class="bg-surface-container comic-border comic-shadow-lg comic-interactive transition-all cursor-pointer overflow-hidden flex flex-col h-48">
+<div class="bg-secondary-container text-[#000000] p-md border-b-2 border-[#000000] flex justify-between items-center">
+<h3 class="font-headline-sm uppercase">Transport</h3>
+<span class="material-symbols-outlined text-headline-md" data-weight="fill">directions_car</span>
+</div>
+<div class="p-lg flex-1 flex flex-col justify-end">
+<span class="font-label-bold text-on-surface-variant uppercase mb-unit">Monthly Spend</span>
+<span class="font-display-lg text-primary">$120</span>
+</div>
+</div>
+<!-- Shopping -->
+<div class="bg-surface-container comic-border comic-shadow-lg comic-interactive transition-all cursor-pointer overflow-hidden flex flex-col h-48">
+<div class="bg-tertiary-container text-[#000000] p-md border-b-2 border-[#000000] flex justify-between items-center">
+<h3 class="font-headline-sm uppercase">Shopping</h3>
+<span class="material-symbols-outlined text-headline-md" data-weight="fill">shopping_bag</span>
+</div>
+<div class="p-lg flex-1 flex flex-col justify-end">
+<span class="font-label-bold text-on-surface-variant uppercase mb-unit">Monthly Spend</span>
+<span class="font-display-lg text-primary">$340</span>
+</div>
+</div>
+<!-- Entertainment -->
+<div class="bg-surface-container comic-border comic-shadow-lg comic-interactive transition-all cursor-pointer overflow-hidden flex flex-col h-48">
+<div class="bg-[#ffb4ab] text-[#000000] p-md border-b-2 border-[#000000] flex justify-between items-center">
+<h3 class="font-headline-sm uppercase">Entertainment</h3>
+<span class="material-symbols-outlined text-headline-md" data-weight="fill">movie</span>
+</div>
+<div class="p-lg flex-1 flex flex-col justify-end">
+<span class="font-label-bold text-on-surface-variant uppercase mb-unit">Monthly Spend</span>
+<span class="font-display-lg text-primary">$200</span>
+</div>
+</div>
+<!-- Health -->
+<div class="bg-surface-container comic-border comic-shadow-lg comic-interactive transition-all cursor-pointer overflow-hidden flex flex-col h-48">
+<div class="bg-secondary-fixed-dim text-[#000000] p-md border-b-2 border-[#000000] flex justify-between items-center">
+<h3 class="font-headline-sm uppercase">Health</h3>
+<span class="material-symbols-outlined text-headline-md" data-weight="fill">favorite</span>
+</div>
+<div class="p-lg flex-1 flex flex-col justify-end">
+<span class="font-label-bold text-on-surface-variant uppercase mb-unit">Monthly Spend</span>
+<span class="font-display-lg text-primary">$85</span>
+</div>
+</div>
+<!-- Bills -->
+<div class="bg-surface-container comic-border comic-shadow-lg comic-interactive transition-all cursor-pointer overflow-hidden flex flex-col h-48">
+<div class="bg-tertiary-fixed-dim text-[#000000] p-md border-b-2 border-[#000000] flex justify-between items-center">
+<h3 class="font-headline-sm uppercase">Bills</h3>
+<span class="material-symbols-outlined text-headline-md" data-weight="fill">receipt</span>
+</div>
+<div class="p-lg flex-1 flex flex-col justify-end">
+<span class="font-label-bold text-on-surface-variant uppercase mb-unit">Monthly Spend</span>
+<span class="font-display-lg text-primary">$800</span>
+</div>
+</div>
+<!-- Travel -->
+<div class="bg-surface-container comic-border comic-shadow-lg comic-interactive transition-all cursor-pointer overflow-hidden flex flex-col h-48">
+<div class="bg-primary-fixed-dim text-[#000000] p-md border-b-2 border-[#000000] flex justify-between items-center">
+<h3 class="font-headline-sm uppercase">Travel</h3>
+<span class="material-symbols-outlined text-headline-md" data-weight="fill">flight</span>
+</div>
+<div class="p-lg flex-1 flex flex-col justify-end">
+<span class="font-label-bold text-on-surface-variant uppercase mb-unit">Monthly Spend</span>
+<span class="font-display-lg text-primary">$0</span>
+</div>
+</div>
+<!-- Add New -->
+<div class="bg-surface-container-highest comic-border comic-shadow-lg comic-interactive transition-all cursor-pointer overflow-hidden flex flex-col h-48 justify-center items-center border-dashed">
+<div class="w-16 h-16 rounded-full bg-surface comic-border flex items-center justify-center text-primary-fixed mb-md">
+<span class="material-symbols-outlined text-headline-md">add</span>
+</div>
+<span class="font-headline-sm text-on-surface uppercase">Add Custom</span>
+</div>
+</div>
+<!-- Busiest Category Highlight -->
+<section class="mt-auto pt-xl border-t-2 border-[#000000]">
+<h2 class="font-headline-md text-on-surface mb-lg uppercase flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary-fixed" data-weight="fill">local_fire_department</span>
+                    Hot Zone: Busiest Category
+                </h2>
+<div class="bg-[#000000] border-2 border-primary-fixed p-lg flex flex-col md:flex-row items-center gap-xl relative overflow-hidden">
+<!-- Background Shader Pattern -->
+<div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: repeating-linear-gradient(45deg, #c3f400 0, #c3f400 2px, transparent 2px, transparent 8px);"></div>
+<div class="flex-shrink-0 z-10 w-32 h-32 bg-primary-fixed rounded-full comic-border flex items-center justify-center comic-shadow">
+<span class="material-symbols-outlined text-[64px] text-[#000000]" data-weight="fill">restaurant</span>
+</div>
+<div class="flex-1 z-10">
+<h3 class="font-display-lg text-primary-fixed uppercase mb-sm drop-shadow-[2px_2px_0px_#000000]">Food &amp; Drinks</h3>
+<p class="font-body-lg text-on-surface-variant mb-md max-w-2xl">This category has seen the most transactions this month. Consider reviewing your dining habits to free up cash for investments.</p>
+<div class="flex items-center gap-md">
+<span class="font-headline-sm text-primary">34 Transactions</span>
+<div class="h-2 w-2 bg-primary-fixed rounded-full"></div>
+<span class="font-headline-sm text-[#ffb4ab] flex items-center gap-xs">
+<span class="material-symbols-outlined">trending_up</span> +15% vs Last Month
+                            </span>
+</div>
+</div>
+<button class="z-10 py-md px-xl bg-surface text-primary-fixed font-label-bold uppercase comic-border comic-shadow comic-interactive whitespace-nowrap">
+                        Analyze Details
+                    </button>
+</div>
+</section>
+</div>
+</main>
+</body></html>

@@ -13,10 +13,10 @@ const COLORS = [
 ];
 
 const ACCOUNT_TYPES: { value: AccountType; label: string; icon: string }[] = [
-  { value: "bank", label: "Bank", icon: "fa-solid fa-building-columns" },
-  { value: "ewallet", label: "E-Wallet", icon: "fa-solid fa-wallet" },
-  { value: "cash", label: "Cash / Tunai", icon: "fa-solid fa-money-bill-wave" },
-  { value: "other", label: "Lainnya", icon: "fa-solid fa-circle-question" },
+  { value: "bank", label: "Bank", icon: "account_balance" },
+  { value: "ewallet", label: "E-Wallet", icon: "account_balance_wallet" },
+  { value: "cash", label: "Cash", icon: "payments" },
+  { value: "other", label: "Other", icon: "help" },
 ];
 
 export function AccountManager() {
@@ -43,7 +43,6 @@ export function AccountManager() {
         
         const qIncome = query(transactionsRef, where("accountId", "==", acc.id), where("type", "==", "income"));
         const qExpense = query(transactionsRef, where("accountId", "==", acc.id), where("type", "==", "expense"));
-        // ponytail: transfer pakai getDocs + sum client-side untuk hindari composite index
         const qTransferOut = query(transactionsRef, where("accountId", "==", acc.id), where("type", "==", "transfer"));
         const qTransferIn = query(transactionsRef, where("destinationAccountId", "==", acc.id));
 
@@ -103,7 +102,7 @@ export function AccountManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!user || !confirm("Hapus akun ini?")) return;
+    if (!user || !confirm("Delete this account?")) return;
     await deleteAccount(user.uid, id);
   };
 
@@ -117,161 +116,153 @@ export function AccountManager() {
 
   const getIcon = (accType: string) => {
     const config = ACCOUNT_TYPES.find((t) => t.value === accType);
-    const iconClass = config?.icon || "fa-solid fa-circle-question";
-    return <i className={`${iconClass} text-base`}></i>;
+    const iconClass = config?.icon || "help";
+    return <span className="material-symbols-outlined text-2xl">{iconClass}</span>;
   };
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-24 bg-slate-900/50 border border-slate-800 rounded-2xl animate-pulse" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-28 bg-surface-bright neo-brutalist-border rounded-lg animate-pulse" />
         ))}
       </div>
     );
   }
 
+  const bgColors = [
+    "bg-primary-container text-on-primary-container",
+    "bg-secondary-container text-on-secondary-container",
+    "bg-tertiary-container text-on-tertiary-container",
+    "bg-secondary-fixed-dim text-on-secondary-fixed",
+  ];
+
   return (
     <div>
       {/* Account List */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Add Button */}
         <button
           onClick={handleOpenNew}
-          className="h-24 rounded-2xl border-2 border-dashed border-slate-800 flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-emerald-400 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all group"
+          className="aspect-[2/1] rounded-lg border-[3px] border-dashed border-on-background bg-surface hover:bg-surface-bright flex flex-col items-center justify-center gap-2 transition-all group active-press"
         >
-          <div className="w-8 h-8 rounded-full bg-slate-800 group-hover:bg-emerald-500/20 flex items-center justify-center transition-colors">
-            <i className="fa-solid fa-plus text-base"></i>
+          <div className="w-12 h-12 rounded-xl bg-surface-container-highest neo-brutalist-border flex items-center justify-center transition-colors">
+             <span className="material-symbols-outlined text-on-background text-2xl">add</span>
           </div>
-          <span className="text-sm font-medium">Tambah Akun</span>
+          <span className="font-label-bold text-on-surface-variant">Add Account</span>
         </button>
 
-        {accounts.map((acc) => (
-          <div
-            key={acc.id}
-            className="group relative bg-slate-900 border border-slate-800 rounded-2xl p-4 overflow-hidden transition-all hover:border-slate-700"
-          >
-            {/* Color accent line */}
-            <div 
-              className="absolute top-0 left-0 bottom-0 w-1.5"
-              style={{ backgroundColor: acc.color }}
-            />
-            
-            <div className="flex items-start justify-between pl-2">
-              <div className="flex items-center gap-3">
-                <div 
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: `${acc.color}20`, color: acc.color }}
-                >
-                  {getIcon(acc.type)}
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold">{acc.name}</h3>
-                  <div className="flex flex-col gap-0.5 mt-0.5">
-                    <p className="text-slate-500 text-xs">
+        {accounts.map((acc, idx) => {
+           const colorClass = bgColors[idx % bgColors.length];
+           return (
+            <div
+              key={acc.id}
+              className={`group relative aspect-[2/1] neo-brutalist-border rounded-lg p-5 flex flex-col justify-between items-start text-left neo-brutalist-shadow-sm hover:neo-brutalist-shadow transition-all ${colorClass}`}
+            >
+              <div className="flex w-full justify-between items-start">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white neo-brutalist-border rounded-xl flex items-center justify-center text-black">
+                    {getIcon(acc.type)}
+                  </div>
+                  <div>
+                    <h3 className="font-headline-md text-lg leading-tight line-clamp-1">{acc.name}</h3>
+                    <p className="font-label-bold text-sm opacity-80 uppercase tracking-wider mt-0.5">
                       {ACCOUNT_TYPES.find((t) => t.value === acc.type)?.label}
                     </p>
-                    {balances[acc.id] !== undefined && (
-                      <p className={`text-xs font-semibold ${balances[acc.id] >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                        {formatRupiah(balances[acc.id])}
-                      </p>
-                    )}
                   </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => handleOpenEdit(acc)}
+                    className="w-8 h-8 rounded-lg bg-white neo-brutalist-border text-black flex items-center justify-center hover:bg-slate-200 active-press"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                  </button>
+                  <button
+                    onClick={() => handleDelete(acc.id)}
+                    className="w-8 h-8 rounded-lg bg-error text-on-error neo-brutalist-border flex items-center justify-center hover:opacity-90 active-press"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                  </button>
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex flex-col gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={() => handleOpenEdit(acc)}
-                  className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg transition-all"
-                >
-                  <i className="fa-solid fa-pencil text-[14px]"></i>
-                </button>
-                <button
-                  onClick={() => handleDelete(acc.id)}
-                  className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all"
-                >
-                  <i className="fa-solid fa-trash text-[14px]"></i>
-                </button>
-              </div>
+              {balances[acc.id] !== undefined && (
+                <div className="mt-4">
+                  <p className="text-xs font-label-bold uppercase tracking-widest opacity-80 mb-1">Balance</p>
+                  <p className="font-display-lg text-3xl tracking-tighter">
+                    {formatRupiah(balances[acc.id])}
+                  </p>
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+           );
+        })}
       </div>
 
       {/* Modal Form */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
-          <div className="relative bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
+          <div className="relative bg-surface rounded-2xl w-full max-w-md p-6 neo-brutalist-border neo-brutalist-shadow z-10">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-white">
-                {editingId ? "Edit Akun" : "Tambah Akun"}
+              <h2 className="font-headline-lg text-on-background tracking-tighter">
+                {editingId ? "Edit Account" : "New Account"}
               </h2>
-              <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white">
-                <i className="fa-solid fa-xmark text-xl"></i>
-              </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="text-slate-400 text-xs font-medium mb-1.5 block">Nama Akun</label>
+                <label className="text-on-surface-variant font-label-bold block mb-1.5 uppercase tracking-widest text-xs">Account Name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="BCA, Gopay, Dompet..."
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-emerald-500 transition-all"
+                  placeholder="BCA, Gopay, Wallet..."
+                  className="w-full bg-surface-container-lowest neo-brutalist-border rounded-xl px-4 py-3 text-on-background font-body-md focus:outline-none focus:neo-brutalist-shadow-sm transition-all"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-slate-400 text-xs font-medium mb-1.5 block">Tipe Akun</label>
+                <label className="text-on-surface-variant font-label-bold block mb-1.5 uppercase tracking-widest text-xs">Type</label>
                 <div className="grid grid-cols-2 gap-2">
                   {ACCOUNT_TYPES.map((t) => (
                     <button
                       key={t.value}
                       type="button"
                       onClick={() => setType(t.value)}
-                      className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+                      className={`flex items-center gap-2 px-3 py-3 rounded-xl font-label-bold transition-all neo-brutalist-border ${
                         type === t.value 
-                          ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400" 
-                          : "bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700"
+                          ? "bg-primary-container text-on-primary-container neo-brutalist-shadow-sm -translate-y-0.5 -translate-x-0.5" 
+                          : "bg-surface-container-lowest text-on-surface-variant hover:bg-surface-bright"
                       }`}
                     >
-                      <i className={`${t.icon} text-base`}></i>
+                      <span className="material-symbols-outlined text-[20px]">{t.icon}</span>
                       {t.label}
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div>
-                <label className="text-slate-400 text-xs font-medium mb-1.5 block">Warna</label>
-                <div className="flex flex-wrap gap-2">
-                  {COLORS.map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => setColor(c)}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                        color === c ? "scale-110 ring-2 ring-white ring-offset-2 ring-offset-slate-900" : "hover:scale-110"
-                      }`}
-                      style={{ backgroundColor: c }}
-                    />
-                  ))}
-                </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  className="flex-1 py-3 rounded-xl bg-surface neo-brutalist-border text-on-background font-label-bold transition-all hover:bg-surface-bright active-press"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 py-3 rounded-xl bg-primary-container neo-brutalist-border text-on-primary-container font-label-bold transition-all disabled:opacity-50 active-press neo-brutalist-shadow-sm hover:neo-brutalist-shadow"
+                >
+                  {submitting ? "Saving..." : "Save"}
+                </button>
               </div>
-
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-bold transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 mt-2"
-              >
-                {submitting ? "Menyimpan..." : "Simpan Akun"}
-              </button>
             </form>
           </div>
         </div>

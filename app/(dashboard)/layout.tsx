@@ -3,22 +3,21 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { Sidebar } from "@/components/layout/Sidebar";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 const navItems = [
-  { href: "/dashboard", label: "Home", icon: "fa-solid fa-border-all" },
-  { href: "/transactions", label: "History", icon: "fa-solid fa-right-left" },
-  { href: "/categories", label: "Kategori", icon: "fa-solid fa-tags" },
-  { href: "/accounts", label: "Accounts", icon: "fa-solid fa-building-columns" },
-  { href: "/debts", label: "Hutang", icon: "fa-solid fa-money-bill-trend-up" },
+  { href: "/dashboard", label: "Home", icon: "home" },
+  { href: "/transactions", label: "History", icon: "history" },
+  { href: "/categories", label: "Categories", icon: "category" },
+  { href: "/accounts", label: "Accounts", icon: "account_balance_wallet" },
+  { href: "/debts", label: "Debt", icon: "account_balance" },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -40,65 +39,65 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (loading || !user) {
     return (
-      <div className="h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary-fixed border-t-transparent rounded-full animate-spin" />
+      <div className="h-screen bg-surface flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
     <>
-      <header className="flex justify-between items-center w-full px-6 h-16 fixed top-0 z-50 glass-panel border-b border-white/10 md:hidden transition-colors">
+      <header className="flex justify-between items-center px-container-padding py-4 w-full bg-surface sticky top-0 z-50 neo-brutalist-border md:hidden transition-colors">
         <div className="flex items-center gap-3">
-          {user?.photoURL ? (
-            <Image
-              src={user.photoURL}
-              alt="User Avatar"
-              width={32}
-              height={32}
-              className="w-8 h-8 rounded-full border border-white/10 object-cover"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-sm">
-              {(user?.displayName || user?.email || "U")[0].toUpperCase()}
-            </div>
-          )}
-          <h1 className="font-headline-md text-[20px] font-bold text-primary-fixed-dim drop-shadow-[0_0_8px_rgba(99,247,255,0.4)]">Money Flow</h1>
+          <div className="w-12 h-12 bg-primary-container neo-brutalist-border rounded-full flex items-center justify-center neo-brutalist-shadow overflow-hidden">
+            {user?.photoURL ? (
+              <Image
+                src={user.photoURL}
+                alt="User Avatar"
+                width={48}
+                height={48}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="font-bold text-lg text-on-primary-container">{(user?.displayName || user?.email || "U")[0].toUpperCase()}</span>
+            )}
+          </div>
+          <h1 className="font-display-lg text-headline-md text-primary uppercase tracking-tighter">WalletZap</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <ThemeToggle />
-          <button className="w-10 h-10 flex items-center justify-center rounded-full text-primary-fixed hover:bg-white/5 transition-colors">
-            <i className="fa-solid fa-magnifying-glass text-xl"></i>
+          <button className="w-12 h-12 bg-white dark:bg-surface-container border-[3px] border-on-background rounded-full flex items-center justify-center neo-brutalist-shadow active-press">
+            <span className="material-symbols-outlined text-on-background">notifications</span>
           </button>
         </div>
       </header>
 
-      <nav className="fixed bottom-0 w-full z-50 flex justify-around items-center px-6 py-3 pb-safe glass-panel border-t border-white/10 md:hidden transition-colors">
+      <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe pt-2 bg-surface neo-brutalist-border border-b-0 border-l-0 border-r-0 md:hidden transition-colors">
         {navItems.map(({ href, label, icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
               key={href}
               href={href}
-              className={`flex flex-col items-center justify-center flex-1 transition-all duration-200 ${
+              className={`flex flex-col items-center justify-center py-2 transition-all ${
                 active
-                  ? "bg-secondary-container/20 border border-secondary-container/30 text-secondary-fixed rounded-xl py-1 scale-105 shadow-[0_0_15px_rgba(111,0,190,0.2)]"
-                  : "text-on-surface-variant opacity-70 hover:text-primary-fixed"
+                  ? "bg-primary-container text-on-primary-container neo-brutalist-border rounded-lg px-3 -translate-y-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  : "text-on-surface-variant hover:text-on-background"
               }`}
             >
-              <i className={`${icon} text-xl mb-1`}></i>
-              <span className="font-label-sm text-[10px] whitespace-nowrap">{label}</span>
+              <span className="material-symbols-outlined">{icon}</span>
+              <span className="font-label-bold text-[10px] mt-1">{label}</span>
             </Link>
           );
         })}
       </nav>
 
       {/* Layout wrapper */}
-      <div className="h-screen bg-background flex transition-colors">
+      <div className="min-h-screen bg-surface flex transition-colors">
         <Sidebar />
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto w-full md:pl-[280px] pt-16 md:pt-0 pb-32 md:pb-0 relative">
+        <main className="flex-1 w-full md:pl-24 pb-24 md:pb-0 relative">
           <AnimatePresence mode="wait">
             <motion.div
               key={pathname}
@@ -106,7 +105,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="px-6 py-6 md:p-8 flex flex-col gap-6 max-w-[1440px] mx-auto min-h-full pb-32"
+              className="px-6 py-6 md:p-8 flex flex-col gap-6 max-w-6xl mx-auto min-h-full pb-32"
             >
               {children}
             </motion.div>

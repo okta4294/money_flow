@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WalletZap | Hutang & Paylater</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#f9f7ff",
+                    "surface-tint": "#705d00",
+                    "surface-container-low": "#f6f3f2",
+                    "on-tertiary-container": "#b4252d",
+                    "inverse-surface": "#313030",
+                    "primary-fixed": "#ffe170",
+                    "secondary": "#0047e3",
+                    "surface-container-highest": "#e5e2e1",
+                    "on-primary-container": "#705d00",
+                    "on-background": "#1c1b1b",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed-dim": "#b7c4ff",
+                    "on-error-container": "#93000a",
+                    "primary-fixed-dim": "#e9c400",
+                    "tertiary": "#b4252d",
+                    "surface-variant": "#e5e2e1",
+                    "surface": "#fcf9f8",
+                    "on-tertiary-fixed-variant": "#920418",
+                    "surface-container": "#f0eded",
+                    "on-primary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#ffdad7",
+                    "on-primary-fixed-variant": "#544600",
+                    "inverse-primary": "#e9c400",
+                    "outline": "#7f775f",
+                    "tertiary-fixed-dim": "#ffb3af",
+                    "outline-variant": "#d0c6ab",
+                    "on-primary-fixed": "#221b00",
+                    "error": "#ba1a1a",
+                    "inverse-on-surface": "#f3f0ef",
+                    "on-secondary-fixed": "#001452",
+                    "background": "#fcf9f8",
+                    "on-secondary-fixed-variant": "#0038b7",
+                    "primary-container": "#ffd600",
+                    "surface-container-high": "#eae7e7",
+                    "secondary-container": "#3263ff",
+                    "surface-bright": "#fcf9f8",
+                    "on-tertiary-fixed": "#410005",
+                    "secondary-fixed": "#dde1ff",
+                    "primary": "#705d00",
+                    "surface-dim": "#dcd9d9",
+                    "on-error": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-surface": "#1c1b1b",
+                    "on-surface-variant": "#4d4632",
+                    "tertiary-container": "#ffcdca"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "container-padding": "24px",
+                    "gutter": "16px",
+                    "hard-shadow-offset": "6px",
+                    "border-width": "3px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "label-bold": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "800"}],
+                    "label-bold": ["14px", {"lineHeight": "20px", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "800"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .neo-brutalist-shadow {
+            box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+        }
+        .neo-brutalist-shadow-sm {
+            box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+        }
+        .active-tap:active {
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="flex justify-between items-center px-container-padding py-4 w-full bg-surface top-0 sticky border-b-[3px] border-on-background z-50">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full border-[3px] border-on-background bg-primary-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A playful, high-contrast cartoon illustration of a young adult character with expressive features, styled with thick black ink outlines and flat vibrant colors. The background is a solid bright yellow, creating a bold, graphic novel aesthetic that feels modern and energetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCe6WpwzfvEAOpbZQRWNKa8bq2xfjSGS2h5kYpdVbDUZ31YXbrwd2Q2oSNsqz9jrLqZ2elhpAEXPn9H_z7ZwIUDfztPQHwectrWbD5HgPEB3vi-TZMX809fGl6-TsxWDIpq6bgaKMvu654cAajXLLtdVwycjlGjJpdYjJ-dFe6yq9JL1TbSYN3C5-pBsWWhRPJkXGY5opr6_3WbJD3oSgxDOYJ8Y_23S_hOwTfzMY5BwMtH0gp9uhU3_Nl_vaa2JRNcpFAp5F7lS4Q"/>
+</div>
+<h1 class="font-display-lg text-headline-md text-primary uppercase tracking-tighter">WalletZap</h1>
+</div>
+<button class="w-12 h-12 flex items-center justify-center border-[3px] border-on-background bg-surface rounded-lg neo-brutalist-shadow-sm active-tap">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<main class="px-container-padding pt-8 space-y-8">
+<!-- Hero Section: Total Debt -->
+<section class="bg-tertiary-container border-[3px] border-on-background rounded-lg p-6 neo-brutalist-shadow relative overflow-hidden">
+<div class="relative z-10">
+<p class="font-label-bold text-on-tertiary-container uppercase tracking-widest mb-2">Total Beban Hidup</p>
+<h2 class="font-display-lg text-display-lg text-on-background">Rp 12.450.000</h2>
+<div class="mt-6 flex gap-4">
+<div class="bg-surface border-[3px] border-on-background rounded-full px-4 py-1 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary">warning</span>
+<span class="font-label-bold text-on-surface">3 Jatuh Tempo</span>
+</div>
+</div>
+</div>
+<!-- Decorative Element -->
+<span class="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] text-on-tertiary-container opacity-10 rotate-12">account_balance</span>
+</section>
+<!-- Debt Categories Tabs -->
+<section class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+<button class="bg-primary-container text-on-primary-container border-[3px] border-on-background px-6 py-3 rounded-full font-label-bold whitespace-nowrap neo-brutalist-shadow-sm active-tap">Semua Hutang</button>
+<button class="bg-surface text-on-background border-[3px] border-on-background px-6 py-3 rounded-full font-label-bold whitespace-nowrap active-tap">Paylater</button>
+<button class="bg-surface text-on-background border-[3px] border-on-background px-6 py-3 rounded-full font-label-bold whitespace-nowrap active-tap">Pinjaman Teman</button>
+<button class="bg-surface text-on-background border-[3px] border-on-background px-6 py-3 rounded-full font-label-bold whitespace-nowrap active-tap">Kredit Motor</button>
+</section>
+<!-- Debt List Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Item 1: Paylater -->
+<div class="bg-surface border-[3px] border-on-background rounded-lg p-5 neo-brutalist-shadow-sm hover:shadow-none transition-all flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-secondary-container border-[3px] border-on-background rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-3xl">shopping_cart</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg text-on-background">Shopee Paylater</h3>
+<p class="text-on-surface-variant text-sm font-label-bold">Belanja Khilaf</p>
+</div>
+</div>
+<span class="bg-error-container border-[3px] border-on-background rounded-full px-3 py-1 text-xs font-bold uppercase">Urgent</span>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between font-label-bold">
+<span>Progress Cicilan</span>
+<span>4/12 Bulan</span>
+</div>
+<div class="h-6 w-full bg-surface-container border-[3px] border-on-background rounded-full overflow-hidden relative">
+<div class="h-full bg-secondary-container border-r-[3px] border-on-background" style="width: 33.3%"></div>
+</div>
+</div>
+<div class="flex justify-between items-center mt-2">
+<div>
+<p class="text-xs text-on-surface-variant font-label-bold">Sisa Tagihan</p>
+<p class="font-headline-md text-body-lg">Rp 3.200.000</p>
+</div>
+<button class="bg-primary-container border-[3px] border-on-background p-3 rounded-full neo-brutalist-shadow-sm active-tap">
+<span class="material-symbols-outlined">payments</span>
+</button>
+</div>
+</div>
+<!-- Item 2: Friend Debt -->
+<div class="bg-surface border-[3px] border-on-background rounded-lg p-5 neo-brutalist-shadow-sm hover:shadow-none transition-all flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-primary-fixed border-[3px] border-on-background rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-fixed text-3xl">person</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg text-on-background">Hutang ke Budi</h3>
+<p class="text-on-surface-variant text-sm font-label-bold">Pinjem 100 dulu</p>
+</div>
+</div>
+<span class="bg-surface-container-highest border-[3px] border-on-background rounded-full px-3 py-1 text-xs font-bold uppercase">Sante</span>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between font-label-bold">
+<span>Niat Bayar</span>
+<span>80%</span>
+</div>
+<div class="h-6 w-full bg-surface-container border-[3px] border-on-background rounded-full overflow-hidden relative">
+<div class="h-full bg-primary-fixed border-r-[3px] border-on-background" style="width: 80%"></div>
+</div>
+</div>
+<div class="flex justify-between items-center mt-2">
+<div>
+<p class="text-xs text-on-surface-variant font-label-bold">Total Pinjaman</p>
+<p class="font-headline-md text-body-lg">Rp 500.000</p>
+</div>
+<button class="bg-primary-container border-[3px] border-on-background p-3 rounded-full neo-brutalist-shadow-sm active-tap">
+<span class="material-symbols-outlined">handshake</span>
+</button>
+</div>
+</div>
+<!-- Item 3: Bank / Credit Card -->
+<div class="bg-surface border-[3px] border-on-background rounded-lg p-5 neo-brutalist-shadow-sm hover:shadow-none transition-all flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-tertiary border-[3px] border-on-background rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-3xl">credit_card</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg text-on-background">Kartu Kredit BCA</h3>
+<p class="text-on-surface-variant text-sm font-label-bold">Gaya Hidup Mewah</p>
+</div>
+</div>
+<span class="bg-error-container border-[3px] border-on-background rounded-full px-3 py-1 text-xs font-bold uppercase">Danger</span>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between font-label-bold">
+<span>Limit Terpakai</span>
+<span>Rp 8.500.000 / 10jt</span>
+</div>
+<div class="h-6 w-full bg-surface-container border-[3px] border-on-background rounded-full overflow-hidden relative">
+<div class="h-full bg-tertiary border-r-[3px] border-on-background" style="width: 85%"></div>
+</div>
+</div>
+<div class="flex justify-between items-center mt-2">
+<div>
+<p class="text-xs text-on-surface-variant font-label-bold">Tagihan Bulan Ini</p>
+<p class="font-headline-md text-body-lg text-error">Rp 1.250.000</p>
+</div>
+<button class="bg-primary-container border-[3px] border-on-background p-3 rounded-full neo-brutalist-shadow-sm active-tap">
+<span class="material-symbols-outlined">priority_high</span>
+</button>
+</div>
+</div>
+<!-- Funny Status Card (Bento Style) -->
+<div class="bg-secondary border-[3px] border-on-background rounded-lg p-6 flex flex-col justify-between neo-brutalist-shadow-sm text-white">
+<div>
+<h3 class="font-display-lg text-headline-lg leading-tight">Gali Lubang<br/>Tutup Lubang?</h3>
+<p class="mt-4 font-body-md text-secondary-fixed">Jangan menyerah! Dompetmu butuh istirahat sejenak dari check-out keranjang.</p>
+</div>
+<div class="mt-8 flex items-center gap-4">
+<div class="bg-white p-3 rounded-lg border-[3px] border-on-background">
+<span class="material-symbols-outlined text-secondary text-4xl">psychology</span>
+</div>
+<span class="font-label-bold">Financial Health: Sakit Tipes</span>
+</div>
+</div>
+</section>
+<!-- Motivation Quote Section -->
+<section class="bg-surface-container-high border-[3px] border-on-background rounded-lg p-6 border-dashed text-center">
+<p class="italic font-body-md text-on-surface-variant">"Hutang adalah cara masa depan meminjam uang dari masa sekarang, dan biasanya masa depan lupa balikin."</p>
+</section>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed right-6 bottom-32 w-16 h-16 bg-primary-container border-[3px] border-on-background rounded-full neo-brutalist-shadow active-tap z-50 flex items-center justify-center group">
+<span class="material-symbols-outlined text-3xl group-hover:rotate-90 transition-transform duration-300">add</span>
+</button>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-surface border-t-[3px] border-on-background">
+<a class="flex flex-col items-center justify-center text-on-background py-2" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-bold text-label-bold">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-background py-2" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-bold text-label-bold">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-background py-2" href="#">
+<span class="material-symbols-outlined">category</span>
+<span class="font-label-bold text-label-bold">Categories</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-background py-2" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-label-bold text-label-bold">Accounts</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container border-[3px] border-on-background rounded-lg py-1 px-3 -translate-y-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+<span class="font-label-bold text-label-bold">Debt</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interactions for the neo-brutalist feel
+        document.querySelectorAll('.active-tap').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.style.transform = 'translate(3px, 3px)';
+                button.style.boxShadow = '0px 0px 0px 0px rgba(0,0,0,1)';
+            });
+            button.addEventListener('mouseup', () => {
+                button.style.transform = 'translate(0px, 0px)';
+                if(button.classList.contains('neo-brutalist-shadow-sm')) {
+                    button.style.boxShadow = '4px 4px 0px 0px rgba(0,0,0,1)';
+                } else if(button.classList.contains('neo-brutalist-shadow')) {
+                    button.style.boxShadow = '6px 6px 0px 0px rgba(0,0,0,1)';
+                }
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.transform = 'translate(0px, 0px)';
+                if(button.classList.contains('neo-brutalist-shadow-sm')) {
+                    button.style.boxShadow = '4px 4px 0px 0px rgba(0,0,0,1)';
+                } else if(button.classList.contains('neo-brutalist-shadow')) {
+                    button.style.boxShadow = '6px 6px 0px 0px rgba(0,0,0,1)';
+                }
+            });
+        });
+    </script>
+</body></html>

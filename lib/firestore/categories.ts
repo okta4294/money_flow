@@ -17,6 +17,7 @@ export interface Category {
   color: string;
   icon: string;
   isDefault: boolean;
+  monthlyBudget?: number;
   createdAt: Timestamp;
 }
 
@@ -25,6 +26,7 @@ export interface CategoryInput {
   type: TransactionType;
   color: string;
   icon: string;
+  monthlyBudget?: number;
 }
 
 

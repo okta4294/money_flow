@@ -235,7 +235,7 @@ export default function DashboardPage() {
                       )}
                     </div>
                     <div>
-                      <h5 className="font-label-bold text-label-bold text-on-background line-clamp-1">{t.title}</h5>
+                      <h5 className="font-label-bold text-label-bold text-on-background line-clamp-1">{t.note || cat?.name || t.category || 'Transaction'}</h5>
                       <span className="font-body-md text-sm text-on-background/70">{cat?.name || 'Uncategorized'} • {new Date(t.date + "T00:00:00").toLocaleDateString('id-ID')}</span>
                     </div>
                   </div>

@@ -159,7 +159,7 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
                       })()}
                     </div>
                     <div className="flex-1 z-10 relative" onClick={() => onEdit(t)}>
-                      <p className="font-headline-md text-body-lg text-on-background leading-tight line-clamp-1">{t.title || t.category}</p>
+                      <p className="font-headline-md text-body-lg text-on-background leading-tight line-clamp-1">{t.note || t.category}</p>
                       <p className="font-body-md text-on-surface-variant text-sm">
                         {t.type === "transfer" ? `${t.accountName || "?"} → ${t.destinationAccountName || "?"}` : (t.category || "Uncategorized")}
                         {t.note && ` • ${t.note}`}

@@ -73,28 +73,28 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-slate-900 border border-slate-700/50 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md p-6 shadow-2xl animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-tertiary-container neo-brutalist-border p-6 neo-brutalist-shadow w-full sm:max-w-md max-h-[90vh] overflow-y-auto z-10 animate-in slide-in-from-bottom-4 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/15 flex items-center justify-center">
-              <i className="fa-solid fa-credit-card text-amber-400 text-base"></i>
+        <div className="flex items-center justify-between mb-6 border-b-4 border-black dark:border-white pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 border-2 border-black dark:border-white bg-tertiary flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+              <i className="fa-solid fa-credit-card text-on-tertiary text-xl"></i>
             </div>
-            <h2 className="text-white font-semibold text-lg">
-              {editData ? "Edit Hutang" : "Tambah Hutang/Paylater"}
+            <h2 className="font-display-lg text-2xl text-on-tertiary-container uppercase tracking-tighter">
+              {editData ? "Edit Hutang" : "Tambah Hutang"}
             </h2>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
-            <i className="fa-solid fa-xmark text-xl"></i>
+          <button onClick={onClose} className="bg-error text-on-error neo-brutalist-border p-1 w-8 h-8 flex items-center justify-center active-press">
+            <i className="fa-solid fa-xmark"></i>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Name */}
           <div>
-            <label className="text-slate-400 text-xs font-medium block mb-1.5">
+            <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">
               Nama Hutang / Paylater
             </label>
             <input
@@ -102,18 +102,18 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Contoh: Shopee Paylater, KTA BCA..."
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-all placeholder:text-slate-600"
+              placeholder="CONTOH: SHOPEE PAYLATER..."
+              className="w-full bg-surface neo-brutalist-border px-4 py-3 text-on-surface font-label-bold uppercase text-sm focus:outline-none focus:ring-2 focus:ring-tertiary transition-colors placeholder:text-on-surface-variant"
             />
           </div>
 
           {/* Total Amount */}
           <div>
-            <label className="text-slate-400 text-xs font-medium block mb-1.5">
+            <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">
               {editData ? "Total Hutang (diperbarui)" : "Total Hutang"}
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">Rp</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 font-display-lg text-on-surface text-xl">Rp</span>
               <input
                 id="debt-amount-input"
                 type="text"
@@ -121,52 +121,50 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
                 value={formatRupiah(amount)}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0"
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-12 pr-4 py-3 text-white text-base font-semibold focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-all"
+                className="w-full bg-surface neo-brutalist-border pl-12 pr-4 py-3 text-on-surface text-xl font-display-lg focus:outline-none focus:ring-2 focus:ring-tertiary transition-colors"
               />
             </div>
           </div>
 
           {/* Due Date */}
           <div>
-            <label className="text-slate-400 text-xs font-medium block mb-1.5">
-              <span className="flex items-center gap-1.5">
-                <i className="fa-solid fa-calendar text-[12px]"></i>
-                Jatuh Tempo (opsional)
-              </span>
+            <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2 flex items-center gap-2">
+              <i className="fa-solid fa-calendar"></i>
+              Jatuh Tempo (opsional)
             </label>
             <input
               id="debt-due-date"
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-all"
+              className="w-full bg-surface neo-brutalist-border px-4 py-3 text-on-surface font-label-bold uppercase text-xs focus:outline-none focus:ring-2 focus:ring-tertiary transition-colors cursor-pointer"
             />
           </div>
 
           {/* Note */}
           <div>
-            <label className="text-slate-400 text-xs font-medium block mb-1.5">Catatan (opsional)</label>
+            <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">Catatan (opsional)</label>
             <input
               id="debt-note-input"
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Tambahkan catatan..."
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-all placeholder:text-slate-600"
+              placeholder="TAMBAHKAN CATATAN..."
+              className="w-full bg-surface neo-brutalist-border px-4 py-3 text-on-surface font-label-bold uppercase text-sm focus:outline-none focus:ring-2 focus:ring-tertiary transition-colors placeholder:text-on-surface-variant"
             />
           </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-sm">
-              {error}
+            <div className="bg-error text-on-error neo-brutalist-border px-4 py-3 font-label-bold uppercase text-xs flex items-center gap-2">
+              <i className="fa-solid fa-triangle-exclamation"></i> {error}
             </div>
           )}
 
-          <div className="flex gap-3 pt-1">
+          <div className="flex gap-4 pt-4 mt-8 border-t-4 border-black dark:border-white">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 rounded-xl border border-slate-700 text-slate-400 hover:text-white text-sm font-medium transition-all"
+              className="flex-1 py-4 bg-surface text-on-surface font-label-bold uppercase tracking-widest neo-brutalist-border active-press"
             >
               Batal
             </button>
@@ -174,9 +172,9 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
               id="save-debt"
               type="submit"
               disabled={loading}
-              className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold transition-all shadow-lg shadow-amber-500/20 disabled:opacity-50"
+              className="flex-1 py-4 font-label-bold uppercase tracking-widest text-on-tertiary bg-tertiary neo-brutalist-border active-press disabled:opacity-50"
             >
-              {loading ? "Menyimpan..." : editData ? "Perbarui" : "Tambah Hutang"}
+              {loading ? "Menyimpan..." : editData ? "Perbarui" : "Tambah"}
             </button>
           </div>
         </form>

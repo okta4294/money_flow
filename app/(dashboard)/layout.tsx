@@ -8,7 +8,6 @@ import { useAuth } from "@/lib/auth-context";
 import { Sidebar } from "@/components/layout/Sidebar";
 import Link from "next/link";
 import Image from "next/image";
-import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
@@ -24,7 +23,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -62,13 +60,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span className="font-bold text-lg text-on-primary-container">{(user?.displayName || user?.email || "U")[0].toUpperCase()}</span>
             )}
           </div>
-          <h1 className="font-display-lg text-headline-md text-primary uppercase tracking-tighter">WalletZap</h1>
+          <h1 className="font-display-lg text-headline-md text-primary uppercase tracking-tighter">My Wallet</h1>
         </div>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <button className="w-12 h-12 bg-white dark:bg-surface-container border-[3px] border-on-background rounded-full flex items-center justify-center neo-brutalist-shadow active-press">
-            <span className="material-symbols-outlined text-on-background">notifications</span>
-          </button>
         </div>
       </header>
 

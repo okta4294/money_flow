@@ -5,7 +5,6 @@ import { useAuth } from "@/lib/auth-context";
 import {
   subscribeToCategories,
   Category,
-  seedDefaultCategories,
 } from "@/lib/firestore/categories";
 
 export function useCategories() {
@@ -20,8 +19,6 @@ export function useCategories() {
       return;
     }
 
-    // Seed default categories for new users
-    seedDefaultCategories(user.uid);
 
     setLoading(true);
     const unsubscribe = subscribeToCategories(user.uid, (data) => {

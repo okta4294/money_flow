@@ -47,11 +47,7 @@ export function subscribeToCategories(
   });
 }
 
-// seedDefaultCategories dipertahankan tapi tidak melakukan apa-apa
-// (DEFAULT_CATEGORIES kosong — user membangun kategori sendiri)
-export async function seedDefaultCategories(_userId: string) {
-  // No-op: categories are now user-defined from the start
-}
+
 
 export async function addCategory(userId: string, data: CategoryInput) {
   const ref = await addDoc(categoriesRef(userId), {

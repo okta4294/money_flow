@@ -9,7 +9,6 @@ import {
   orderBy,
   Timestamp,
   onSnapshot,
-  getDocs,
   getAggregateFromServer,
   sum,
 } from "firebase/firestore";
@@ -77,24 +76,7 @@ export function subscribeToTransactionsByMonth(
   });
 }
 
-export async function getTransactionsByMonth(
-  userId: string,
-  year: number,
-  month: number
-): Promise<Transaction[]> {
-  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
-  const endDate = `${year}-${String(month).padStart(2, "0")}-31`;
 
-  const q = query(
-    transactionsRef(userId),
-    where("date", ">=", startDate),
-    where("date", "<=", endDate),
-    orderBy("date", "desc")
-  );
-
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Transaction[];
-}
 
 export async function addTransaction(userId: string, data: TransactionInput) {
   const ref = await addDoc(transactionsRef(userId), {

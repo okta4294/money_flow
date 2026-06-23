@@ -35,7 +35,7 @@ export default function DebtsPage() {
         <section className="col-span-1 md:col-span-2 bg-tertiary-container neo-brutalist-border rounded-lg p-6 neo-brutalist-shadow relative overflow-hidden">
           <div className="relative z-10">
             <p className="font-label-bold text-on-tertiary-container uppercase tracking-widest mb-2">Total Beban Hidup</p>
-            <h2 className="font-display-lg text-4xl md:text-5xl text-on-tertiary-container tracking-tighter">
+            <h2 className="text-4xl md:text-5xl tracking-tighter text-outline font-[family-name:var(--font-display)]" style={{ color: '#000000', WebkitTextStroke: '2px white' }}>
                {loading ? "..." : formatRupiah(totalDebt)}
             </h2>
             <div className="mt-6 flex gap-4">
@@ -55,7 +55,7 @@ export default function DebtsPage() {
              <span className="material-symbols-outlined text-error">calendar_month</span>
              <p className="font-label-bold text-on-surface-variant uppercase tracking-widest text-xs">Estimasi Bulan Depan</p>
           </div>
-          <h3 className="font-headline-md text-2xl text-on-background">{loading ? "..." : formatRupiah(nextMonthDebtEstimate || 0)}</h3>
+          <h3 className="text-2xl font-[family-name:var(--font-display)] text-on-background">{loading ? "..." : formatRupiah(nextMonthDebtEstimate || 0)}</h3>
           <p className="text-xs font-body-md text-on-surface-variant mt-2 leading-relaxed">Tagihan yang jatuh tempo di bulan depan.</p>
         </section>
       </div>

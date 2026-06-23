@@ -172,28 +172,28 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/50 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md p-6 shadow-2xl animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-surface neo-brutalist-border p-6 neo-brutalist-shadow w-full sm:max-w-md max-h-[90vh] overflow-y-auto z-10 animate-in slide-in-from-bottom-4 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-slate-900 dark:text-white font-semibold text-lg">
+        <div className="flex items-center justify-between mb-6 border-b-4 border-black dark:border-white pb-4">
+          <h2 className="font-display-lg text-2xl text-on-surface uppercase tracking-tighter">
             {editData ? "Edit Transaksi" : "Tambah Transaksi"}
           </h2>
-          <button onClick={onClose} className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-            <i className="fa-solid fa-xmark text-xl"></i>
+          <button onClick={onClose} className="bg-error text-on-error neo-brutalist-border p-1 w-8 h-8 flex items-center justify-center active-press">
+            <i className="fa-solid fa-xmark"></i>
           </button>
         </div>
 
         {/* Type Toggle */}
-        <div className="flex bg-slate-100 dark:bg-slate-800/60 rounded-xl p-1 mb-5">
+        <div className="flex gap-2 mb-6">
           <button
             type="button"
             onClick={() => setType("expense")}
-            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+            className={`flex-1 py-2 font-label-bold uppercase text-sm border-2 border-black dark:border-white transition-all duration-200 active-press ${
               type === "expense"
-                ? "bg-rose-50 dark:bg-rose-500/20 text-rose-500 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30"
-                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                ? "bg-tertiary text-on-tertiary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
+                : "bg-surface text-on-surface"
             }`}
           >
             Pengeluaran
@@ -201,10 +201,10 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           <button
             type="button"
             onClick={() => setType("income")}
-            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+            className={`flex-1 py-2 font-label-bold uppercase text-sm border-2 border-black dark:border-white transition-all duration-200 active-press ${
               type === "income"
-                ? "bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30"
-                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                ? "bg-primary text-on-primary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
+                : "bg-surface text-on-surface"
             }`}
           >
             Pemasukan
@@ -212,22 +212,22 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           <button
             type="button"
             onClick={() => setType("transfer")}
-            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+            className={`flex-1 py-2 font-label-bold uppercase text-sm border-2 border-black dark:border-white transition-all duration-200 active-press ${
               type === "transfer"
-                ? "bg-sky-50 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-500/30"
-                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                ? "bg-secondary text-on-secondary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
+                : "bg-surface text-on-surface"
             }`}
           >
             Transfer
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Amount */}
           <div>
-            <label className="text-slate-500 dark:text-slate-400 text-xs font-medium block mb-1.5">Jumlah</label>
+            <label className="font-label-bold text-on-surface uppercase tracking-widest text-xs block mb-2">Jumlah</label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 text-sm">Rp</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 font-display-lg text-on-surface text-xl">Rp</span>
               <input
                 id="transaction-amount"
                 type="text"
@@ -235,37 +235,37 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                 value={formatRupiah(amount)}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0"
-                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-12 pr-4 py-3 text-slate-900 dark:text-white text-base font-semibold focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all"
+                className="w-full bg-surface-container neo-brutalist-border pl-12 pr-4 py-3 text-on-surface text-xl font-display-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-primary-container focus:text-on-primary-container transition-colors"
               />
             </div>
           </div>
 
-          {/* Category — hanya untuk income/expense */}
+          {/* Category */}
           {type !== "transfer" && (
           <div>
-            <label className="text-slate-500 dark:text-slate-400 text-xs font-medium block mb-1.5">Kategori</label>
+            <label className="font-label-bold text-on-surface uppercase tracking-widest text-xs block mb-2">Kategori</label>
             {categories.length === 0 ? (
-              <div className="border border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-4 text-center">
-                <p className="text-slate-500 text-xs">Belum ada kategori</p>
-                <a href="/categories" className="text-emerald-500 dark:text-emerald-400 text-xs hover:underline mt-1 block">
-                  + Tambah kategori dulu
+              <div className="neo-brutalist-border border-dashed p-4 text-center bg-surface-container">
+                <p className="text-on-surface-variant font-label-md">Belum ada kategori</p>
+                <a href="/categories" className="text-primary font-label-bold uppercase text-xs mt-2 inline-block neo-brutalist-border bg-surface px-2 py-1 active-press">
+                  + Tambah Kategori
                 </a>
               </div>
             ) : (
-              <div className="max-h-36 overflow-y-auto pr-1 border border-slate-200 dark:border-slate-800 rounded-xl p-2 bg-slate-50 dark:bg-slate-950/20">
-                <div className="grid grid-cols-3 gap-1.5">
+              <div className="max-h-40 overflow-y-auto p-2 neo-brutalist-border bg-surface-container">
+                <div className="grid grid-cols-3 gap-2">
                   {categories.map((cat) => (
                     <button
                       key={cat.id}
                       type="button"
                       onClick={() => setCategoryId(cat.id)}
-                      className={`flex flex-col items-center gap-1 py-1.5 px-1 rounded-lg border text-[11px] font-medium transition-all duration-150 ${
+                      className={`flex flex-col items-center gap-2 p-2 border-2 border-black dark:border-white font-label-bold text-[10px] uppercase transition-transform active-press ${
                         categoryId === cat.id
-                          ? "border-emerald-500/50 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                          : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-white shadow-sm dark:shadow-none"
+                          ? "bg-primary text-on-primary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
+                          : "bg-surface text-on-surface hover:bg-surface-variant"
                       }`}
                     >
-                      <i className={`${cat.icon && cat.icon.includes("fa-") ? cat.icon : "fa-solid fa-circle"} text-lg drop-shadow-sm`}></i>
+                      <i className={`${cat.icon && cat.icon.includes("fa-") ? cat.icon : "fa-solid fa-circle"} text-lg`}></i>
                       <span className="truncate w-full text-center">{cat.name}</span>
                     </button>
                   ))}
@@ -275,68 +275,67 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           </div>
           )}
 
-          {/* Transfer UI — pilih sumber & tujuan */}
+          {/* Transfer UI */}
           {type === "transfer" ? (
-            <div className="bg-sky-500/5 border border-sky-500/20 rounded-xl p-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="flex items-center gap-2 mb-1">
-                <i className="fa-solid fa-right-left text-sky-400 text-sm"></i>
-                <span className="text-sky-400 text-xs font-semibold">Transfer Antar Akun</span>
+            <div className="bg-secondary-container border-4 border-black dark:border-white p-4 space-y-4">
+              <div className="flex items-center gap-2 mb-2 border-b-2 border-black dark:border-white pb-2">
+                <i className="fa-solid fa-right-left text-on-secondary-container"></i>
+                <span className="text-on-secondary-container font-label-bold uppercase tracking-widest">Transfer Antar Akun</span>
               </div>
               {accounts.length < 2 ? (
                 <div className="text-center py-2">
-                  <p className="text-slate-500 text-xs">Butuh minimal 2 akun untuk transfer</p>
-                  <a href="/accounts" className="text-sky-400 text-xs hover:underline mt-1 block">+ Tambah akun</a>
+                  <p className="text-on-secondary-container font-label-md">Butuh minimal 2 akun</p>
+                  <a href="/accounts" className="text-secondary font-label-bold uppercase text-xs mt-2 inline-block neo-brutalist-border bg-surface px-2 py-1 active-press">+ Tambah Akun</a>
                 </div>
               ) : (
                 <>
                   {/* Sumber */}
                   <div>
-                    <label className="text-slate-400 text-xs font-medium block mb-1.5">Dari Akun <span className="text-rose-400">*</span></label>
-                    <div className="grid grid-cols-3 gap-1.5">
+                    <label className="font-label-bold text-on-secondary-container uppercase tracking-widest text-xs block mb-2">Dari Akun <span className="text-error">*</span></label>
+                    <div className="grid grid-cols-2 gap-2">
                       {accounts.map((acc) => (
                         <button
                           key={acc.id}
                           type="button"
                           onClick={() => setAccountId(acc.id)}
-                          className={`flex flex-col items-center gap-1 py-1.5 px-1 rounded-lg border text-[11px] font-medium transition-all duration-150 ${
+                          className={`flex items-center gap-2 p-2 border-2 border-black dark:border-white font-label-bold text-[10px] uppercase transition-transform active-press ${
                             accountId === acc.id
-                              ? "border-sky-500/50 bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400"
+                              ? "bg-secondary text-on-secondary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
                               : destinationAccountId === acc.id
-                              ? "border-slate-300 dark:border-slate-600 opacity-40 cursor-not-allowed bg-white dark:bg-slate-800/50 text-slate-400"
-                              : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600"
+                              ? "bg-surface opacity-50 cursor-not-allowed"
+                              : "bg-surface text-on-surface hover:bg-surface-variant"
                           }`}
                           disabled={destinationAccountId === acc.id}
                         >
-                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: acc.color }} />
-                          <span className="truncate w-full text-center">{acc.name}</span>
+                          <span className="w-3 h-3 border border-black dark:border-white" style={{ backgroundColor: acc.color }} />
+                          <span className="truncate flex-1 text-left">{acc.name}</span>
                         </button>
                       ))}
                     </div>
                   </div>
-                  {/* Panah */}
                   <div className="flex items-center justify-center">
-                    <i className="fa-solid fa-arrow-down text-sky-400/60 text-sm"></i>
+                    <i className="fa-solid fa-arrow-down text-on-secondary-container text-xl"></i>
                   </div>
                   {/* Tujuan */}
                   <div>
-                    <label className="text-slate-400 text-xs font-medium block mb-1.5">Ke Akun <span className="text-rose-400">*</span></label>
-                    <div className="grid grid-cols-3 gap-1.5">
+                    <label className="font-label-bold text-on-secondary-container uppercase tracking-widest text-xs block mb-2">Ke Akun <span className="text-error">*</span></label>
+                    <div className="grid grid-cols-2 gap-2">
                       {accounts.map((acc) => (
                         <button
                           key={acc.id}
                           type="button"
                           onClick={() => setDestinationAccountId(acc.id)}
-                          className={`flex flex-col items-center gap-1 py-1.5 px-1 rounded-lg border text-[11px] font-medium transition-all duration-150 ${
+                          className={`flex items-center gap-2 p-2 border-2 border-black dark:border-white font-label-bold text-[10px] uppercase transition-transform active-press ${
                             destinationAccountId === acc.id
-                              ? "border-sky-500/50 bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400"
+                              ? "bg-secondary text-on-secondary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
                               : accountId === acc.id
-                              ? "border-slate-300 dark:border-slate-600 opacity-40 cursor-not-allowed bg-white dark:bg-slate-800/50 text-slate-400"
-                              : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600"
+                              ? "bg-surface opacity-50 cursor-not-allowed"
+                              : "bg-surface text-on-surface hover:bg-surface-variant"
                           }`}
                           disabled={accountId === acc.id}
                         >
-                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: acc.color }} />
-                          <span className="truncate w-full text-center">{acc.name}</span>
+                          <span className="w-3 h-3 border border-black dark:border-white" style={{ backgroundColor: acc.color }} />
+                          <span className="truncate flex-1 text-left">{acc.name}</span>
                         </button>
                       ))}
                     </div>
@@ -345,33 +344,31 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
               )}
             </div>
           ) : (
-          /* Account Source / Destination — income/expense */
           <div>
-            <label className="text-slate-500 dark:text-slate-400 text-xs font-medium block mb-1.5">
+            <label className="font-label-bold text-on-surface uppercase tracking-widest text-xs block mb-2">
               {type === "income" ? "Sumber Dana (opsional)" : "Rekening (opsional)"}
             </label>
             {accounts.length === 0 ? (
-              <div className="border border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-4 text-center">
-                <p className="text-slate-500 text-xs">Belum ada akun/rekening</p>
-                <a href="/accounts" className="text-emerald-500 dark:text-emerald-400 text-xs hover:underline mt-1 block">
-                  + Tambah akun dulu
+              <div className="neo-brutalist-border border-dashed p-4 text-center bg-surface-container">
+                <p className="text-on-surface-variant font-label-md">Belum ada akun/rekening</p>
+                <a href="/accounts" className="text-primary font-label-bold uppercase text-xs mt-2 inline-block neo-brutalist-border bg-surface px-2 py-1 active-press">
+                  + Tambah Akun
                 </a>
               </div>
             ) : (
-              <div className="max-h-36 overflow-y-auto pr-1 border border-slate-200 dark:border-slate-800 rounded-xl p-2 bg-slate-50 dark:bg-slate-950/20">
-                <div className="grid grid-cols-3 gap-1.5">
-                  {/* Option to unselect account */}
+              <div className="max-h-32 overflow-y-auto p-2 neo-brutalist-border bg-surface-container">
+                <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setAccountId("")}
-                    className={`flex flex-col items-center gap-1 py-1.5 px-1 rounded-lg border text-[11px] font-medium transition-all duration-150 ${
+                    className={`flex items-center gap-2 p-2 border-2 border-black dark:border-white font-label-bold text-[10px] uppercase transition-transform active-press ${
                       accountId === ""
-                        ? "border-emerald-500/50 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                        : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-white shadow-sm dark:shadow-none"
+                        ? "bg-primary text-on-primary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
+                        : "bg-surface text-on-surface hover:bg-surface-variant"
                     }`}
                   >
-                    <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-500" />
-                    <span className="truncate w-full text-center">Kosong</span>
+                    <span className="w-3 h-3 border border-black dark:border-white bg-on-surface-variant" />
+                    <span className="truncate flex-1 text-left">Kosong</span>
                   </button>
 
                   {accounts.map((acc) => (
@@ -379,17 +376,17 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                       key={acc.id}
                       type="button"
                       onClick={() => setAccountId(acc.id)}
-                      className={`flex flex-col items-center gap-1 py-1.5 px-1 rounded-lg border text-[11px] font-medium transition-all duration-150 ${
+                      className={`flex items-center gap-2 p-2 border-2 border-black dark:border-white font-label-bold text-[10px] uppercase transition-transform active-press ${
                         accountId === acc.id
-                          ? "border-emerald-500/50 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                          : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-white shadow-sm dark:shadow-none"
+                          ? "bg-primary text-on-primary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
+                          : "bg-surface text-on-surface hover:bg-surface-variant"
                       }`}
                     >
                       <span
-                        className="w-2 h-2 rounded-full"
+                        className="w-3 h-3 border border-black dark:border-white"
                         style={{ backgroundColor: acc.color }}
                       />
-                      <span className="truncate w-full text-center">{acc.name}</span>
+                      <span className="truncate flex-1 text-left">{acc.name}</span>
                     </button>
                   ))}
                 </div>
@@ -398,51 +395,49 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           </div>
           )}
 
-          {/* Debt Payment Section — shown when category contains "hutang"/"paylater" */}
+          {/* Debt Payment Section */}
           {showDebtDropdown && (
-            <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="flex items-center gap-2 mb-1">
-                <i className="fa-solid fa-credit-card text-amber-400 text-sm"></i>
-                <span className="text-amber-400 text-xs font-semibold">Pembayaran Hutang</span>
+            <div className="bg-tertiary-container border-4 border-black dark:border-white p-4 space-y-4">
+              <div className="flex items-center gap-2 mb-2 border-b-2 border-black dark:border-white pb-2">
+                <i className="fa-solid fa-credit-card text-on-tertiary-container"></i>
+                <span className="text-on-tertiary-container font-label-bold uppercase tracking-widest">Pembayaran Hutang</span>
               </div>
 
               {activeDebts.length === 0 ? (
                 <div className="text-center py-2">
-                  <p className="text-slate-500 text-xs">Belum ada hutang aktif</p>
-                  <a href="/debts" className="text-amber-400 text-xs hover:underline mt-1 block">
-                    + Tambah hutang dulu
+                  <p className="text-on-tertiary-container font-label-md">Belum ada hutang aktif</p>
+                  <a href="/debts" className="text-tertiary font-label-bold uppercase text-xs mt-2 inline-block neo-brutalist-border bg-surface px-2 py-1 active-press">
+                    + Tambah Hutang
                   </a>
                 </div>
               ) : (
                 <>
-                  {/* Debt Selector */}
                   <div>
-                    <label className="text-slate-500 dark:text-slate-400 text-xs font-medium block mb-1.5">
+                    <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">
                       Hutang yang dibayar (opsional)
                     </label>
                     <select
                       id="debt-selector"
                       value={selectedDebtId}
                       onChange={(e) => setSelectedDebtId(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-all appearance-none"
+                      className="w-full bg-surface neo-brutalist-border px-4 py-3 text-on-surface font-label-bold uppercase text-xs focus:outline-none focus:ring-2 focus:ring-tertiary appearance-none cursor-pointer"
                     >
-                      <option value="">-- Pilih hutang --</option>
+                      <option value="">-- PILIH HUTANG --</option>
                       {activeDebts.map((debt) => (
                         <option key={debt.id} value={debt.id}>
-                          {debt.name} (sisa {formatRupiahNum(debt.remainingAmount)})
+                          {debt.name} (SISA {formatRupiahNum(debt.remainingAmount)})
                         </option>
                       ))}
                     </select>
                   </div>
 
-                  {/* Payment amount */}
                   {selectedDebtId && (
-                    <div className="animate-in fade-in duration-150">
-                      <label className="text-slate-400 text-xs font-medium block mb-1.5">
-                        Nominal yang dibayarkan ke hutang ini
+                    <div>
+                      <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">
+                        Nominal Dibayarkan
                       </label>
                       <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">Rp</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-display-lg text-on-surface text-lg">Rp</span>
                         <input
                           id="debt-payment-amount"
                           type="text"
@@ -450,14 +445,12 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                           value={formatRupiah(debtPaymentAmount)}
                           onChange={(e) => setDebtPaymentAmount(e.target.value)}
                           placeholder="0"
-                          className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-12 pr-4 py-3 text-white text-sm font-semibold focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-all"
+                          className="w-full bg-surface neo-brutalist-border pl-12 pr-4 py-3 text-on-surface text-lg font-display-lg focus:outline-none focus:ring-2 focus:ring-tertiary transition-colors"
                         />
                       </div>
-                      {selectedDebtId && (
-                        <p className="text-slate-600 text-[10px] mt-1.5">
-                          Sisa hutang akan berkurang sebesar nominal yang dimasukkan
-                        </p>
-                      )}
+                      <p className="text-on-tertiary-container font-label-bold text-[10px] uppercase mt-2">
+                        <i className="fa-solid fa-triangle-exclamation mr-1"></i> Sisa hutang akan berkurang otomatis
+                      </p>
                     </div>
                   )}
                 </>
@@ -467,40 +460,40 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
 
           {/* Date */}
           <div>
-            <label className="text-slate-500 dark:text-slate-400 text-xs font-medium block mb-1.5">Tanggal</label>
+            <label className="font-label-bold text-on-surface uppercase tracking-widest text-xs block mb-2">Tanggal</label>
             <input
               id="transaction-date"
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all"
+              className="w-full bg-surface-container neo-brutalist-border px-4 py-3 text-on-surface font-label-bold uppercase text-xs focus:outline-none focus:ring-2 focus:ring-primary focus:bg-primary-container focus:text-on-primary-container transition-colors cursor-pointer"
             />
           </div>
 
           {/* Note */}
           <div>
-            <label className="text-slate-500 dark:text-slate-400 text-xs font-medium block mb-1.5">Catatan (opsional)</label>
+            <label className="font-label-bold text-on-surface uppercase tracking-widest text-xs block mb-2">Catatan (opsional)</label>
             <input
               id="transaction-note"
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Tambahkan catatan..."
-              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
+              placeholder="TAMBAHKAN CATATAN..."
+              className="w-full bg-surface-container neo-brutalist-border px-4 py-3 text-on-surface font-label-bold uppercase text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:bg-primary-container focus:text-on-primary-container transition-colors placeholder:text-on-surface-variant"
             />
           </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-sm">
-              {error}
+            <div className="bg-error text-on-error neo-brutalist-border px-4 py-3 font-label-bold uppercase text-xs flex items-center gap-2">
+              <i className="fa-solid fa-triangle-exclamation"></i> {error}
             </div>
           )}
 
-          <div className="flex gap-3 pt-1">
+          <div className="flex gap-4 pt-4 mt-8 border-t-4 border-black dark:border-white">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm font-medium transition-all"
+              className="flex-1 py-4 bg-surface-container text-on-surface font-label-bold uppercase tracking-widest neo-brutalist-border active-press"
             >
               Batal
             </button>
@@ -508,12 +501,12 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
               id="save-transaction"
               type="submit"
               disabled={loading}
-              className={`flex-1 py-3 rounded-xl text-white text-sm font-semibold transition-all shadow-lg disabled:opacity-50 ${
+              className={`flex-1 py-4 font-label-bold uppercase tracking-widest text-white neo-brutalist-border active-press disabled:opacity-50 ${
                 type === "expense"
-                  ? "bg-rose-500 hover:bg-rose-400 shadow-rose-500/20"
+                  ? "bg-tertiary text-on-tertiary"
                   : type === "transfer"
-                  ? "bg-sky-500 hover:bg-sky-400 shadow-sky-500/20"
-                  : "bg-emerald-500 hover:bg-emerald-400 shadow-emerald-500/20"
+                  ? "bg-secondary text-on-secondary"
+                  : "bg-primary text-on-primary"
               }`}
             >
               {loading ? "Menyimpan..." : editData ? "Perbarui" : "Simpan"}

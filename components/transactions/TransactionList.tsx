@@ -28,23 +28,19 @@ function formatDate(dateStr: string) {
   });
 }
 
-function isToday(dateStr: string) {
-  const today = new Date();
-  const date = new Date(dateStr + "T00:00:00");
-  return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
-}
-
-function isYesterday(dateStr: string) {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const date = new Date(dateStr + "T00:00:00");
-  return date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth() && date.getFullYear() === yesterday.getFullYear();
-}
+const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
 
 function getDayLabel(dateStr: string) {
-  if (isToday(dateStr)) return "Today, " + formatDate(dateStr);
-  if (isYesterday(dateStr)) return "Yesterday, " + formatDate(dateStr);
-  return formatDate(dateStr) + ", " + new Date(dateStr + "T00:00:00").getFullYear();
+  const date = new Date(dateStr + "T00:00:00");
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((date.getTime() - today.getTime()) / 86400000);
+  
+  if (diffDays === 0 || diffDays === -1) {
+    const rel = rtf.format(diffDays, 'day');
+    return rel.charAt(0).toUpperCase() + rel.slice(1) + ", " + formatDate(dateStr);
+  }
+  return formatDate(dateStr) + ", " + date.getFullYear();
 }
 
 function groupByDate(transactions: Transaction[]): Record<string, Transaction[]> {

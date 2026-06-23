@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { Transaction } from "@/lib/firestore/transactions";
 import { useAuth } from "@/lib/auth-context";
-import { checkAiLimit, markAiUsage, isSuperUser } from "@/lib/firestore/ai-usage";
+import { checkAiLimit, markAiUsage } from "@/lib/firestore/ai-usage";
 
 interface AISummaryCardProps {
   transactions: Transaction[];
@@ -110,7 +110,8 @@ export function AISummaryCard({
     }
   };
 
-  const isSuper = isSuperUser(user?.email);
+  const superEmail = process.env.NEXT_PUBLIC_SUPER_USER_EMAIL;
+  const isSuper = !!superEmail && user?.email?.toLowerCase() === superEmail.toLowerCase();
 
   return (
     <div className="ai-glow rounded-2xl p-stack-lg h-full flex flex-col relative z-10 overflow-hidden">

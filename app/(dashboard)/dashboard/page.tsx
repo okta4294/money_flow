@@ -66,7 +66,7 @@ export default function DashboardPage() {
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
         <div>
           <h2 className="font-display-lg text-4xl md:text-5xl text-on-surface tracking-tighter uppercase">OVERVIEW</h2>
-          <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Welcome back. Try not to blow it all today.</p>
+          <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Hai miskin gimana kabarnya.</p>
         </div>
         <div className="flex gap-4">
           <div className="bg-surface-container neo-brutalist-border neo-brutalist-shadow-sm flex items-center p-1">
@@ -93,7 +93,7 @@ export default function DashboardPage() {
             <div className="inline-block bg-on-background text-surface font-label-bold text-label-bold uppercase px-2 py-1 neo-brutalist-border mb-4">
                 Total Liquid Assets
             </div>
-            <h3 className="font-display-lg text-5xl md:text-[80px] leading-none text-on-primary-container tracking-tighter mt-2">
+            <h3 className="text-[60px] md:text-[100px] lg:text-[120px] leading-none tracking-tight mt-2 font-[family-name:var(--font-display)]" style={{ color: '#000000', WebkitTextStroke: '2px white' }}>
                 {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(currentBalance)}
             </h3>
           </div>
@@ -144,7 +144,7 @@ export default function DashboardPage() {
                 <span className="font-label-bold text-label-bold text-on-surface uppercase flex items-center gap-1">
                   <span className="material-symbols-outlined text-primary dark:text-primary-fixed">arrow_upward</span> Income
                 </span>
-                <span className="font-headline-md text-xl text-primary dark:text-primary-fixed font-bold">
+                <span className="text-2xl font-[family-name:var(--font-display)] text-primary dark:text-primary-fixed">
                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalIncome)}
                 </span>
               </div>
@@ -158,7 +158,7 @@ export default function DashboardPage() {
                 <span className="font-label-bold text-label-bold text-on-surface uppercase flex items-center gap-1">
                   <span className="material-symbols-outlined text-tertiary dark:text-tertiary-fixed">arrow_downward</span> Expenses
                 </span>
-                <span className="font-headline-md text-xl text-tertiary dark:text-tertiary-fixed font-bold">
+                <span className="text-2xl font-[family-name:var(--font-display)] text-tertiary dark:text-tertiary-fixed">
                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalExpense)}
                 </span>
               </div>
@@ -176,39 +176,38 @@ export default function DashboardPage() {
             <Link href="/categories" className="material-symbols-outlined text-on-primary-container hover:scale-110 transition-transform">more_horiz</Link>
           </div>
           <div className="p-6 flex flex-col gap-6 flex-1 justify-center max-h-[300px] overflow-y-auto no-scrollbar">
-             {categories.filter(c => c.type === 'expense').slice(0, 3).map((category, idx) => {
-                 // Calculate spending per category
-                 const spent = transactions
-                   .filter(t => t.type === 'expense' && t.categoryId === category.id)
-                   .reduce((sum, t) => sum + t.amount, 0);
-                 const budget = category.monthlyBudget || 1; // avoid div by 0
-                 const percent = Math.min((spent / budget) * 100, 100);
-                 const colors = ['bg-tertiary-container', 'bg-secondary-container', 'bg-primary-container'];
-                 const textColors = ['text-tertiary dark:text-tertiary-fixed', 'text-secondary dark:text-secondary-fixed', 'text-primary dark:text-primary-fixed'];
-                 
-                 return (
-                  <div key={category.id} className="flex items-center gap-4">
-                    <div className={`w-12 h-12 ${colors[idx % 3]} neo-brutalist-border flex items-center justify-center shrink-0`}>
-                      {category.icon?.includes("fa-") ? (
-                        <i className={`fa-solid ${category.icon} text-black text-xl`}></i>
-                      ) : (
-                        <span className="material-symbols-outlined text-black">{category.icon || 'category'}</span>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-baseline mb-1 gap-2">
-                        <span className="font-label-bold text-label-bold text-on-surface uppercase truncate">{category.name}</span>
-                        <span className="font-body-md text-sm text-on-surface-variant whitespace-nowrap shrink-0">
-                          <strong className={textColors[idx % 3]}>{Math.round(percent)}%</strong> / {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(budget)}
-                        </span>
-                      </div>
-                      <div className="h-4 w-full bg-on-background neo-brutalist-border relative">
-                        <div className={`absolute top-0 left-0 h-full ${colors[idx % 3]} neo-brutalist-border border-l-0 border-t-0 border-b-0 transition-all duration-500`} style={{ width: `${percent}%` }}></div>
-                      </div>
-                    </div>
-                  </div>
-                 );
-             })}
+             {(() => {
+               const expenseCategories = categories.filter(c => c.type === 'expense');
+               const withSpending = expenseCategories.map(cat => ({
+                 cat,
+                 spent: transactions.filter(t => t.type === 'expense' && t.categoryId === cat.id).reduce((s, t) => s + t.amount, 0),
+               })).filter(x => x.spent > 0).sort((a, b) => b.spent - a.spent).slice(0, 3);
+               const maxSpent = withSpending[0]?.spent || 1;
+               const colors = ['bg-tertiary-container', 'bg-secondary-container', 'bg-primary-container'];
+               if (withSpending.length === 0) return <p className="text-on-surface-variant text-center text-sm">Belum ada pengeluaran bulan ini.</p>;
+               return withSpending.map(({ cat, spent }, idx) => (
+                 <div key={cat.id} className="flex items-center gap-4">
+                   <div className={`w-12 h-12 ${colors[idx % 3]} neo-brutalist-border flex items-center justify-center shrink-0`}>
+                     {cat.icon?.includes("fa-") ? (
+                       <i className={`fa-solid ${cat.icon} text-black text-xl`}></i>
+                     ) : (
+                       <span className="material-symbols-outlined text-black">{cat.icon || 'category'}</span>
+                     )}
+                   </div>
+                   <div className="flex-1 min-w-0">
+                     <div className="flex justify-between items-baseline mb-1 gap-2">
+                       <span className="font-label-bold text-label-bold text-on-surface uppercase truncate">{cat.name}</span>
+                       <span className="font-body-md text-sm text-on-surface font-bold whitespace-nowrap shrink-0">
+                         {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(spent)}
+                       </span>
+                     </div>
+                     <div className="h-4 w-full bg-on-background neo-brutalist-border relative">
+                       <div className={`absolute top-0 left-0 h-full ${colors[idx % 3]} neo-brutalist-border border-l-0 border-t-0 border-b-0 transition-all duration-500`} style={{ width: `${(spent / maxSpent) * 100}%` }}></div>
+                     </div>
+                   </div>
+                 </div>
+               ));
+             })()}
              {categories.length === 0 && <p className="text-on-surface-variant text-center">No categories found.</p>}
           </div>
         </div>

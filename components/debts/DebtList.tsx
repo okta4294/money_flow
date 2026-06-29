@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { deleteDebt, Debt } from "@/lib/firestore/debts";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface DebtListProps {
   debts: Debt[];
@@ -50,15 +51,15 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
     return (
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-surface neo-brutalist-border rounded-lg p-5 animate-pulse flex flex-col gap-4">
+          <div key={i} className="bg-surface border-4 border-outline rounded-3xl p-5 animate-pulse flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-surface-bright neo-brutalist-border rounded-lg" />
+              <div className="w-12 h-12 bg-surface-bright border-2 border-outline rounded-2xl" />
               <div className="flex-1 space-y-2">
                 <div className="h-4 bg-surface-bright rounded w-28" />
                 <div className="h-3 bg-surface-bright rounded w-20" />
               </div>
             </div>
-            <div className="h-6 bg-surface-bright neo-brutalist-border rounded-full w-full mt-2" />
+            <div className="h-6 bg-surface-bright border-2 border-outline rounded-full w-full mt-2" />
           </div>
         ))}
       </section>
@@ -68,11 +69,11 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
   if (debts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-20 h-20 bg-surface-container neo-brutalist-border rounded-2xl flex items-center justify-center mb-4 neo-brutalist-shadow-sm">
+        <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="w-20 h-20 bg-surface-container border-4 border-outline rounded-3xl flex items-center justify-center mb-4 shadow-[4px_4px_0_0_var(--theme-outline)]">
           <span className="material-symbols-outlined text-4xl text-on-surface-variant">
             {filter === "paid" ? "check_circle" : "celebration"}
           </span>
-        </div>
+        </motion.div>
         <p className="font-headline-md text-on-surface text-lg">
           {filter === "paid" ? "No paid debts yet" : "No active debts"}
         </p>
@@ -85,6 +86,7 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
 
   return (
     <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <AnimatePresence mode="popLayout">
       {debts.map((debt, idx) => {
         const pct = debt.totalAmount > 0
           ? Math.min((debt.paidAmount / debt.totalAmount) * 100, 100)
@@ -112,14 +114,20 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
         const iconName = icons[idx % icons.length];
 
         return (
-          <div
+          <motion.div
+            layout
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
             key={debt.id}
-            className="bg-surface neo-brutalist-border rounded-lg p-5 neo-brutalist-shadow-sm hover:neo-brutalist-shadow transition-all flex flex-col gap-4 group cursor-pointer"
+            className="bg-surface border-4 border-outline rounded-3xl p-5 shadow-[4px_4px_0_0_var(--theme-outline)] hover:shadow-[6px_6px_0_0_var(--theme-outline)] transition-all flex flex-col gap-4 group cursor-pointer"
             onClick={() => onEdit(debt)}
           >
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-3">
-                <div className={`w-12 h-12 ${colorClass} neo-brutalist-border rounded-lg flex items-center justify-center`}>
+                <div className={`w-12 h-12 ${colorClass} border-2 border-outline rounded-2xl flex items-center justify-center shadow-sm`}>
                   <span className="material-symbols-outlined text-3xl">{iconName}</span>
                 </div>
                 <div>
@@ -136,7 +144,7 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                   </div>
                 </div>
               </div>
-              <span className={`${isPaid ? "bg-primary-container" : overdue ? "bg-error-container" : "bg-surface-container-highest"} neo-brutalist-border rounded-full px-3 py-1 text-[10px] font-bold uppercase`}>
+              <span className={`${isPaid ? "bg-primary-container" : overdue ? "bg-error-container" : "bg-surface-container-highest"} border-2 border-outline rounded-full px-3 py-1 text-[10px] font-bold uppercase`}>
                 {isPaid ? "Paid" : overdue ? "Urgent" : "Active"}
               </span>
             </div>
@@ -156,30 +164,35 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                 <span>Progress</span>
                 <span>{Math.round(pct)}%</span>
               </div>
-              <div className="h-6 w-full bg-surface-container neo-brutalist-border rounded-full overflow-hidden relative">
-                <div className={`h-full ${barColorClass} border-r-[3px] border-on-background transition-all duration-500`} style={{ width: `${pct}%` }}></div>
+              <div className="h-6 w-full bg-surface-container border-2 border-outline rounded-full overflow-hidden relative">
+                <div className={`h-full ${barColorClass} border-r-[3px] border-outline transition-all duration-500`} style={{ width: `${pct}%` }}></div>
               </div>
             </div>
 
-            <div className="flex justify-end items-center gap-2 mt-1">
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleDelete(debt); }}
+            <div className="flex justify-end items-center gap-2 mt-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleDelete(debt); }}
                   disabled={deletingId === debt.id}
-                  className="bg-error-container neo-brutalist-border p-2 rounded-lg hover:bg-error hover:text-white transition-colors"
+                  className="bg-error-container border-2 border-outline p-2 rounded-xl hover:bg-error hover:text-white transition-colors shadow-[2px_2px_0_0_var(--theme-outline)]"
                 >
                   <span className="material-symbols-outlined text-xl">delete</span>
-                </button>
-                <button 
-                    onClick={(e) => { e.stopPropagation(); onEdit(debt); }}
-                    className="bg-primary-container neo-brutalist-border p-3 rounded-full neo-brutalist-shadow-sm active-press flex items-center justify-center">
+                </motion.button>
+                <motion.button 
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e: React.MouseEvent) => { e.stopPropagation(); onEdit(debt); }}
+                    className="bg-primary-container border-2 border-outline p-3 rounded-xl shadow-[2px_2px_0_0_var(--theme-outline)] active-press flex items-center justify-center">
                   <span className="material-symbols-outlined text-on-background" style={{ fontVariationSettings: "'FILL' 1" }}>
                       {isPaid ? "check" : "edit"}
                   </span>
-                </button>
+                </motion.button>
             </div>
-          </div>
+          </motion.div>
         );
       })}
+      </AnimatePresence>
     </section>
   );
 }

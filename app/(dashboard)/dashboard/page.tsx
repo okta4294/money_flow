@@ -69,12 +69,12 @@ export default function DashboardPage() {
           <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Hai miskin gimana kabarnya.</p>
         </div>
         <div className="flex gap-4">
-          <div className="bg-surface-container neo-brutalist-border neo-brutalist-shadow-sm flex items-center p-1">
+          <div className="bg-surface-container border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] flex items-center p-1 rounded-xl">
              <MonthSelector year={year} month={month} onChange={(y, m) => { setYear(y); setMonth(m); }} />
           </div>
           <button
             onClick={() => setShowBalanceModal(true)}
-            className="bg-primary-container text-on-primary-container font-label-bold text-label-bold uppercase py-2 px-4 neo-brutalist-border neo-brutalist-shadow-sm active-press transition-all flex items-center gap-2"
+            className="bg-primary-container text-on-primary-container font-label-bold text-label-bold uppercase py-2 px-4 border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] active-press rounded-xl transition-all flex items-center gap-2"
           >
             <span className="material-symbols-outlined text-black font-bold">edit</span>
             Saldo Awal
@@ -85,25 +85,25 @@ export default function DashboardPage() {
       {/* 12-Column Grid Layout */}
       <div className="grid grid-cols-12 gap-6 w-full">
         {/* Hero Balance Card (Bento Item 1) */}
-        <div className="col-span-12 lg:col-span-8 bg-primary-container neo-brutalist-border neo-brutalist-shadow p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group">
-          <div className="absolute -right-10 -bottom-10 opacity-20 transform rotate-12 group-hover:rotate-6 transition-transform duration-500 pointer-events-none">
+        <motion.div whileHover={{ scale: 1.02, y: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="col-span-12 lg:col-span-8 bg-primary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group rounded-3xl">
+          <motion.div animate={{ rotate: [12, 15, 12] }} transition={{ repeat: Infinity, duration: 4 }} className="absolute -right-10 -bottom-10 opacity-20 transform rotate-12 pointer-events-none">
             <span className="material-symbols-outlined text-[200px] text-on-primary-container">attach_money</span>
-          </div>
+          </motion.div>
           <div className="relative z-10">
-            <div className="inline-block bg-on-background text-surface font-label-bold text-label-bold uppercase px-2 py-1 neo-brutalist-border mb-4">
+            <div className="inline-block bg-on-background text-surface font-label-bold text-label-bold uppercase px-3 py-1 rounded-full border-2 border-outline mb-4">
                 Total Liquid Assets
             </div>
-            <h3 className="text-[60px] md:text-[100px] lg:text-[120px] leading-none tracking-tight mt-2 font-[family-name:var(--font-display)]" style={{ color: '#000000', WebkitTextStroke: '2px white' }}>
+            <h3 className="text-[clamp(2.5rem,5vw,4.5rem)] leading-none tracking-tight mt-2 font-display-lg break-words w-full" style={{ color: 'var(--theme-primary)', WebkitTextStroke: '2px var(--theme-outline)' }}>
                 {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(currentBalance)}
             </h3>
           </div>
-        </div>
+        </motion.div>
 
         {/* AI Roast Card (Bento Item 2) */}
-        <div className="col-span-12 lg:col-span-4 h-full min-h-[300px] bg-tertiary-container neo-brutalist-border neo-brutalist-shadow p-6 flex flex-col relative">
-           <div className="absolute -top-6 -right-6 w-16 h-16 bg-background rounded-full neo-brutalist-border flex items-center justify-center animate-bounce z-20">
+        <motion.div whileHover={{ scale: 1.02, y: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="col-span-12 lg:col-span-4 h-full min-h-[300px] bg-tertiary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-6 flex flex-col relative rounded-3xl">
+           <motion.div animate={{ y: [-5, 5, -5] }} transition={{ repeat: Infinity, duration: 2 }} className="absolute -top-6 -right-6 w-16 h-16 bg-background rounded-full border-2 border-outline flex items-center justify-center z-20 shadow-[0_4px_0_0_var(--theme-outline)]">
               <span className="material-symbols-outlined text-on-background text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
-           </div>
+           </motion.div>
            {(!loading && !balanceLoading) ? (
              <AISummaryCard
               transactions={transactions}
@@ -129,13 +129,13 @@ export default function DashboardPage() {
                   <div className="h-4 w-3/4 bg-surface-bright rounded"></div>
               </div>
            )}
-        </div>
+        </motion.div>
 
         {/* Income vs Expenses Chart (Bento Item 3) */}
-        <div className="col-span-12 lg:col-span-6 bg-surface-container neo-brutalist-border neo-brutalist-shadow flex flex-col">
-          <div className="bg-secondary-container neo-brutalist-border border-l-0 border-r-0 border-t-0 px-6 py-3 flex justify-between items-center">
-            <h4 className="font-headline-md text-xl text-on-secondary-container uppercase font-bold">Cash Flow</h4>
-            <span className="font-label-bold text-label-bold text-on-secondary-container opacity-70">This Month</span>
+        <motion.div whileHover={{ scale: 1.02 }} className="col-span-12 lg:col-span-6 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] flex flex-col rounded-3xl overflow-hidden">
+          <div className="bg-secondary-container border-b-[3px] border-outline px-6 py-4 flex justify-between items-center">
+            <h4 className="font-headline-md text-xl text-on-secondary-container uppercase font-bold" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>Cash Flow</h4>
+            <span className="font-label-bold text-label-bold text-on-secondary-container opacity-90 px-3 py-1 bg-surface-container/20 rounded-full border-2 border-outline">This Month</span>
           </div>
           <div className="p-6 flex-1 flex flex-col justify-center gap-8">
             {/* Income Bar */}
@@ -144,34 +144,34 @@ export default function DashboardPage() {
                 <span className="font-label-bold text-label-bold text-on-surface uppercase flex items-center gap-1">
                   <span className="material-symbols-outlined text-primary dark:text-primary-fixed">arrow_upward</span> Income
                 </span>
-                <span className="text-2xl font-[family-name:var(--font-display)] text-primary dark:text-primary-fixed">
+                <span className="text-2xl font-display-lg text-primary dark:text-primary-fixed" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>
                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalIncome)}
                 </span>
               </div>
-              <div className="h-8 w-full bg-on-background neo-brutalist-border relative">
-                <div className="absolute top-0 left-0 h-full bg-primary-container neo-brutalist-border border-l-0 border-t-0 border-b-0 transition-all duration-500" style={{ width: `${incomePercent}%` }}></div>
+              <div className="h-8 w-full bg-on-background border-2 border-outline rounded-full relative overflow-hidden">
+                <motion.div initial={{ width: 0 }} animate={{ width: `${incomePercent}%` }} transition={{ duration: 1, type: "spring" }} className="absolute top-0 left-0 h-full bg-primary-container border-r-[3px] border-outline"></motion.div>
               </div>
             </div>
             {/* Expense Bar */}
             <div>
               <div className="flex justify-between items-end mb-2">
                 <span className="font-label-bold text-label-bold text-on-surface uppercase flex items-center gap-1">
-                  <span className="material-symbols-outlined text-tertiary dark:text-tertiary-fixed">arrow_downward</span> Expenses
+                  <span className="material-symbols-outlined text-error">arrow_downward</span> Expenses
                 </span>
-                <span className="text-2xl font-[family-name:var(--font-display)] text-tertiary dark:text-tertiary-fixed">
+                <span className="text-2xl font-display-lg text-error" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>
                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalExpense)}
                 </span>
               </div>
-              <div className="h-8 w-full bg-on-background neo-brutalist-border relative">
-                <div className="absolute top-0 left-0 h-full bg-tertiary-container neo-brutalist-border border-l-0 border-t-0 border-b-0 transition-all duration-500" style={{ width: `${expensePercent}%` }}></div>
+              <div className="h-8 w-full bg-on-background border-2 border-outline rounded-full relative overflow-hidden">
+                <motion.div initial={{ width: 0 }} animate={{ width: `${expensePercent}%` }} transition={{ duration: 1, type: "spring", delay: 0.2 }} className="absolute top-0 left-0 h-full bg-error-container border-r-[3px] border-outline"></motion.div>
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Budget Tracker (Bento Item 4) */}
-        <div className="col-span-12 lg:col-span-6 bg-surface-container neo-brutalist-border neo-brutalist-shadow flex flex-col overflow-hidden">
-          <div className="bg-primary-container neo-brutalist-border border-l-0 border-r-0 border-t-0 px-6 py-3 flex justify-between items-center">
+        <div className="col-span-12 lg:col-span-6 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] flex flex-col overflow-hidden">
+          <div className="bg-primary-container border-2 border-outline border-l-0 border-r-0 border-t-0 px-6 py-3 flex justify-between items-center">
             <h4 className="font-headline-md text-xl text-on-primary-container uppercase font-bold">Budget Heat</h4>
             <Link href="/categories" className="material-symbols-outlined text-on-primary-container hover:scale-110 transition-transform">more_horiz</Link>
           </div>
@@ -187,7 +187,7 @@ export default function DashboardPage() {
                if (withSpending.length === 0) return <p className="text-on-surface-variant text-center text-sm">Belum ada pengeluaran bulan ini.</p>;
                return withSpending.map(({ cat, spent }, idx) => (
                  <div key={cat.id} className="flex items-center gap-4">
-                   <div className={`w-12 h-12 ${colors[idx % 3]} neo-brutalist-border flex items-center justify-center shrink-0`}>
+                   <div className={`w-12 h-12 ${colors[idx % 3]} border-2 border-outline flex items-center justify-center shrink-0`}>
                      {cat.icon?.includes("fa-") ? (
                        <i className={`fa-solid ${cat.icon} text-black text-xl`}></i>
                      ) : (
@@ -201,8 +201,8 @@ export default function DashboardPage() {
                          {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(spent)}
                        </span>
                      </div>
-                     <div className="h-4 w-full bg-on-background neo-brutalist-border relative">
-                       <div className={`absolute top-0 left-0 h-full ${colors[idx % 3]} neo-brutalist-border border-l-0 border-t-0 border-b-0 transition-all duration-500`} style={{ width: `${(spent / maxSpent) * 100}%` }}></div>
+                     <div className="h-4 w-full bg-on-background border-2 border-outline relative">
+                       <div className={`absolute top-0 left-0 h-full ${colors[idx % 3]} border-2 border-outline border-l-0 border-t-0 border-b-0 transition-all duration-500`} style={{ width: `${(spent / maxSpent) * 100}%` }}></div>
                      </div>
                    </div>
                  </div>
@@ -213,8 +213,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Transactions (Bento Item 5) */}
-        <div className="col-span-12 bg-surface-container neo-brutalist-border neo-brutalist-shadow overflow-hidden mb-12">
-          <div className="neo-brutalist-border border-t-0 border-l-0 border-r-0 px-6 py-4 flex justify-between items-center bg-surface-variant">
+        <div className="col-span-12 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] overflow-hidden mb-12">
+          <div className="border-2 border-outline border-t-0 border-l-0 border-r-0 px-6 py-4 flex justify-between items-center bg-surface-variant">
             <h4 className="font-headline-md text-xl text-on-surface uppercase font-bold">Recent Hits</h4>
             <Link className="font-label-bold text-label-bold text-primary-fixed hover:underline flex items-center" href="/transactions">
                View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
@@ -224,9 +224,9 @@ export default function DashboardPage() {
             {recentTransactions.length > 0 ? recentTransactions.map((t) => {
                const cat = categories.find(c => c.id === t.categoryId);
                return (
-                <div key={t.id} onClick={() => { setEditTransaction(t); setShowTransactionForm(true); }} className="flex items-center justify-between p-4 md:p-6 neo-brutalist-border border-t-0 border-l-0 border-r-0 hover:bg-surface-bright transition-colors group cursor-pointer">
+                <div key={t.id} onClick={() => { setEditTransaction(t); setShowTransactionForm(true); }} className="flex items-center justify-between p-4 md:p-6 border-2 border-outline border-t-0 border-l-0 border-r-0 hover:bg-surface-bright transition-colors group cursor-pointer">
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 bg-on-background neo-brutalist-border flex items-center justify-center group-hover:${t.type === 'income' ? 'bg-primary-container' : 'bg-tertiary-container'} transition-colors`}>
+                    <div className={`w-12 h-12 bg-on-background border-2 border-outline flex items-center justify-center group-hover:${t.type === 'income' ? 'bg-primary-container' : 'bg-tertiary-container'} transition-colors`}>
                       {cat?.icon?.includes("fa-") ? (
                         <i className={`fa-solid ${cat.icon} text-surface group-hover:text-on-background text-xl transition-colors`}></i>
                       ) : (
@@ -252,13 +252,15 @@ export default function DashboardPage() {
       </div>
 
       {/* FAB */}
-      <button
+      <motion.button
         id="add-transaction-fab"
+        whileHover={{ scale: 1.1, rotate: 90 }}
+        whileTap={{ scale: 0.9 }}
         onClick={() => { setEditTransaction(null); setShowTransactionForm(true); }}
-        className="fixed bottom-24 right-6 md:bottom-12 md:right-12 w-16 h-16 bg-secondary-container text-on-secondary-container neo-brutalist-border neo-brutalist-shadow active-press flex items-center justify-center z-40"
+        className="fixed bottom-24 right-6 md:bottom-12 md:right-12 w-16 h-16 bg-secondary-container text-on-secondary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] flex items-center justify-center z-40 rounded-full"
       >
-        <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>add_circle</span>
-      </button>
+        <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>add</span>
+      </motion.button>
 
       {/* Modals */}
       <InitialBalanceModal

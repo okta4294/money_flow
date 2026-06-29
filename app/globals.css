@@ -103,121 +103,129 @@
 }
 
 :root {
-  /* Light Theme (Vibrant) */
-  --theme-on-secondary-container: #f9f7ff;
-  --theme-surface-tint: #705d00;
-  --theme-surface-container-low: #f6f3f2;
-  --theme-on-tertiary-container: #b4252d;
-  --theme-inverse-surface: #313030;
-  --theme-primary-fixed: #ffe170;
-  --theme-secondary: #0047e3;
-  --theme-surface-container-highest: #e5e2e1;
-  --theme-on-primary-container: #705d00;
-  --theme-on-background: #1c1b1b;
+  /* Light Theme (Premium Cartoon / Comic) */
+  --theme-on-secondary-container: #ffffff;
+  --theme-surface-tint: #ff6b6b;
+  --theme-surface-container-low: #ffffff;
+  --theme-on-tertiary-container: #ffffff;
+  --theme-inverse-surface: #1e1e1e;
+  --theme-primary-fixed: #ffd93d;
+  --theme-secondary: #4d96ff;
+  --theme-surface-container-highest: #f4f4f4;
+  --theme-on-primary-container: #1e1e1e;
+  --theme-on-background: #1e1e1e;
   --theme-surface-container-lowest: #ffffff;
-  --theme-secondary-fixed-dim: #b7c4ff;
-  --theme-on-error-container: #93000a;
-  --theme-primary-fixed-dim: #e9c400;
-  --theme-tertiary: #b4252d;
-  --theme-surface-variant: #e5e2e1;
-  --theme-surface: #fcf9f8;
-  --theme-on-tertiary-fixed-variant: #920418;
-  --theme-surface-container: #f0eded;
+  --theme-secondary-fixed-dim: #9bc0ff;
+  --theme-on-error-container: #ffffff;
+  --theme-primary-fixed-dim: #ffc900;
+  --theme-tertiary: #6bcb77;
+  --theme-surface-variant: #f8f9fa;
+  --theme-surface: #ffffff;
+  --theme-on-tertiary-fixed-variant: #1e1e1e;
+  --theme-surface-container: #f0f0f0;
   --theme-on-primary: #ffffff;
-  --theme-error-container: #ffdad6;
-  --theme-tertiary-fixed: #ffdad7;
-  --theme-on-primary-fixed-variant: #544600;
-  --theme-inverse-primary: #e9c400;
-  --theme-outline: #7f775f;
-  --theme-tertiary-fixed-dim: #ffb3af;
-  --theme-outline-variant: #d0c6ab;
-  --theme-on-primary-fixed: #221b00;
-  --theme-error: #ba1a1a;
-  --theme-inverse-on-surface: #f3f0ef;
-  --theme-on-secondary-fixed: #001452;
-  --theme-background: #fcf9f8;
-  --theme-on-secondary-fixed-variant: #0038b7;
-  --theme-primary-container: #ffd600;
-  --theme-surface-container-high: #eae7e7;
-  --theme-secondary-container: #3263ff;
-  --theme-surface-bright: #fcf9f8;
-  --theme-on-tertiary-fixed: #410005;
-  --theme-secondary-fixed: #dde1ff;
-  --theme-primary: #705d00;
-  --theme-surface-dim: #dcd9d9;
+  --theme-error-container: #ff4757;
+  --theme-tertiary-fixed: #a2fca8;
+  --theme-on-primary-fixed-variant: #1e1e1e;
+  --theme-inverse-primary: #ffc900;
+  --theme-outline: #1e1e1e;
+  --theme-tertiary-fixed-dim: #7ee08a;
+  --theme-outline-variant: #d1d1d1;
+  --theme-on-primary-fixed: #1e1e1e;
+  --theme-error: #ff4757;
+  --theme-inverse-on-surface: #f4f4f4;
+  --theme-on-secondary-fixed: #1e1e1e;
+  --theme-background: #fffdf5; /* subtle warm white */
+  --theme-on-secondary-fixed-variant: #1e1e1e;
+  --theme-primary-container: #ffd93d;
+  --theme-surface-container-high: #e0e0e0;
+  --theme-secondary-container: #4d96ff;
+  --theme-surface-bright: #ffffff;
+  --theme-on-tertiary-fixed: #1e1e1e;
+  --theme-secondary-fixed: #b5d5ff;
+  --theme-primary: #ff6b6b;
+  --theme-surface-dim: #e8e8e8;
   --theme-on-error: #ffffff;
   --theme-on-tertiary: #ffffff;
   --theme-on-secondary: #ffffff;
-  --theme-on-surface: #1c1b1b;
-  --theme-on-surface-variant: #4d4632;
-  --theme-tertiary-container: #ffcdca;
+  --theme-on-surface: #1e1e1e;
+  --theme-on-surface-variant: #4a4a4a;
+  --theme-tertiary-container: #6bcb77;
 }
 
 .dark {
-  /* Dark Theme (Dark Vibrant / Comic Edition) */
-  --theme-on-secondary-container: #00686f;
-  --theme-surface-tint: #abd600;
-  --theme-surface-container-low: #1c1b1b;
-  --theme-on-tertiary-container: #b700a4;
-  --theme-inverse-surface: #e5e2e1;
-  --theme-primary-fixed: #c3f400;
-  --theme-secondary: #d3fbff;
-  --theme-surface-container-highest: #353534;
-  --theme-on-primary-container: #556d00;
-  --theme-on-background: #e5e2e1;
-  --theme-surface-container-lowest: #0e0e0e;
-  --theme-secondary-fixed-dim: #00dbe9;
-  --theme-on-error-container: #ffdad6;
-  --theme-primary-fixed-dim: #abd600;
-  --theme-tertiary: #ffffff;
-  --theme-surface-variant: #353534;
-  --theme-surface: #131313;
-  --theme-on-tertiary-fixed-variant: #840076;
-  --theme-surface-container: #201f1f;
-  --theme-on-primary: #283500;
-  --theme-error-container: #93000a;
-  --theme-tertiary-fixed: #ffd7f0;
-  --theme-on-primary-fixed-variant: #3c4d00;
-  --theme-inverse-primary: #506600;
-  --theme-outline: #8e9379;
-  --theme-tertiary-fixed-dim: #fface8;
-  --theme-outline-variant: #444933;
-  --theme-on-primary-fixed: #161e00;
-  --theme-error: #ffb4ab;
-  --theme-inverse-on-surface: #313030;
-  --theme-on-secondary-fixed: #002022;
-  --theme-background: #131313;
-  --theme-on-secondary-fixed-variant: #004f54;
-  --theme-primary-container: #c3f400;
-  --theme-surface-container-high: #2a2a2a;
-  --theme-secondary-container: #00eefc;
-  --theme-surface-bright: #393939;
-  --theme-on-tertiary-fixed: #3a0033;
-  --theme-secondary-fixed: #7df4ff;
-  --theme-primary: #ffffff;
-  --theme-surface-dim: #131313;
-  --theme-on-error: #690005;
-  --theme-on-tertiary: #5e0053;
-  --theme-on-secondary: #00363a;
-  --theme-on-surface: #e5e2e1;
-  --theme-on-surface-variant: #c4c9ac;
-  --theme-tertiary-container: #ffd7f0;
+  /* Dark Theme (Cartoonish Night Mode) */
+  --theme-on-secondary-container: #ffffff;
+  --theme-surface-tint: #ff8585;
+  --theme-surface-container-low: #2a2d3e;
+  --theme-on-tertiary-container: #ffffff;
+  --theme-inverse-surface: #ffffff;
+  --theme-primary-fixed: #ffdf60;
+  --theme-secondary: #6eaaff;
+  --theme-surface-container-highest: #4b506b;
+  --theme-on-primary-container: #1e1e1e;
+  --theme-on-background: #ffffff;
+  --theme-surface-container-lowest: #141620;
+  --theme-secondary-fixed-dim: #84b8ff;
+  --theme-on-error-container: #ffffff;
+  --theme-primary-fixed-dim: #ffd530;
+  --theme-tertiary: #84d88e;
+  --theme-surface-variant: #2a2d3e;
+  --theme-surface: #1d1f2b;
+  --theme-on-tertiary-fixed-variant: #1e1e1e;
+  --theme-surface-container: #232634;
+  --theme-on-primary: #1e1e1e;
+  --theme-error-container: #ff6b7d;
+  --theme-tertiary-fixed: #b4fdb9;
+  --theme-on-primary-fixed-variant: #1e1e1e;
+  --theme-inverse-primary: #ffb700;
+  --theme-outline: #10121a; /* darker border for dark mode */
+  --theme-tertiary-fixed-dim: #97eb9f;
+  --theme-outline-variant: #42465d;
+  --theme-on-primary-fixed: #1e1e1e;
+  --theme-error: #ff6b7d;
+  --theme-inverse-on-surface: #141620;
+  --theme-on-secondary-fixed: #1e1e1e;
+  --theme-background: #191b26; /* Deep comic blue-black */
+  --theme-on-secondary-fixed-variant: #1e1e1e;
+  --theme-primary-container: #ffc107;
+  --theme-surface-container-high: #32364a;
+  --theme-secondary-container: #3d8bff;
+  --theme-surface-bright: #3b3f57;
+  --theme-on-tertiary-fixed: #1e1e1e;
+  --theme-secondary-fixed: #c6e0ff;
+  --theme-primary: #ff8585;
+  --theme-surface-dim: #141620;
+  --theme-on-error: #ffffff;
+  --theme-on-tertiary: #1e1e1e;
+  --theme-on-secondary: #ffffff;
+  --theme-on-surface: #ffffff;
+  --theme-on-surface-variant: #cbd5e1;
+  --theme-tertiary-container: #5cb868;
 }
 
 @utility neo-brutalist-shadow {
-  box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: 4px 4px 0px 0px var(--theme-outline);
 }
 @utility neo-brutalist-shadow-sm {
-  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: 2px 2px 0px 0px var(--theme-outline);
 }
 @utility neo-brutalist-border {
-  border: 3px solid var(--theme-on-background);
+  border: 3px solid var(--theme-outline);
+  border-radius: 16px; /* softer rounded corners for cartoon feel */
 }
 @utility active-press {
-  transition: transform 0.1s, box-shadow 0.1s;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   &:active {
-      transform: translate(4px, 4px);
-      box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px 0px var(--theme-outline);
+  }
+}
+@utility active-press-sm {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  &:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0px 0px var(--theme-outline);
   }
 }
 @utility text-outline {

@@ -7,6 +7,7 @@ import { useDebts } from "@/hooks/useDebts";
 import { useAccounts } from "@/hooks/useAccounts";
 import { addTransaction, updateTransaction, Transaction, TransactionInput } from "@/lib/firestore/transactions";
 import { payDebt } from "@/lib/firestore/debts";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface TransactionFormProps {
   open: boolean;
@@ -172,10 +173,18 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-surface neo-brutalist-border p-6 neo-brutalist-shadow w-full sm:max-w-md max-h-[90vh] overflow-y-auto z-10 animate-in slide-in-from-bottom-4 duration-200">
-        {/* Header */}
+    <AnimatePresence>
+    {open && (
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
+        <motion.div 
+          initial={{ opacity: 0, y: 50, scale: 0.95 }} 
+          animate={{ opacity: 1, y: 0, scale: 1 }} 
+          exit={{ opacity: 0, y: 50, scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          className="relative bg-surface rounded-3xl border-4 border-outline p-6 shadow-[8px_8px_0_0_var(--theme-outline)] w-full sm:max-w-md max-h-[90vh] overflow-y-auto z-10"
+        >
+          {/* Header */}
         <div className="flex items-center justify-between mb-6 border-b-4 border-black dark:border-white pb-4">
           <h2 className="font-display-lg text-2xl text-on-surface uppercase tracking-tighter">
             {editData ? "Edit Transaksi" : "Tambah Transaksi"}
@@ -513,7 +522,9 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
             </button>
           </div>
         </form>
+        </motion.div>
       </div>
-    </div>
+    )}
+    </AnimatePresence>
   );
 }

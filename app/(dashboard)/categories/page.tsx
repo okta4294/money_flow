@@ -2,6 +2,7 @@
 
 import { useCategories } from "@/hooks/useCategories";
 import { CategoryManager } from "@/components/categories/CategoryManager";
+import { motion } from "framer-motion";
 
 export default function CategoriesPage() {
   const { categories, loading } = useCategories();
@@ -18,18 +19,18 @@ export default function CategoriesPage() {
       <CategoryManager categories={categories} loading={loading} />
 
       {/* Fun Stat Card */}
-      <section className="w-full rounded-lg neo-brutalist-border bg-surface-container-highest p-6 relative overflow-hidden mt-8">
+      <motion.section whileHover={{ scale: 1.02 }} className="w-full rounded-3xl border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] bg-surface-container-highest p-6 relative overflow-hidden mt-8">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-2">
-            <h4 className="font-headline-md text-on-background">Fun Fact</h4>
-            <p className="font-body-md text-on-surface-variant">
+            <h4 className="font-headline-md text-on-background text-xl font-bold uppercase">Fun Fact</h4>
+            <p className="font-body-md text-on-surface-variant font-bold">
               Custom categories let you track your guilty pleasures perfectly. 🍔🎮
             </p>
           </div>
         </div>
         {/* Decorative circle */}
-        <div className="absolute -right-10 -bottom-10 w-40 h-40 border-[3px] border-on-background rounded-full opacity-10 pointer-events-none"></div>
-      </section>
+        <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 4 }} className="absolute -right-10 -bottom-10 w-40 h-40 border-[4px] border-on-background rounded-full opacity-10 pointer-events-none"></motion.div>
+      </motion.section>
     </div>
   );
 }

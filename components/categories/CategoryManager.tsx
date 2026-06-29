@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { Category, addCategory, updateCategory, deleteCategory } from "@/lib/firestore/categories";
 import { TransactionType } from "@/lib/firestore/transactions";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface CategoryManagerProps {
   categories: Category[];
@@ -143,9 +144,14 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
             const isFa = cat.icon && cat.icon.includes("fa-");
             
             return (
-              <div
+              <motion.div
+                layout
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.05, rotate: [-1, 1, -1] }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 key={cat.id}
-                className={`group relative aspect-square rounded-lg neo-brutalist-border p-4 md:p-6 flex flex-col justify-between items-start text-left neo-brutalist-shadow-sm hover:neo-brutalist-shadow transition-all ${colorClass}`}
+                className={`group relative aspect-square rounded-2xl border-4 border-outline p-4 md:p-6 flex flex-col justify-between items-start text-left shadow-[4px_4px_0_0_var(--theme-outline)] hover:shadow-[6px_6px_0_0_var(--theme-outline)] transition-all ${colorClass}`}
               >
                 <div className="w-12 h-12 bg-white neo-brutalist-border rounded-xl flex items-center justify-center">
                   {isFa ? (
@@ -181,18 +187,25 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                     <span className="material-symbols-outlined text-[18px]">delete</span>
                   </button>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
       )}
 
       {/* Form Modal */}
+      <AnimatePresence>
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowForm(false)} />
-          <div className="relative bg-surface rounded-2xl w-full max-w-sm p-6 neo-brutalist-border neo-brutalist-shadow z-10">
-            <h3 className="font-headline-lg text-on-background mb-5 tracking-tighter">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowForm(false)} />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+            animate={{ opacity: 1, scale: 1, y: 0 }} 
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            className="relative bg-surface rounded-3xl w-full max-w-sm p-6 border-[3px] border-outline shadow-[6px_6px_0_0_var(--theme-outline)] z-10"
+          >
+            <h3 className="font-headline-lg text-on-background mb-5 tracking-tighter" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>
               {editData ? "Edit Category" : "New Category"}
             </h3>
 
@@ -205,7 +218,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Category Name"
-                  className="w-full bg-surface-container-lowest neo-brutalist-border rounded-xl px-4 py-3 text-on-background font-body-md focus:outline-none focus:neo-brutalist-shadow-sm transition-all"
+                  className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl px-4 py-3 text-on-background font-body-md focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-all"
                 />
               </div>
 
@@ -213,22 +226,24 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                 <label className="text-on-surface-variant font-label-bold block mb-2 uppercase tracking-widest text-xs">Icon</label>
                 <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-1 no-scrollbar">
                   {PRESET_ICONS.map((i) => (
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
                       key={i}
                       type="button"
                       onClick={() => setIcon(i)}
-                      className={`w-12 h-12 rounded-xl transition-all duration-150 flex items-center justify-center neo-brutalist-border ${
-                        icon === i ? "bg-primary-container text-on-primary-container shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -translate-y-1 -translate-x-1" : "bg-surface text-on-surface-variant hover:bg-surface-bright"
+                      className={`w-12 h-12 rounded-xl transition-all duration-150 flex items-center justify-center border-2 border-outline ${
+                        icon === i ? "bg-primary-container text-on-primary-container shadow-[2px_2px_0_0_var(--theme-outline)] -translate-y-1 -translate-x-1" : "bg-surface text-on-surface-variant hover:bg-surface-bright"
                       }`}
                     >
                       <span className="material-symbols-outlined text-[24px]">{i}</span>
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </div>
 
               {error && (
-                <div className="bg-error-container neo-brutalist-border p-3 rounded-lg text-on-error-container font-label-bold text-sm">
+                <div className="bg-error-container border-2 border-outline p-3 rounded-lg text-error font-label-bold text-sm">
                   {error}
                 </div>
               )}
@@ -236,7 +251,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={() => setShowForm(false)}
-                  className="flex-1 py-3 rounded-xl bg-surface neo-brutalist-border text-on-background font-label-bold transition-all hover:bg-surface-bright active-press"
+                  className="flex-1 py-3 rounded-xl bg-surface border-2 border-outline text-on-background font-label-bold transition-all hover:bg-surface-bright active-press"
                 >
                   Cancel
                 </button>
@@ -244,15 +259,16 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                   id="save-category"
                   onClick={handleSave}
                   disabled={formLoading}
-                  className="flex-1 py-3 rounded-xl bg-primary-container neo-brutalist-border text-on-primary-container font-label-bold transition-all disabled:opacity-50 active-press neo-brutalist-shadow-sm hover:neo-brutalist-shadow"
+                  className="flex-1 py-3 rounded-xl bg-primary-container border-2 border-outline text-on-primary-container font-label-bold transition-all disabled:opacity-50 active-press shadow-[2px_2px_0_0_var(--theme-outline)] hover:shadow-[4px_4px_0_0_var(--theme-outline)]"
                 >
                   {formLoading ? "Saving..." : "Save"}
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
     </div>
   );
 }

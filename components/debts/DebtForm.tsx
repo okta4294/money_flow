@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { addDebt, updateDebt, Debt, DebtInput } from "@/lib/firestore/debts";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface DebtFormProps {
   open: boolean;
@@ -73,23 +74,31 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-tertiary-container neo-brutalist-border p-6 neo-brutalist-shadow w-full sm:max-w-md max-h-[90vh] overflow-y-auto z-10 animate-in slide-in-from-bottom-4 duration-200">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6 border-b-4 border-black dark:border-white pb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 border-2 border-black dark:border-white bg-tertiary flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-              <i className="fa-solid fa-credit-card text-on-tertiary text-xl"></i>
+    <AnimatePresence>
+    {open && (
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
+        <motion.div 
+          initial={{ opacity: 0, y: 50, scale: 0.95 }} 
+          animate={{ opacity: 1, y: 0, scale: 1 }} 
+          exit={{ opacity: 0, y: 50, scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          className="relative bg-tertiary-container border-4 border-outline p-6 rounded-3xl shadow-[8px_8px_0_0_var(--theme-outline)] w-full sm:max-w-md max-h-[90vh] overflow-y-auto z-10"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6 border-b-4 border-outline pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 border-2 border-outline bg-tertiary flex items-center justify-center rounded-2xl shadow-sm">
+                <i className="fa-solid fa-credit-card text-on-tertiary text-2xl"></i>
+              </div>
+              <h2 className="font-display-lg text-2xl text-on-tertiary-container uppercase tracking-tighter" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>
+                {editData ? "Edit Hutang" : "Tambah Hutang"}
+              </h2>
             </div>
-            <h2 className="font-display-lg text-2xl text-on-tertiary-container uppercase tracking-tighter">
-              {editData ? "Edit Hutang" : "Tambah Hutang"}
-            </h2>
+            <button onClick={onClose} className="bg-error text-on-error border-2 border-outline rounded-xl p-1 w-10 h-10 flex items-center justify-center active-press hover:opacity-90">
+              <i className="fa-solid fa-xmark"></i>
+            </button>
           </div>
-          <button onClick={onClose} className="bg-error text-on-error neo-brutalist-border p-1 w-8 h-8 flex items-center justify-center active-press">
-            <i className="fa-solid fa-xmark"></i>
-          </button>
-        </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Name */}
@@ -103,7 +112,7 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="CONTOH: SHOPEE PAYLATER..."
-              className="w-full bg-surface neo-brutalist-border px-4 py-3 text-on-surface font-label-bold uppercase text-sm focus:outline-none focus:ring-2 focus:ring-tertiary transition-colors placeholder:text-on-surface-variant"
+              className="w-full bg-surface border-2 border-outline rounded-xl px-4 py-3 text-on-surface font-label-bold uppercase text-sm focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors placeholder:text-on-surface-variant"
             />
           </div>
 
@@ -121,7 +130,7 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
                 value={formatRupiah(amount)}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0"
-                className="w-full bg-surface neo-brutalist-border pl-12 pr-4 py-3 text-on-surface text-xl font-display-lg focus:outline-none focus:ring-2 focus:ring-tertiary transition-colors"
+                className="w-full bg-surface border-2 border-outline rounded-xl pl-12 pr-4 py-3 text-on-surface text-xl font-display-lg focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors"
               />
             </div>
           </div>
@@ -137,7 +146,7 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full bg-surface neo-brutalist-border px-4 py-3 text-on-surface font-label-bold uppercase text-xs focus:outline-none focus:ring-2 focus:ring-tertiary transition-colors cursor-pointer"
+              className="w-full bg-surface border-2 border-outline rounded-xl px-4 py-3 text-on-surface font-label-bold uppercase text-xs focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors cursor-pointer"
             />
           </div>
 
@@ -150,21 +159,21 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="TAMBAHKAN CATATAN..."
-              className="w-full bg-surface neo-brutalist-border px-4 py-3 text-on-surface font-label-bold uppercase text-sm focus:outline-none focus:ring-2 focus:ring-tertiary transition-colors placeholder:text-on-surface-variant"
+              className="w-full bg-surface border-2 border-outline rounded-xl px-4 py-3 text-on-surface font-label-bold uppercase text-sm focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors placeholder:text-on-surface-variant"
             />
           </div>
 
           {error && (
-            <div className="bg-error text-on-error neo-brutalist-border px-4 py-3 font-label-bold uppercase text-xs flex items-center gap-2">
+            <div className="bg-error text-on-error border-2 border-outline rounded-xl px-4 py-3 font-label-bold uppercase text-xs flex items-center gap-2">
               <i className="fa-solid fa-triangle-exclamation"></i> {error}
             </div>
           )}
 
-          <div className="flex gap-4 pt-4 mt-8 border-t-4 border-black dark:border-white">
+          <div className="flex gap-4 pt-4 mt-8 border-t-4 border-outline">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-4 bg-surface text-on-surface font-label-bold uppercase tracking-widest neo-brutalist-border active-press"
+              className="flex-1 py-4 rounded-xl bg-surface text-on-surface font-label-bold uppercase tracking-widest border-2 border-outline active-press"
             >
               Batal
             </button>
@@ -172,13 +181,15 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
               id="save-debt"
               type="submit"
               disabled={loading}
-              className="flex-1 py-4 font-label-bold uppercase tracking-widest text-on-tertiary bg-tertiary neo-brutalist-border active-press disabled:opacity-50"
+              className="flex-1 py-4 rounded-xl font-label-bold uppercase tracking-widest text-on-tertiary bg-tertiary border-2 border-outline active-press disabled:opacity-50 shadow-[2px_2px_0_0_var(--theme-outline)]"
             >
               {loading ? "Menyimpan..." : editData ? "Perbarui" : "Tambah"}
             </button>
           </div>
         </form>
+        </motion.div>
       </div>
-    </div>
+    )}
+    </AnimatePresence>
   );
 }

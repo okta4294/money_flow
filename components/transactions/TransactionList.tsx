@@ -141,7 +141,10 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="bg-surface neo-brutalist-border rounded-lg p-4 flex items-center gap-4 neo-brutalist-shadow active-press cursor-pointer group relative overflow-hidden"
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    className="bg-surface neo-brutalist-border rounded-xl p-4 flex items-center gap-4 neo-brutalist-shadow cursor-pointer group relative overflow-hidden"
                   >
                     <div className={`w-14 h-14 flex items-center justify-center rounded-xl neo-brutalist-border ${getCategoryColor(t)} z-10 relative text-black`}>
                       {(() => {

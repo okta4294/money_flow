@@ -6,6 +6,7 @@ import { useAccounts } from "@/hooks/useAccounts";
 import { addAccount, updateAccount, deleteAccount, AccountInput, AccountType } from "@/lib/firestore/accounts";
 import { collection, query, where, getAggregateFromServer, sum, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { motion, AnimatePresence } from "framer-motion";
 
 const COLORS = [
   "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
@@ -142,26 +143,33 @@ export function AccountManager() {
       {/* Account List */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Add Button */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02, y: -2 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleOpenNew}
-          className="aspect-[2/1] rounded-lg border-[3px] border-dashed border-on-background bg-surface hover:bg-surface-bright flex flex-col items-center justify-center gap-2 transition-all group active-press"
+          className="aspect-[2/1] rounded-3xl border-4 border-dashed border-outline bg-surface hover:bg-surface-bright flex flex-col items-center justify-center gap-2 transition-all group shadow-[4px_4px_0_0_var(--theme-outline)]"
         >
-          <div className="w-12 h-12 rounded-xl bg-surface-container-highest neo-brutalist-border flex items-center justify-center transition-colors">
-             <span className="material-symbols-outlined text-on-background text-2xl">add</span>
+          <div className="w-12 h-12 rounded-xl bg-surface-container-highest border-2 border-outline flex items-center justify-center transition-colors">
+             <span className="material-symbols-outlined text-on-background text-2xl group-hover:rotate-90 transition-transform">add</span>
           </div>
-          <span className="font-label-bold text-on-surface-variant">Add Account</span>
-        </button>
+          <span className="font-label-bold text-on-surface-variant font-bold">Add Account</span>
+        </motion.button>
 
         {accounts.map((acc, idx) => {
            const colorClass = bgColors[idx % bgColors.length];
-           return (
-            <div
+          return (
+            <motion.div
+              layout
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ scale: 1.02, y: -2 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               key={acc.id}
-              className={`group relative aspect-[2/1] neo-brutalist-border rounded-lg p-5 flex flex-col justify-between items-start text-left neo-brutalist-shadow-sm hover:neo-brutalist-shadow transition-all ${colorClass}`}
+              className={`group relative aspect-[2/1] border-4 border-outline rounded-3xl p-5 flex flex-col justify-between items-start text-left shadow-[4px_4px_0_0_var(--theme-outline)] hover:shadow-[6px_6px_0_0_var(--theme-outline)] transition-all ${colorClass}`}
             >
               <div className="flex w-full justify-between items-start">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white neo-brutalist-border rounded-xl flex items-center justify-center text-black">
+                  <div className="w-12 h-12 bg-white border-2 border-outline rounded-2xl flex items-center justify-center text-black shadow-sm">
                     {getIcon(acc.type)}
                   </div>
                   <div>
@@ -173,18 +181,18 @@ export function AccountManager() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-1">
+                <div className="flex gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => handleOpenEdit(acc)}
-                    className="w-8 h-8 rounded-lg bg-white neo-brutalist-border text-black flex items-center justify-center hover:bg-slate-200 active-press"
+                    className="w-10 h-10 rounded-xl bg-white border-2 border-outline text-black flex items-center justify-center hover:bg-slate-200 active-press-sm"
                   >
-                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                    <span className="material-symbols-outlined text-[20px]">edit</span>
                   </button>
                   <button
                     onClick={() => handleDelete(acc.id)}
-                    className="w-8 h-8 rounded-lg bg-error text-on-error neo-brutalist-border flex items-center justify-center hover:opacity-90 active-press"
+                    className="w-10 h-10 rounded-xl bg-error text-on-error border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm"
                   >
-                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                    <span className="material-symbols-outlined text-[20px]">delete</span>
                   </button>
                 </div>
               </div>
@@ -192,23 +200,30 @@ export function AccountManager() {
               {balances[acc.id] !== undefined && (
                 <div className="mt-4">
                   <p className="text-xs font-label-bold uppercase tracking-widest opacity-80 mb-1">Balance</p>
-                  <p className="font-display-lg text-3xl tracking-tighter">
+                  <p className="font-display-lg text-3xl tracking-tighter" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>
                     {formatRupiah(balances[acc.id])}
                   </p>
                 </div>
               )}
-            </div>
+            </motion.div>
            );
         })}
       </div>
 
       {/* Modal Form */}
+      <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
-          <div className="relative bg-surface rounded-2xl w-full max-w-md p-6 neo-brutalist-border neo-brutalist-shadow z-10">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+            animate={{ opacity: 1, scale: 1, y: 0 }} 
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            className="relative bg-surface rounded-3xl w-full max-w-md p-6 border-[3px] border-outline shadow-[6px_6px_0_0_var(--theme-outline)] z-10"
+          >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="font-headline-lg text-on-background tracking-tighter">
+              <h2 className="font-headline-lg text-on-background tracking-tighter" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>
                 {editingId ? "Edit Account" : "New Account"}
               </h2>
             </div>
@@ -221,7 +236,7 @@ export function AccountManager() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="BCA, Gopay, Wallet..."
-                  className="w-full bg-surface-container-lowest neo-brutalist-border rounded-xl px-4 py-3 text-on-background font-body-md focus:outline-none focus:neo-brutalist-shadow-sm transition-all"
+                  className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl px-4 py-3 text-on-background font-body-md focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-all"
                   required
                 />
               </div>
@@ -230,19 +245,20 @@ export function AccountManager() {
                 <label className="text-on-surface-variant font-label-bold block mb-1.5 uppercase tracking-widest text-xs">Type</label>
                 <div className="grid grid-cols-2 gap-2">
                   {ACCOUNT_TYPES.map((t) => (
-                    <button
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
                       key={t.value}
                       type="button"
                       onClick={() => setType(t.value)}
-                      className={`flex items-center gap-2 px-3 py-3 rounded-xl font-label-bold transition-all neo-brutalist-border ${
+                      className={`flex items-center gap-2 px-3 py-3 rounded-xl font-label-bold transition-all border-2 border-outline ${
                         type === t.value 
-                          ? "bg-primary-container text-on-primary-container neo-brutalist-shadow-sm -translate-y-0.5 -translate-x-0.5" 
+                          ? "bg-primary-container text-on-primary-container shadow-[2px_2px_0_0_var(--theme-outline)] -translate-y-0.5 -translate-x-0.5" 
                           : "bg-surface-container-lowest text-on-surface-variant hover:bg-surface-bright"
                       }`}
                     >
                       <span className="material-symbols-outlined text-[20px]">{t.icon}</span>
                       {t.label}
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </div>
@@ -251,22 +267,23 @@ export function AccountManager() {
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="flex-1 py-3 rounded-xl bg-surface neo-brutalist-border text-on-background font-label-bold transition-all hover:bg-surface-bright active-press"
+                  className="flex-1 py-3 rounded-xl bg-surface border-2 border-outline text-on-background font-label-bold transition-all hover:bg-surface-bright active-press"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 py-3 rounded-xl bg-primary-container neo-brutalist-border text-on-primary-container font-label-bold transition-all disabled:opacity-50 active-press neo-brutalist-shadow-sm hover:neo-brutalist-shadow"
+                  className="flex-1 py-3 rounded-xl bg-primary-container border-2 border-outline text-on-primary-container font-label-bold transition-all disabled:opacity-50 active-press shadow-[2px_2px_0_0_var(--theme-outline)] hover:shadow-[4px_4px_0_0_var(--theme-outline)]"
                 >
                   {submitting ? "Saving..." : "Save"}
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
     </div>
   );
 }

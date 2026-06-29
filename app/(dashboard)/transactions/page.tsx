@@ -6,6 +6,7 @@ import { TransactionList } from "@/components/transactions/TransactionList";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { MonthSelector } from "@/components/layout/MonthSelector";
 import { Transaction } from "@/lib/firestore/transactions";
+import { motion } from "framer-motion";
 
 export default function TransactionsPage() {
   const now = new Date();
@@ -46,45 +47,46 @@ export default function TransactionsPage() {
 
       {/* Insights Bento Section */}
       <section className="grid grid-cols-2 gap-4">
-        <div className="col-span-2 md:col-span-1 bg-primary-container neo-brutalist-border rounded-xl p-6 neo-brutalist-shadow relative overflow-hidden group">
-          <div className="absolute -right-6 -top-6 opacity-20 transform rotate-12 group-hover:rotate-45 transition-transform duration-500">
+        <motion.div whileHover={{ scale: 1.02 }} className="col-span-2 md:col-span-1 bg-primary-container neo-brutalist-border rounded-2xl p-6 neo-brutalist-shadow relative overflow-hidden group">
+          <motion.div animate={{ rotate: [12, 45, 12] }} transition={{ repeat: Infinity, duration: 4 }} className="absolute -right-6 -top-6 opacity-20 pointer-events-none">
              <span className="material-symbols-outlined text-8xl text-on-primary-container">outbound</span>
-          </div>
+          </motion.div>
           <p className="font-label-bold text-on-primary-container uppercase mb-1">Total Spent</p>
-          <p className="font-display-lg text-4xl text-on-primary-container tracking-tighter">{formatRupiah(totalExpense)}</p>
+          <p className="font-display-lg text-4xl text-on-primary-container tracking-tighter" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>{formatRupiah(totalExpense)}</p>
           <div className="mt-4 h-3 bg-white neo-brutalist-border rounded-full overflow-hidden">
-            <div className="h-full bg-tertiary-container neo-brutalist-border border-l-0 border-t-0 border-b-0" style={{ width: `${spentPercent}%` }}></div>
+            <motion.div initial={{ width: 0 }} animate={{ width: `${spentPercent}%` }} transition={{ duration: 1 }} className="h-full bg-error border-r-[2px] border-outline"></motion.div>
           </div>
           <p className="font-body-md text-on-surface-variant mt-2">{Math.round(spentPercent)}% of basic limit</p>
-        </div>
+        </motion.div>
         
-        <div className="col-span-2 md:col-span-1 bg-secondary-container neo-brutalist-border rounded-xl p-6 neo-brutalist-shadow relative overflow-hidden group">
-          <div className="absolute -right-6 -bottom-6 opacity-20 transform -rotate-12 group-hover:-rotate-45 transition-transform duration-500">
+        <motion.div whileHover={{ scale: 1.02 }} className="col-span-2 md:col-span-1 bg-secondary-container neo-brutalist-border rounded-2xl p-6 neo-brutalist-shadow relative overflow-hidden group">
+          <motion.div animate={{ rotate: [-12, -45, -12] }} transition={{ repeat: Infinity, duration: 4 }} className="absolute -right-6 -bottom-6 opacity-20 pointer-events-none">
              <span className="material-symbols-outlined text-8xl text-on-secondary-container">call_received</span>
-          </div>
+          </motion.div>
           <p className="font-label-bold text-on-secondary-container uppercase mb-1">Total Income</p>
-          <p className="font-display-lg text-4xl text-on-secondary-container tracking-tighter">{formatRupiah(totalIncome)}</p>
+          <p className="font-display-lg text-4xl text-on-secondary-container tracking-tighter" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>{formatRupiah(totalIncome)}</p>
           
           <div className="mt-4 flex gap-2">
             {(["all", "income", "expense"] as const).map((f) => {
               const isSelected = filter === f;
               const labels = { all: "All", income: "In", expense: "Out" };
               return (
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`px-3 py-1 rounded-md font-label-bold text-sm uppercase transition-colors neo-brutalist-border ${
+                  className={`px-3 py-1 rounded-full font-label-bold text-sm uppercase transition-colors border-2 border-outline ${
                     isSelected
-                      ? "bg-primary-container text-on-primary-container neo-brutalist-shadow-sm active-press"
+                      ? "bg-primary-container text-on-primary-container neo-brutalist-shadow-sm"
                       : "bg-surface-container-lowest text-on-surface-variant hover:bg-surface-bright"
                   }`}
                 >
                   {labels[f]}
-                </button>
+                </motion.button>
               );
             })}
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* List */}
@@ -95,13 +97,15 @@ export default function TransactionsPage() {
       />
 
       {/* FAB */}
-      <button
+      <motion.button
         id="add-transaction-fab"
+        whileHover={{ scale: 1.1, rotate: 90 }}
+        whileTap={{ scale: 0.9 }}
         onClick={() => { setEditTransaction(null); setShowForm(true); }}
-        className="fixed bottom-24 right-6 md:bottom-12 md:right-12 w-16 h-16 bg-primary-container neo-brutalist-border rounded-full neo-brutalist-shadow active-press z-50 flex items-center justify-center"
+        className="fixed bottom-24 right-6 md:bottom-12 md:right-12 w-16 h-16 bg-primary-container neo-brutalist-border rounded-full neo-brutalist-shadow z-50 flex items-center justify-center"
       >
         <span className="material-symbols-outlined text-4xl text-on-background" style={{ fontVariationSettings: "'FILL' 1" }}>add</span>
-      </button>
+      </motion.button>
 
       <TransactionForm
         open={showForm}

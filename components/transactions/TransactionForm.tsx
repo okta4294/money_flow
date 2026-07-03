@@ -201,7 +201,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
             onClick={() => setType("expense")}
             className={`flex-1 py-2 font-label-bold uppercase text-sm border-2 border-black dark:border-white transition-all duration-200 active-press ${
               type === "expense"
-                ? "bg-tertiary text-on-tertiary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
+                ? "bg-error text-on-error shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
                 : "bg-surface text-on-surface"
             }`}
           >
@@ -212,7 +212,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
             onClick={() => setType("income")}
             className={`flex-1 py-2 font-label-bold uppercase text-sm border-2 border-black dark:border-white transition-all duration-200 active-press ${
               type === "income"
-                ? "bg-primary text-on-primary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
+                ? "bg-tertiary text-on-tertiary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
                 : "bg-surface text-on-surface"
             }`}
           >
@@ -244,7 +244,11 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                 value={formatRupiah(amount)}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0"
-                className="w-full bg-surface-container neo-brutalist-border pl-12 pr-4 py-3 text-on-surface text-xl font-display-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-primary-container focus:text-on-primary-container transition-colors"
+                className={`w-full bg-surface-container neo-brutalist-border pl-12 pr-4 py-3 text-on-surface text-xl font-display-lg focus:outline-none focus:ring-2 transition-colors ${
+                  type === "expense" ? "focus:ring-error focus:bg-error-container focus:text-on-error-container" :
+                  type === "transfer" ? "focus:ring-secondary focus:bg-secondary-container focus:text-on-secondary-container" :
+                  "focus:ring-tertiary focus:bg-tertiary-container focus:text-on-tertiary-container"
+                }`}
               />
             </div>
           </div>
@@ -270,7 +274,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                       onClick={() => setCategoryId(cat.id)}
                       className={`flex flex-col items-center gap-2 p-2 border-2 border-black dark:border-white font-label-bold text-[10px] uppercase transition-transform active-press ${
                         categoryId === cat.id
-                          ? "bg-primary text-on-primary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
+                          ? (type === "expense" ? "bg-error text-on-error shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]" : "bg-tertiary text-on-tertiary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]")
                           : "bg-surface text-on-surface hover:bg-surface-variant"
                       }`}
                     >
@@ -372,7 +376,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                     onClick={() => setAccountId("")}
                     className={`flex items-center gap-2 p-2 border-2 border-black dark:border-white font-label-bold text-[10px] uppercase transition-transform active-press ${
                       accountId === ""
-                        ? "bg-primary text-on-primary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
+                        ? "bg-tertiary text-on-tertiary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
                         : "bg-surface text-on-surface hover:bg-surface-variant"
                     }`}
                   >
@@ -387,7 +391,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                       onClick={() => setAccountId(acc.id)}
                       className={`flex items-center gap-2 p-2 border-2 border-black dark:border-white font-label-bold text-[10px] uppercase transition-transform active-press ${
                         accountId === acc.id
-                          ? "bg-primary text-on-primary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
+                          ? "bg-tertiary text-on-tertiary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
                           : "bg-surface text-on-surface hover:bg-surface-variant"
                       }`}
                     >
@@ -475,7 +479,11 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full bg-surface-container neo-brutalist-border px-4 py-3 text-on-surface font-label-bold uppercase text-xs focus:outline-none focus:ring-2 focus:ring-primary focus:bg-primary-container focus:text-on-primary-container transition-colors cursor-pointer"
+              className={`w-full bg-surface-container neo-brutalist-border px-4 py-3 text-on-surface font-label-bold uppercase text-xs focus:outline-none focus:ring-2 transition-colors cursor-pointer ${
+                type === "expense" ? "focus:ring-error focus:bg-error-container focus:text-on-error-container" :
+                type === "transfer" ? "focus:ring-secondary focus:bg-secondary-container focus:text-on-secondary-container" :
+                "focus:ring-tertiary focus:bg-tertiary-container focus:text-on-tertiary-container"
+              }`}
             />
           </div>
 
@@ -488,7 +496,11 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="TAMBAHKAN CATATAN..."
-              className="w-full bg-surface-container neo-brutalist-border px-4 py-3 text-on-surface font-label-bold uppercase text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:bg-primary-container focus:text-on-primary-container transition-colors placeholder:text-on-surface-variant"
+              className={`w-full bg-surface-container neo-brutalist-border px-4 py-3 text-on-surface font-label-bold uppercase text-sm focus:outline-none focus:ring-2 transition-colors placeholder:text-on-surface-variant ${
+                type === "expense" ? "focus:ring-error focus:bg-error-container focus:text-on-error-container" :
+                type === "transfer" ? "focus:ring-secondary focus:bg-secondary-container focus:text-on-secondary-container" :
+                "focus:ring-tertiary focus:bg-tertiary-container focus:text-on-tertiary-container"
+              }`}
             />
           </div>
 
@@ -512,10 +524,10 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
               disabled={loading}
               className={`flex-1 py-4 font-label-bold uppercase tracking-widest text-white neo-brutalist-border active-press disabled:opacity-50 ${
                 type === "expense"
-                  ? "bg-tertiary text-on-tertiary"
+                  ? "bg-error text-on-error"
                   : type === "transfer"
                   ? "bg-secondary text-on-secondary"
-                  : "bg-primary text-on-primary"
+                  : "bg-tertiary text-on-tertiary"
               }`}
             >
               {loading ? "Menyimpan..." : editData ? "Perbarui" : "Simpan"}

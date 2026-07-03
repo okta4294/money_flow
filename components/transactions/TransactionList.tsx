@@ -43,20 +43,6 @@ function getDayLabel(dateStr: string) {
   return formatDate(dateStr) + ", " + date.getFullYear();
 }
 
-function groupByDate(transactions: Transaction[]): Record<string, Transaction[]> {
-  const sorted = [...transactions].sort((a, b) => {
-    const aTime = a.createdAt?.seconds || 0;
-    const bTime = b.createdAt?.seconds || 0;
-    return bTime - aTime;
-  });
-
-  return sorted.reduce((acc, t) => {
-    if (!acc[t.date]) acc[t.date] = [];
-    acc[t.date].push(t);
-    return acc;
-  }, {} as Record<string, Transaction[]>);
-}
-
 export function TransactionList({ transactions, loading, onEdit, variant = "list" }: TransactionListProps) {
   const { user } = useAuth();
   const { incomeCategories, expenseCategories } = useCategories();
@@ -73,9 +59,9 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
   };
 
   const getCategoryColor = (t: Transaction) => {
-     if (t.type === "income") return "bg-primary-container";
+     if (t.type === "income") return "bg-tertiary-container";
      if (t.type === "transfer") return "bg-secondary-container";
-     return "bg-tertiary-container";
+     return "bg-error-container";
   };
 
   const handleDelete = async (id: string) => {
@@ -117,76 +103,93 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
     );
   }
 
-  const grouped = groupByDate(transactions);
+  const grouped = transactions.reduce((acc, t) => {
+    if (!acc[t.date]) acc[t.date] = [];
+    acc[t.date].push(t);
+    return acc;
+  }, {} as Record<string, Transaction[]>);
+
   const sortedDates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
 
   return (
-    <div className="space-y-10">
-      {sortedDates.map((date, index) => {
-        const dayTxs = grouped[date];
+    <div className="space-y-8">
+      {sortedDates.map((dateStr) => {
+        const dayTxs = [...grouped[dateStr]].sort((a, b) => {
+          const aTime = a.createdAt?.seconds || 0;
+          const bTime = b.createdAt?.seconds || 0;
+          return bTime - aTime;
+        });
+
+        const dayIncome = dayTxs.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0);
+        const dayExpense = dayTxs.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0);
 
         return (
-          <section key={date} className="mb-10">
-            {/* Date Header */}
-            <div className={`mb-4 inline-block px-4 py-1 neo-brutalist-border rounded-lg neo-brutalist-shadow-sm ${index % 2 === 0 ? 'bg-primary-container' : 'bg-surface-container-highest'}`}>
-              <h2 className="font-label-bold text-label-bold uppercase text-on-background">{getDayLabel(date)}</h2>
+          <div key={dateStr} className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-outline pb-2 px-2">
+              <h3 className="font-headline-md text-on-surface text-lg">
+                {getDayLabel(dateStr)}
+              </h3>
+              <div className="flex gap-4">
+                <span className="font-label-bold text-xs uppercase text-tertiary">
+                  In: {formatRupiah(dayIncome)}
+                </span>
+                <span className="font-label-bold text-xs uppercase text-error">
+                  Out: {formatRupiah(dayExpense)}
+                </span>
+              </div>
             </div>
-            
-            <div className="space-y-6">
-              <AnimatePresence>
-                {dayTxs.map((t) => (
-                  <motion.div
-                    key={t.id}
-                    layout
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    className="bg-surface neo-brutalist-border rounded-xl p-4 flex items-center gap-4 neo-brutalist-shadow cursor-pointer group relative overflow-hidden"
-                  >
-                    <div className={`w-14 h-14 flex items-center justify-center rounded-xl neo-brutalist-border ${getCategoryColor(t)} z-10 relative text-black`}>
-                      {(() => {
-                         const cat = [...incomeCategories, ...expenseCategories].find((c) => c.id === t.categoryId || c.name === t.category);
-                         if (cat?.icon?.includes("fa-")) return <i className={`fa-solid ${cat.icon} text-2xl`}></i>;
-                         return (
-                           <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                             {getCategoryIcon(t)}
-                           </span>
-                         );
-                      })()}
-                    </div>
-                    <div className="flex-1 z-10 relative" onClick={() => onEdit(t)}>
-                      <p className="font-headline-md text-body-lg text-on-background leading-tight line-clamp-1">{t.note || t.category}</p>
-                      <p className="font-body-md text-on-surface-variant text-sm">
-                        {t.type === "transfer" ? `${t.accountName || "?"} → ${t.destinationAccountName || "?"}` : (t.category || "Uncategorized")}
-                        {t.note && ` • ${t.note}`}
-                      </p>
-                    </div>
-                    <div className="text-right z-10 relative flex flex-col items-end">
-                      <p className={`font-headline-md text-lg md:text-xl font-bold whitespace-nowrap ${
-                        t.type === "income" ? "text-[#2e7d32] dark:text-primary-fixed" : 
-                        t.type === "transfer" ? "text-secondary-fixed-dim" : 
-                        "text-error dark:text-tertiary-fixed"
-                      }`}>
-                        {t.type === "income" ? "+" : t.type === "transfer" ? "" : "-"}{formatRupiah(t.amount)}
-                      </p>
-                      
-                      {/* Delete button appears on hover */}
-                      <button
-                          onClick={(e) => { e.stopPropagation(); handleDelete(t.id); }}
-                          disabled={deletingId === t.id}
-                          className="mt-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 text-error hover:text-error-container transition-opacity"
-                        >
-                          <span className="material-symbols-outlined text-sm">delete</span>
-                        </button>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          </section>
+
+            <AnimatePresence>
+              {dayTxs.map((t) => (
+                <motion.div
+                  key={t.id}
+                  layout
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  className="bg-surface neo-brutalist-border rounded-xl p-4 flex items-center gap-4 neo-brutalist-shadow cursor-pointer group relative overflow-hidden"
+                >
+                  <div className={`w-14 h-14 flex items-center justify-center rounded-xl neo-brutalist-border ${getCategoryColor(t)} z-10 relative text-black`}>
+                    {(() => {
+                      const cat = [...incomeCategories, ...expenseCategories].find((c) => c.id === t.categoryId || c.name === t.category);
+                      if (cat?.icon?.includes("fa-")) return <i className={`fa-solid ${cat.icon} text-2xl`}></i>;
+                      return (
+                        <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                          {getCategoryIcon(t)}
+                        </span>
+                      );
+                    })()}
+                  </div>
+                  <div className="flex-1 z-10 relative" onClick={() => onEdit(t)}>
+                    <p className="font-headline-md text-body-lg text-on-background leading-tight line-clamp-1">{t.note || t.category}</p>
+                    <p className="font-body-md text-on-surface-variant text-sm">
+                      {t.type === "transfer" ? `${t.accountName || "?"} → ${t.destinationAccountName || "?"}` : (t.category || "Uncategorized")}
+                    </p>
+                  </div>
+                  <div className="text-right z-10 relative flex flex-col items-end">
+                    <p className={`font-headline-md text-lg md:text-xl font-bold whitespace-nowrap ${
+                      t.type === "income" ? "text-tertiary" : 
+                      t.type === "transfer" ? "text-secondary-fixed-dim" : 
+                      "text-error"
+                    }`}>
+                      {t.type === "income" ? "+" : t.type === "transfer" ? "" : "-"}{formatRupiah(t.amount)}
+                    </p>
+                    
+                    <button
+                        onClick={(e) => { e.stopPropagation(); handleDelete(t.id); }}
+                        disabled={deletingId === t.id}
+                        className="mt-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 text-error hover:text-error-container transition-opacity"
+                      >
+                        <span className="material-symbols-outlined text-sm">delete</span>
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
         );
       })}
     </div>

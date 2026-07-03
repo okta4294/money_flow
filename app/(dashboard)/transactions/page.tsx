@@ -51,7 +51,7 @@ export default function TransactionsPage() {
           <motion.div animate={{ rotate: [12, 45, 12] }} transition={{ repeat: Infinity, duration: 4 }} className="absolute -right-6 -top-6 opacity-20 pointer-events-none">
              <span className="material-symbols-outlined text-8xl text-on-primary-container">outbound</span>
           </motion.div>
-          <p className="font-label-bold text-on-primary-container uppercase mb-1">Total Spent</p>
+          <p className="font-label-bold text-on-primary-container uppercase mb-1">Total Pengeluaran</p>
           <p className="font-display-lg text-4xl text-on-primary-container tracking-tighter" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>{formatRupiah(totalExpense)}</p>
           <div className="mt-4 h-3 bg-white neo-brutalist-border rounded-full overflow-hidden">
             <motion.div initial={{ width: 0 }} animate={{ width: `${spentPercent}%` }} transition={{ duration: 1 }} className="h-full bg-error border-r-[2px] border-outline"></motion.div>
@@ -63,7 +63,7 @@ export default function TransactionsPage() {
           <motion.div animate={{ rotate: [-12, -45, -12] }} transition={{ repeat: Infinity, duration: 4 }} className="absolute -right-6 -bottom-6 opacity-20 pointer-events-none">
              <span className="material-symbols-outlined text-8xl text-on-secondary-container">call_received</span>
           </motion.div>
-          <p className="font-label-bold text-on-secondary-container uppercase mb-1">Total Income</p>
+          <p className="font-label-bold text-on-secondary-container uppercase mb-1">Total Pemasukan</p>
           <p className="font-display-lg text-4xl text-on-secondary-container tracking-tighter" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>{formatRupiah(totalIncome)}</p>
           
           <div className="mt-4 flex gap-2">

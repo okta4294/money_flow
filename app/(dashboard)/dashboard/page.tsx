@@ -142,21 +142,21 @@ export default function DashboardPage() {
             <div>
               <div className="flex justify-between items-end mb-2">
                 <span className="font-label-bold text-label-bold text-on-surface uppercase flex items-center gap-1">
-                  <span className="material-symbols-outlined text-primary dark:text-primary-fixed">arrow_upward</span> Income
+                  <span className="material-symbols-outlined text-tertiary dark:text-tertiary-fixed">arrow_upward</span> Pemasukan
                 </span>
-                <span className="text-2xl font-display-lg text-primary dark:text-primary-fixed" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>
+                <span className="text-2xl font-display-lg text-tertiary dark:text-tertiary-fixed" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>
                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalIncome)}
                 </span>
               </div>
               <div className="h-8 w-full bg-on-background border-2 border-outline rounded-full relative overflow-hidden">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${incomePercent}%` }} transition={{ duration: 1, type: "spring" }} className="absolute top-0 left-0 h-full bg-primary-container border-r-[3px] border-outline"></motion.div>
+                <motion.div initial={{ width: 0 }} animate={{ width: `${incomePercent}%` }} transition={{ duration: 1, type: "spring" }} className="absolute top-0 left-0 h-full bg-tertiary-container border-r-[3px] border-outline"></motion.div>
               </div>
             </div>
             {/* Expense Bar */}
             <div>
               <div className="flex justify-between items-end mb-2">
                 <span className="font-label-bold text-label-bold text-on-surface uppercase flex items-center gap-1">
-                  <span className="material-symbols-outlined text-error">arrow_downward</span> Expenses
+                  <span className="material-symbols-outlined text-error">arrow_downward</span> Pengeluaran
                 </span>
                 <span className="text-2xl font-display-lg text-error" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>
                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalExpense)}
@@ -226,7 +226,7 @@ export default function DashboardPage() {
                return (
                 <div key={t.id} onClick={() => { setEditTransaction(t); setShowTransactionForm(true); }} className="flex items-center justify-between p-4 md:p-6 border-2 border-outline border-t-0 border-l-0 border-r-0 hover:bg-surface-bright transition-colors group cursor-pointer">
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 bg-on-background border-2 border-outline flex items-center justify-center group-hover:${t.type === 'income' ? 'bg-primary-container' : 'bg-tertiary-container'} transition-colors`}>
+                    <div className={`w-12 h-12 bg-on-background border-2 border-outline flex items-center justify-center group-hover:${t.type === 'income' ? 'bg-tertiary-container' : 'bg-error-container'} transition-colors`}>
                       {cat?.icon?.includes("fa-") ? (
                         <i className={`fa-solid ${cat.icon} text-surface group-hover:text-on-background text-xl transition-colors`}></i>
                       ) : (
@@ -238,7 +238,7 @@ export default function DashboardPage() {
                       <span className="font-body-md text-sm text-on-background/70">{cat?.name || 'Uncategorized'} • {new Date(t.date + "T00:00:00").toLocaleDateString('id-ID')}</span>
                     </div>
                   </div>
-                  <span className={`font-headline-md text-lg md:text-xl ${t.type === 'income' ? 'text-primary dark:text-primary-fixed' : 'text-tertiary dark:text-tertiary-fixed'} font-bold whitespace-nowrap`}>
+                  <span className={`font-headline-md text-lg md:text-xl ${t.type === 'income' ? 'text-tertiary dark:text-tertiary-fixed' : 'text-error dark:text-error-fixed'} font-bold whitespace-nowrap`}>
                     {t.type === 'income' ? '+' : '-'}{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(t.amount)}
                   </span>
                 </div>

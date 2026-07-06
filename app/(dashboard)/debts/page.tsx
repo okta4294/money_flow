@@ -16,7 +16,7 @@ function formatRupiah(n: number) {
 }
 
 export default function DebtsPage() {
-  const { debts, activeDebts, paidDebts, totalDebt, loading, nextMonthDebtEstimate } = useDebts();
+  const { debts, activeDebts, paidDebts, totalDebt, loading, upcomingMonths } = useDebts();
   const [showForm, setShowForm] = useState(false);
   const [editDebt, setEditDebt] = useState<Debt | null>(null);
   const [filter, setFilter] = useState<"active" | "paid" | "all">("active");
@@ -50,14 +50,37 @@ export default function DebtsPage() {
           <motion.span animate={{ rotate: [12, 15, 12] }} transition={{ repeat: Infinity, duration: 3 }} className="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] text-on-tertiary-container opacity-20 pointer-events-none">account_balance</motion.span>
         </motion.section>
 
-        {/* Next Month Estimate Card */}
-        <motion.section whileHover={{ scale: 1.02, y: -2 }} className="col-span-1 bg-surface-container border-4 border-outline rounded-3xl p-6 shadow-[4px_4px_0_0_var(--theme-outline)] flex flex-col justify-center">
-          <div className="flex items-center gap-2 mb-2">
+        {/* Upcoming Debts Estimate Card */}
+        <motion.section whileHover={{ scale: 1.02, y: -2 }} className="col-span-1 bg-surface-container border-4 border-outline rounded-3xl p-6 shadow-[4px_4px_0_0_var(--theme-outline)] flex flex-col justify-start max-h-[300px] overflow-y-auto no-scrollbar">
+          <div className="flex items-center gap-2 mb-4 sticky top-0 bg-surface-container z-10 py-1">
              <span className="material-symbols-outlined text-error">calendar_month</span>
-             <p className="font-label-bold text-on-surface-variant uppercase tracking-widest text-xs font-bold">Estimasi Bulan Depan</p>
+             <p className="font-label-bold text-on-surface-variant uppercase tracking-widest text-xs font-bold">Estimasi Kedepan</p>
           </div>
-          <h3 className="text-2xl font-display-lg text-on-background" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>{loading ? "..." : formatRupiah(nextMonthDebtEstimate || 0)}</h3>
-          <p className="text-xs font-body-md text-on-surface-variant mt-2 leading-relaxed font-bold">Tagihan yang jatuh tempo di bulan depan.</p>
+          
+          {loading ? (
+             <p className="text-sm">...</p>
+          ) : upcomingMonths?.length === 0 ? (
+             <p className="text-xs font-body-md text-on-surface-variant font-bold">Tidak ada tagihan jatuh tempo.</p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {upcomingMonths?.map(um => (
+                <details key={um.month} className="group bg-surface rounded-xl border-2 border-outline p-3 shadow-[2px_2px_0_0_var(--theme-outline)] open:bg-surface-bright transition-colors">
+                  <summary className="font-label-bold text-on-background cursor-pointer flex justify-between items-center outline-none">
+                     <span className="text-sm">{um.month}</span>
+                     <span className="text-error text-sm">{formatRupiah(um.total)}</span>
+                  </summary>
+                  <ul className="mt-3 space-y-2 border-t-2 border-outline border-dashed pt-3">
+                    {um.items.map(item => (
+                      <li key={item.id} className="flex justify-between text-xs font-body-md text-on-surface-variant font-bold">
+                        <span className="truncate mr-2">{item.name}</span>
+                        <span className="shrink-0">{formatRupiah(item.remainingAmount)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              ))}
+            </div>
+          )}
         </motion.section>
       </div>
 

@@ -29,18 +29,27 @@ export function useDebts() {
   const paidDebts = debts.filter((d) => d.status === "paid");
   const totalDebt = activeDebts.reduce((sum, d) => sum + d.remainingAmount, 0);
 
-  // Estimasi hutang jatuh tempo bulan depan — hanya yang ada dueDate
+  // Estimasi hutang bulan-bulan ke depan (ponytail: minimum abstraction)
   const now = new Date();
-  const nextMonth = now.getMonth() + 2; // getMonth() 0-indexed, bulan depan = +2
-  const nextYear = nextMonth > 12 ? now.getFullYear() + 1 : now.getFullYear();
-  const normalizedNextMonth = nextMonth > 12 ? 1 : nextMonth;
-  const nextMonthDebtEstimate = activeDebts
-    .filter((d) => {
-      if (!d.dueDate) return false;
-      const due = new Date(d.dueDate + "T00:00:00");
-      return due.getFullYear() === nextYear && due.getMonth() + 1 === normalizedNextMonth;
-    })
-    .reduce((sum, d) => sum + d.remainingAmount, 0);
+  const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
-  return { debts, activeDebts, paidDebts, totalDebt, nextMonthDebtEstimate, loading };
+  const upcomingDebtsByMonth = activeDebts
+    .filter((d) => d.dueDate && d.dueDate.substring(0, 7) > currentMonthStr)
+    .reduce((acc, d) => {
+      const monthStr = d.dueDate!.substring(0, 7);
+      if (!acc[monthStr]) acc[monthStr] = { total: 0, items: [] };
+      acc[monthStr].total += d.remainingAmount;
+      acc[monthStr].items.push(d);
+      return acc;
+    }, {} as Record<string, { total: number, items: Debt[] }>);
+
+  const upcomingMonths = Object.keys(upcomingDebtsByMonth)
+    .sort()
+    .map((m) => ({
+      month: m, // Format: YYYY-MM
+      total: upcomingDebtsByMonth[m].total,
+      items: upcomingDebtsByMonth[m].items,
+    }));
+
+  return { debts, activeDebts, paidDebts, totalDebt, upcomingMonths, loading };
 }

@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Memastikan user sudah login dan uid-nya cocok dengan parameter userId
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /transactions/{document=**} {
+        allow read, write: if isOwner(userId);
+      }
+      match /categories/{document=**} {
+        allow read, write: if isOwner(userId);
+      }
+      match /debts/{document=**} {
+        allow read, write: if isOwner(userId);
+      }
+      match /accounts/{document=**} {
+        allow read, write: if isOwner(userId);
+      }
+      match /balances/{document=**} {
+        allow read, write: if isOwner(userId);
+      }
+      match /ai-usage/{document=**} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+  }
+}

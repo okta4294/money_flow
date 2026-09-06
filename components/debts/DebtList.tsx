@@ -69,7 +69,7 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
   if (debts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="w-20 h-20 bg-surface-container border-4 border-outline rounded-3xl flex items-center justify-center mb-4 shadow-[4px_4px_0_0_var(--theme-outline)]">
+        <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} className="w-20 h-20 bg-surface-container border-4 border-outline rounded-3xl flex items-center justify-center mb-4 shadow-[4px_4px_0_0_var(--theme-outline)]">
           <span className="material-symbols-outlined text-4xl text-on-surface-variant">
             {filter === "paid" ? "check_circle" : "celebration"}
           </span>

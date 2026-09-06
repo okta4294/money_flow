@@ -47,7 +47,7 @@ export default function DebtsPage() {
             </div>
           </div>
           {/* Decorative Element */}
-          <motion.span animate={{ rotate: [12, 15, 12] }} transition={{ repeat: Infinity, duration: 3 }} className="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] text-on-tertiary-container opacity-20 pointer-events-none">account_balance</motion.span>
+          <motion.span animate={{ rotate: [12, 15, 12] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }} className="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] text-on-tertiary-container opacity-20 pointer-events-none">account_balance</motion.span>
         </motion.section>
 
         {/* Upcoming Debts Estimate Card */}

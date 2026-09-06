@@ -34,6 +34,15 @@ function isDebtCategory(categoryName: string): boolean {
   return lower.includes("hutang") || lower.includes("paylater") || lower.includes("pay later");
 }
 
+const getAccountIcon = (type: string) => {
+  switch (type) {
+    case "bank": return "account_balance";
+    case "ewallet": return "account_balance_wallet";
+    case "cash": return "payments";
+    default: return "help";
+  }
+};
+
 export function TransactionForm({ open, onClose, editData }: TransactionFormProps) {
   const { user } = useAuth();
   const { incomeCategories, expenseCategories } = useCategories();
@@ -278,7 +287,11 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                           : "bg-surface text-on-surface hover:bg-surface-variant"
                       }`}
                     >
-                      <i className={`${cat.icon && cat.icon.includes("fa-") ? cat.icon : "fa-solid fa-circle"} text-lg`}></i>
+                      {cat.icon && cat.icon.includes("fa-") ? (
+                        <i className={`${cat.icon} text-lg`}></i>
+                      ) : (
+                        <span className="material-symbols-outlined text-lg">{cat.icon || "category"}</span>
+                      )}
                       <span className="truncate w-full text-center">{cat.name}</span>
                     </button>
                   ))}
@@ -320,7 +333,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                           }`}
                           disabled={destinationAccountId === acc.id}
                         >
-                          <span className="w-3 h-3 border border-black dark:border-white" style={{ backgroundColor: acc.color }} />
+                          <span className="material-symbols-outlined text-[14px]">{getAccountIcon(acc.type)}</span>
                           <span className="truncate flex-1 text-left">{acc.name}</span>
                         </button>
                       ))}
@@ -347,7 +360,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                           }`}
                           disabled={accountId === acc.id}
                         >
-                          <span className="w-3 h-3 border border-black dark:border-white" style={{ backgroundColor: acc.color }} />
+                          <span className="material-symbols-outlined text-[14px]">{getAccountIcon(acc.type)}</span>
                           <span className="truncate flex-1 text-left">{acc.name}</span>
                         </button>
                       ))}
@@ -380,7 +393,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                         : "bg-surface text-on-surface hover:bg-surface-variant"
                     }`}
                   >
-                    <span className="w-3 h-3 border border-black dark:border-white bg-on-surface-variant" />
+                    <span className="material-symbols-outlined text-[14px]">money_off</span>
                     <span className="truncate flex-1 text-left">Kosong</span>
                   </button>
 
@@ -395,10 +408,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                           : "bg-surface text-on-surface hover:bg-surface-variant"
                       }`}
                     >
-                      <span
-                        className="w-3 h-3 border border-black dark:border-white"
-                        style={{ backgroundColor: acc.color }}
-                      />
+                      <span className="material-symbols-outlined text-[14px]">{getAccountIcon(acc.type)}</span>
                       <span className="truncate flex-1 text-left">{acc.name}</span>
                     </button>
                   ))}

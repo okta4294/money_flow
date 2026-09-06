@@ -21,7 +21,7 @@ export function useAccounts() {
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user?.uid]);
 
   return { accounts, loading };
 }

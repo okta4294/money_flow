@@ -48,7 +48,7 @@ export default function TransactionsPage() {
       {/* Insights Bento Section */}
       <section className="grid grid-cols-2 gap-4">
         <motion.div whileHover={{ scale: 1.02 }} className="col-span-2 md:col-span-1 bg-primary-container neo-brutalist-border rounded-2xl p-6 neo-brutalist-shadow relative overflow-hidden group">
-          <motion.div animate={{ rotate: [12, 45, 12] }} transition={{ repeat: Infinity, duration: 4 }} className="absolute -right-6 -top-6 opacity-20 pointer-events-none">
+          <motion.div animate={{ rotate: [12, 45, 12] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} className="absolute -right-6 -top-6 opacity-20 pointer-events-none">
              <span className="material-symbols-outlined text-8xl text-on-primary-container">outbound</span>
           </motion.div>
           <p className="font-label-bold text-on-primary-container uppercase mb-1">Total Pengeluaran</p>
@@ -60,7 +60,7 @@ export default function TransactionsPage() {
         </motion.div>
         
         <motion.div whileHover={{ scale: 1.02 }} className="col-span-2 md:col-span-1 bg-secondary-container neo-brutalist-border rounded-2xl p-6 neo-brutalist-shadow relative overflow-hidden group">
-          <motion.div animate={{ rotate: [-12, -45, -12] }} transition={{ repeat: Infinity, duration: 4 }} className="absolute -right-6 -bottom-6 opacity-20 pointer-events-none">
+          <motion.div animate={{ rotate: [-12, -45, -12] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} className="absolute -right-6 -bottom-6 opacity-20 pointer-events-none">
              <span className="material-symbols-outlined text-8xl text-on-secondary-container">call_received</span>
           </motion.div>
           <p className="font-label-bold text-on-secondary-container uppercase mb-1">Total Pemasukan</p>

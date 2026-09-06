@@ -47,7 +47,7 @@ export default function DashboardPage() {
     const bal = await getInitialBalance(user.uid, year, month);
     setInitialBalance(bal);
     setBalanceLoading(false);
-  }, [user, year, month]);
+  }, [user?.uid, year, month]);
 
   useEffect(() => {
     fetchBalance();
@@ -86,7 +86,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-12 gap-6 w-full">
         {/* Hero Balance Card (Bento Item 1) */}
         <motion.div whileHover={{ scale: 1.02, y: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="col-span-12 lg:col-span-8 bg-primary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group rounded-3xl">
-          <motion.div animate={{ rotate: [12, 15, 12] }} transition={{ repeat: Infinity, duration: 4 }} className="absolute -right-10 -bottom-10 opacity-20 transform rotate-12 pointer-events-none">
+          <motion.div animate={{ rotate: [12, 15, 12] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} className="absolute -right-10 -bottom-10 opacity-20 transform rotate-12 pointer-events-none">
             <span className="material-symbols-outlined text-[200px] text-on-primary-container">attach_money</span>
           </motion.div>
           <div className="relative z-10">
@@ -101,7 +101,7 @@ export default function DashboardPage() {
 
         {/* AI Roast Card (Bento Item 2) */}
         <motion.div whileHover={{ scale: 1.02, y: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="col-span-12 lg:col-span-4 h-full min-h-[300px] bg-tertiary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-6 flex flex-col relative rounded-3xl">
-           <motion.div animate={{ y: [-5, 5, -5] }} transition={{ repeat: Infinity, duration: 2 }} className="absolute -top-6 -right-6 w-16 h-16 bg-background rounded-full border-2 border-outline flex items-center justify-center z-20 shadow-[0_4px_0_0_var(--theme-outline)]">
+           <motion.div animate={{ y: [-5, 5, -5] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} className="absolute -top-6 -right-6 w-16 h-16 bg-background rounded-full border-2 border-outline flex items-center justify-center z-20 shadow-[0_4px_0_0_var(--theme-outline)]">
               <span className="material-symbols-outlined text-on-background text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
            </motion.div>
            {(!loading && !balanceLoading) ? (
@@ -173,15 +173,14 @@ export default function DashboardPage() {
         <div className="col-span-12 lg:col-span-6 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] flex flex-col overflow-hidden">
           <div className="bg-primary-container border-2 border-outline border-l-0 border-r-0 border-t-0 px-6 py-3 flex justify-between items-center">
             <h4 className="font-headline-md text-xl text-on-primary-container uppercase font-bold">Budget Heat</h4>
-            <Link href="/categories" className="material-symbols-outlined text-on-primary-container hover:scale-110 transition-transform">more_horiz</Link>
           </div>
-          <div className="p-6 flex flex-col gap-6 flex-1 justify-center max-h-[300px] overflow-y-auto no-scrollbar">
+          <div className="p-6 flex flex-col gap-6 flex-1 justify-start max-h-[300px] overflow-y-auto no-scrollbar">
              {(() => {
                const expenseCategories = categories.filter(c => c.type === 'expense');
                const withSpending = expenseCategories.map(cat => ({
                  cat,
                  spent: transactions.filter(t => t.type === 'expense' && t.categoryId === cat.id).reduce((s, t) => s + t.amount, 0),
-               })).filter(x => x.spent > 0).sort((a, b) => b.spent - a.spent).slice(0, 3);
+               })).filter(x => x.spent > 0).sort((a, b) => b.spent - a.spent);
                const maxSpent = withSpending[0]?.spent || 1;
                const colors = ['bg-tertiary-container', 'bg-secondary-container', 'bg-primary-container'];
                if (withSpending.length === 0) return <p className="text-on-surface-variant text-center text-sm">Belum ada pengeluaran bulan ini.</p>;

@@ -9,8 +9,6 @@ import {
   orderBy,
   Timestamp,
   onSnapshot,
-  getAggregateFromServer,
-  sum,
 } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -72,6 +70,16 @@ export function subscribeToTransactionsByMonth(
       id: doc.id,
       ...doc.data(),
     })) as Transaction[];
+
+    transactions.sort((a, b) => {
+      if (a.date !== b.date) {
+        return b.date.localeCompare(a.date);
+      }
+      const timeA = a.createdAt?.toMillis?.() || 0;
+      const timeB = b.createdAt?.toMillis?.() || 0;
+      return timeB - timeA;
+    });
+
     callback(transactions);
   });
 }
@@ -100,31 +108,4 @@ export async function deleteTransaction(userId: string, id: string) {
   await deleteDoc(ref);
 }
 
-export async function getMonthAggregates(userId: string, year: number, month: number) {
-  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
-  const endDate = `${year}-${String(month).padStart(2, "0")}-31`;
 
-  const incomeQuery = query(
-    transactionsRef(userId),
-    where("date", ">=", startDate),
-    where("date", "<=", endDate),
-    where("type", "==", "income")
-  );
-  
-  const expenseQuery = query(
-    transactionsRef(userId),
-    where("date", ">=", startDate),
-    where("date", "<=", endDate),
-    where("type", "==", "expense")
-  );
-
-  const [incomeSnap, expenseSnap] = await Promise.all([
-    getAggregateFromServer(incomeQuery, { total: sum("amount") }),
-    getAggregateFromServer(expenseQuery, { total: sum("amount") })
-  ]);
-
-  return {
-    income: incomeSnap.data().total || 0,
-    expense: expenseSnap.data().total || 0,
-  };
-}

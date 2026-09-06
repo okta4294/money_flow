@@ -31,7 +31,7 @@ export function useTransactions(year: number, month: number) {
     );
 
     return () => unsubscribe();
-  }, [user, year, month]);
+  }, [user?.uid, year, month]);
 
   const totalIncome = transactions
     .filter((t) => t.type === "income")

@@ -29,7 +29,7 @@ export default function CategoriesPage() {
           </div>
         </div>
         {/* Decorative circle */}
-        <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 4 }} className="absolute -right-10 -bottom-10 w-40 h-40 border-[4px] border-on-background rounded-full opacity-10 pointer-events-none"></motion.div>
+        <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} className="absolute -right-10 -bottom-10 w-40 h-40 border-[4px] border-on-background rounded-full opacity-10 pointer-events-none"></motion.div>
       </motion.section>
     </div>
   );

@@ -23,7 +23,7 @@ export function useDebts() {
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user?.uid]);
 
   const activeDebts = debts.filter((d) => d.status === "active");
   const paidDebts = debts.filter((d) => d.status === "paid");

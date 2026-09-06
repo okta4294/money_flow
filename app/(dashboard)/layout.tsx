@@ -93,7 +93,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Main Content */}
         <main className="flex-1 w-full md:pl-24 pb-24 md:pb-0 relative">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout">
             <motion.div
               key={pathname}
               initial={{ opacity: 0, scale: 0.98, y: 15 }}

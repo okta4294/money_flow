@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 };
 
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { DataProvider } from "@/lib/data-context";
 
 export default function RootLayout({
   children,
@@ -24,7 +25,9 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-background text-on-background antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <DataProvider>{children}</DataProvider>
+          </AuthProvider>
         </ThemeProvider>
         <Script src="https://kit.fontawesome.com/9d2a010394.js" crossOrigin="anonymous" strategy="afterInteractive" />
       </body>

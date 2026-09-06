@@ -116,7 +116,7 @@ export default function DebtsPage() {
       
       {/* Motivation Quote Section */}
       <motion.section whileHover={{ rotate: 1 }} className="bg-surface-container-high border-2 border-outline rounded-3xl p-6 border-dashed text-center mt-10">
-        <p className="italic font-body-md text-on-surface-variant font-bold">"Hutang adalah cara masa depan meminjam uang dari masa sekarang, dan biasanya masa depan lupa balikin."</p>
+        <p className="italic font-body-md text-on-surface-variant font-bold">"Hutang adalah beban, makan jangan kebanyakan utang, balikin sana."</p>
       </motion.section>
 
       {/* Modals */}

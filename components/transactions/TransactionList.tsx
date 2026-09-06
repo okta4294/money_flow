@@ -143,7 +143,6 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
               {dayTxs.map((t) => (
                 <motion.div
                   key={t.id}
-                  layout
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}

@@ -1,34 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useAuth } from "@/lib/auth-context";
-import {
-  subscribeToCategories,
-  Category,
-} from "@/lib/firestore/categories";
+import { useGlobalData } from "@/lib/data-context";
 
 export function useCategories() {
-  const { user } = useAuth();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user) {
-      setCategories([]);
-      setLoading(false);
-      return;
-    }
-
-
-    setLoading(true);
-    const unsubscribe = subscribeToCategories(user.uid, (data) => {
-      setCategories(data);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [user?.uid]);
-
+  const { categories, categoriesLoading: loading } = useGlobalData();
   const incomeCategories = categories.filter((c) => c.type === "income");
   const expenseCategories = categories.filter((c) => c.type === "expense");
 

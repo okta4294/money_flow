@@ -52,13 +52,13 @@ export async function getInitialBalance(
   const snap = await getDocs(balancesRef);
   
   let closestOverride: { key: string, balance: number } | null = null;
-  snap.forEach(doc => {
+  for (const doc of snap.docs) {
     if (doc.id < targetKey) {
       if (!closestOverride || doc.id > closestOverride.key) {
         closestOverride = { key: doc.id, balance: doc.data().initialBalance };
       }
     }
-  });
+  }
 
   const baseBalance = closestOverride ? closestOverride.balance : 0;
   const startDate = closestOverride ? `${closestOverride.key}-01` : "2000-01-01";

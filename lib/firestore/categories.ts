@@ -50,8 +50,11 @@ export function subscribeToCategories(
 
 
 export async function addCategory(userId: string, data: CategoryInput) {
+  const clean = Object.fromEntries(
+    Object.entries(data).filter(([, v]) => v !== undefined)
+  );
   const ref = await addDoc(categoriesRef(userId), {
-    ...data,
+    ...clean,
     isDefault: false,
     createdAt: Timestamp.now(),
   });

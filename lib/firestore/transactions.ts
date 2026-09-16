@@ -9,6 +9,7 @@ import {
   orderBy,
   Timestamp,
   onSnapshot,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -84,11 +85,45 @@ export function subscribeToTransactionsByMonth(
   });
 }
 
+export async function getTransactionsByMonth(
+  userId: string,
+  year: number,
+  month: number
+): Promise<Transaction[]> {
+  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+  const endDate = `${year}-${String(month).padStart(2, "0")}-31`;
 
+  const q = query(
+    transactionsRef(userId),
+    where("date", ">=", startDate),
+    where("date", "<=", endDate),
+    orderBy("date", "desc")
+  );
+
+  const snapshot = await getDocs(q);
+  const transactions = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as Transaction[];
+
+  transactions.sort((a, b) => {
+    if (a.date !== b.date) {
+      return b.date.localeCompare(a.date);
+    }
+    const timeA = a.createdAt?.toMillis?.() || 0;
+    const timeB = b.createdAt?.toMillis?.() || 0;
+    return timeB - timeA;
+  });
+
+  return transactions;
+}
 
 export async function addTransaction(userId: string, data: TransactionInput) {
+  const clean = Object.fromEntries(
+    Object.entries(data).filter(([, v]) => v !== undefined)
+  );
   const ref = await addDoc(transactionsRef(userId), {
-    ...data,
+    ...clean,
     createdAt: Timestamp.now(),
   });
   return ref.id;

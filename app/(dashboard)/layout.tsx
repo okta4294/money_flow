@@ -45,9 +45,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <>
-      <header className="flex justify-between items-center px-container-padding py-4 w-full bg-surface sticky top-0 z-50 md:hidden transition-colors border-b-[3px] border-outline shadow-[0_4px_0_0_var(--theme-outline)]">
+      <header className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 w-full bg-surface sticky top-0 z-40 md:hidden transition-colors border-b-[3px] border-outline shadow-[0_3px_0_0_var(--theme-outline)]">
         <div className="flex items-center gap-3">
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-12 h-12 bg-primary-container neo-brutalist-border rounded-full flex items-center justify-center neo-brutalist-shadow-sm overflow-hidden">
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-container border-2 border-outline rounded-full flex items-center justify-center shadow-[2px_2px_0_0_var(--theme-outline)] overflow-hidden">
             {user?.photoURL ? (
               <Image
                 src={user.photoURL}
@@ -57,31 +57,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className="w-full h-full object-cover"
               />
             ) : (
-              <span className="font-bold text-lg text-on-primary-container">{(user?.displayName || user?.email || "U")[0].toUpperCase()}</span>
+              <span className="font-bold text-base sm:text-lg text-on-primary-container">{(user?.displayName || user?.email || "U")[0].toUpperCase()}</span>
             )}
           </motion.div>
-          <h1 className="font-display-lg text-headline-md text-primary uppercase tracking-tighter" style={{ WebkitTextStroke: '1px var(--theme-outline)', color: 'var(--theme-primary-container)' }}>My Wallet</h1>
+          <h1 className="font-display-lg text-xl sm:text-2xl text-primary uppercase tracking-tighter" style={{ WebkitTextStroke: '0.5px var(--theme-outline)', color: 'var(--theme-primary-container)' }}>My Wallet</h1>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <ThemeToggle />
         </div>
       </header>
 
-      <nav className="fixed bottom-4 left-4 right-4 z-50 flex justify-around items-center px-2 py-2 bg-surface neo-brutalist-border neo-brutalist-shadow-sm rounded-full md:hidden transition-colors">
+      <nav className="fixed bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 z-50 flex justify-around items-center px-1.5 py-1.5 bg-surface border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] rounded-2xl md:hidden transition-colors">
         {navItems.map(({ href, label, icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
               key={href}
               href={href}
-              className={`flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all active-press-sm ${
+              className={`flex flex-col items-center justify-center py-1.5 px-2.5 sm:px-3 rounded-xl transition-all active-press-sm ${
                 active
-                  ? "bg-primary-container text-on-primary-container shadow-[inset_0_-3px_0_rgba(0,0,0,0.2)]"
+                  ? "bg-primary-container text-on-primary-container shadow-[inset_0_-2px_0_rgba(0,0,0,0.2)]"
                   : "text-on-surface-variant hover:text-on-background"
               }`}
             >
-              <motion.span whileHover={{ y: -2 }} className="material-symbols-outlined">{icon}</motion.span>
-              {active && <span className="font-label-bold text-[10px] mt-1">{label}</span>}
+              <motion.span whileHover={{ y: -2 }} className="material-symbols-outlined text-[20px] sm:text-[24px]">{icon}</motion.span>
+              <span className={`font-label-bold text-[9px] sm:text-[10px] mt-0.5 ${active ? "opacity-100" : "opacity-70"}`}>{label}</span>
             </Link>
           );
         })}
@@ -96,11 +96,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <AnimatePresence mode="popLayout">
             <motion.div
               key={pathname}
-              initial={{ opacity: 0, scale: 0.98, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.98, y: -15 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="px-6 py-6 md:p-8 flex flex-col gap-6 max-w-6xl mx-auto min-h-full pb-32"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="px-4 py-4 sm:px-6 sm:py-6 md:p-8 flex flex-col gap-6 max-w-6xl mx-auto min-h-full pb-32"
             >
               {children}
             </motion.div>

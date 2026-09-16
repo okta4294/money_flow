@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useCategories } from "@/hooks/useCategories";
@@ -21,17 +21,6 @@ export default function DashboardPage() {
   const [month, setMonth] = useState(now.getMonth() + 1);
 
   const { transactions, loading, totalIncome, totalExpense } = useTransactions(year, month);
-  
-  // Ambil data bulan sebelumnya untuk AI Roasting
-  const prevDate = new Date(year, month - 2);
-  const prevYear = prevDate.getFullYear();
-  const prevMonth = prevDate.getMonth() + 1;
-  const { 
-    transactions: prevTransactions, 
-    totalIncome: prevTotalIncome, 
-    totalExpense: prevTotalExpense 
-  } = useTransactions(prevYear, prevMonth);
-
   const { categories } = useCategories();
   const { activeDebts, totalDebt } = useDebts();
 
@@ -60,6 +49,21 @@ export default function DashboardPage() {
   const incomePercent = (totalIncome / maxCashflow) * 100;
   const expensePercent = (totalExpense / maxCashflow) * 100;
 
+  const withSpending = useMemo(() => {
+    const expenseCategories = categories.filter((c) => c.type === "expense");
+    return expenseCategories
+      .map((cat) => ({
+        cat,
+        spent: transactions
+          .filter((t) => t.type === "expense" && t.categoryId === cat.id)
+          .reduce((s, t) => s + t.amount, 0),
+      }))
+      .filter((x) => x.spent > 0)
+      .sort((a, b) => b.spent - a.spent);
+  }, [categories, transactions]);
+
+  const maxSpent = withSpending[0]?.spent || 1;
+
   return (
     <>
       {/* Header Section */}
@@ -68,15 +72,15 @@ export default function DashboardPage() {
           <h2 className="font-display-lg text-4xl md:text-5xl text-on-surface tracking-tighter uppercase">OVERVIEW</h2>
           <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Hai miskin gimana kabarnya.</p>
         </div>
-        <div className="flex gap-4">
-          <div className="bg-surface-container border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] flex items-center p-1 rounded-xl">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto">
+          <div className="bg-surface-container border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] flex items-center justify-center p-1 rounded-xl flex-1 sm:flex-initial">
              <MonthSelector year={year} month={month} onChange={(y, m) => { setYear(y); setMonth(m); }} />
           </div>
           <button
             onClick={() => setShowBalanceModal(true)}
-            className="bg-primary-container text-on-primary-container font-label-bold text-label-bold uppercase py-2 px-4 border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] active-press rounded-xl transition-all flex items-center gap-2"
+            className="bg-primary-container text-on-primary-container font-label-bold text-label-bold uppercase py-2.5 px-4 border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] active-press rounded-xl transition-all flex items-center justify-center gap-2 flex-1 sm:flex-initial whitespace-nowrap"
           >
-            <span className="material-symbols-outlined text-black font-bold">edit</span>
+            <span className="material-symbols-outlined text-black font-bold text-lg">edit</span>
             Saldo Awal
           </button>
         </div>
@@ -114,13 +118,6 @@ export default function DashboardPage() {
               totalExpense={totalExpense}
               activeDebts={activeDebts}
               totalDebt={totalDebt}
-              prevMonthData={{
-                month: prevMonth,
-                year: prevYear,
-                transactions: prevTransactions,
-                totalIncome: prevTotalIncome,
-                totalExpense: prevTotalExpense,
-              }}
             />
            ) : (
               <div className="animate-pulse flex flex-col h-full space-y-4 pt-4">
@@ -175,38 +172,35 @@ export default function DashboardPage() {
             <h4 className="font-headline-md text-xl text-on-primary-container uppercase font-bold">Budget Heat</h4>
           </div>
           <div className="p-6 flex flex-col gap-6 flex-1 justify-start max-h-[300px] overflow-y-auto no-scrollbar">
-             {(() => {
-               const expenseCategories = categories.filter(c => c.type === 'expense');
-               const withSpending = expenseCategories.map(cat => ({
-                 cat,
-                 spent: transactions.filter(t => t.type === 'expense' && t.categoryId === cat.id).reduce((s, t) => s + t.amount, 0),
-               })).filter(x => x.spent > 0).sort((a, b) => b.spent - a.spent);
-               const maxSpent = withSpending[0]?.spent || 1;
-               const colors = ['bg-tertiary-container', 'bg-secondary-container', 'bg-primary-container'];
-               if (withSpending.length === 0) return <p className="text-on-surface-variant text-center text-sm">Belum ada pengeluaran bulan ini.</p>;
-               return withSpending.map(({ cat, spent }, idx) => (
-                 <div key={cat.id} className="flex items-center gap-4">
-                   <div className={`w-12 h-12 ${colors[idx % 3]} border-2 border-outline flex items-center justify-center shrink-0`}>
-                     {cat.icon?.includes("fa-") ? (
-                       <i className={`fa-solid ${cat.icon} text-black text-xl`}></i>
-                     ) : (
-                       <span className="material-symbols-outlined text-black">{cat.icon || 'category'}</span>
-                     )}
-                   </div>
-                   <div className="flex-1 min-w-0">
-                     <div className="flex justify-between items-baseline mb-1 gap-2">
-                       <span className="font-label-bold text-label-bold text-on-surface uppercase truncate">{cat.name}</span>
-                       <span className="font-body-md text-sm text-on-surface font-bold whitespace-nowrap shrink-0">
-                         {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(spent)}
-                       </span>
+             {withSpending.length === 0 ? (
+               <p className="text-on-surface-variant text-center text-sm">Belum ada pengeluaran bulan ini.</p>
+             ) : (
+               withSpending.map(({ cat, spent }, idx) => {
+                 const colors = ['bg-tertiary-container', 'bg-secondary-container', 'bg-primary-container'];
+                 return (
+                   <div key={cat.id} className="flex items-center gap-4">
+                     <div className={`w-12 h-12 ${colors[idx % 3]} border-2 border-outline flex items-center justify-center shrink-0`}>
+                       {cat.icon?.includes("fa-") ? (
+                         <i className={`fa-solid ${cat.icon} text-black text-xl`}></i>
+                       ) : (
+                         <span className="material-symbols-outlined text-black">{cat.icon || 'category'}</span>
+                       )}
                      </div>
-                     <div className="h-4 w-full bg-on-background border-2 border-outline relative">
-                       <div className={`absolute top-0 left-0 h-full ${colors[idx % 3]} border-2 border-outline border-l-0 border-t-0 border-b-0 transition-all duration-500`} style={{ width: `${(spent / maxSpent) * 100}%` }}></div>
+                     <div className="flex-1 min-w-0">
+                       <div className="flex justify-between items-baseline mb-1 gap-2">
+                         <span className="font-label-bold text-label-bold text-on-surface uppercase truncate">{cat.name}</span>
+                         <span className="font-body-md text-sm text-on-surface font-bold whitespace-nowrap shrink-0">
+                           {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(spent)}
+                         </span>
+                       </div>
+                       <div className="h-4 w-full bg-on-background border-2 border-outline relative">
+                         <div className={`absolute top-0 left-0 h-full ${colors[idx % 3]} border-2 border-outline border-l-0 border-t-0 border-b-0 transition-all duration-500`} style={{ width: `${(spent / maxSpent) * 100}%` }}></div>
+                       </div>
                      </div>
                    </div>
-                 </div>
-               ));
-             })()}
+                 );
+               })
+             )}
              {categories.length === 0 && <p className="text-on-surface-variant text-center">No categories found.</p>}
           </div>
         </div>
@@ -222,23 +216,47 @@ export default function DashboardPage() {
           <div className="flex flex-col">
             {recentTransactions.length > 0 ? recentTransactions.map((t) => {
                const cat = categories.find(c => c.id === t.categoryId);
+               const isTransfer = t.type === "transfer";
+               const isIncome = t.type === "income";
+
                return (
                 <div key={t.id} onClick={() => { setEditTransaction(t); setShowTransactionForm(true); }} className="flex items-center justify-between p-4 md:p-6 border-2 border-outline border-t-0 border-l-0 border-r-0 hover:bg-surface-bright transition-colors group cursor-pointer">
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 bg-on-background border-2 border-outline flex items-center justify-center group-hover:${t.type === 'income' ? 'bg-tertiary-container' : 'bg-error-container'} transition-colors`}>
-                      {cat?.icon?.includes("fa-") ? (
+                    <div className={`w-12 h-12 bg-on-background border-2 border-outline flex items-center justify-center transition-colors ${
+                      isIncome
+                        ? "group-hover:bg-tertiary-container"
+                        : isTransfer
+                        ? "group-hover:bg-secondary-container"
+                        : "group-hover:bg-error-container"
+                    }`}>
+                      {isTransfer ? (
+                        <span className="material-symbols-outlined text-surface group-hover:text-on-background transition-colors">swap_horiz</span>
+                      ) : cat?.icon?.includes("fa-") ? (
                         <i className={`fa-solid ${cat.icon} text-surface group-hover:text-on-background text-xl transition-colors`}></i>
                       ) : (
                         <span className="material-symbols-outlined text-surface group-hover:text-on-background transition-colors">{cat?.icon || 'receipt'}</span>
                       )}
                     </div>
                     <div>
-                      <h5 className="font-label-bold text-label-bold text-on-background line-clamp-1">{t.note || cat?.name || t.category || 'Transaction'}</h5>
-                      <span className="font-body-md text-sm text-on-background/70">{cat?.name || 'Uncategorized'} • {new Date(t.date + "T00:00:00").toLocaleDateString('id-ID')}</span>
+                      <h5 className="font-label-bold text-label-bold text-on-background line-clamp-1">
+                        {t.note || (isTransfer ? "Transfer" : cat?.name || t.category || "Transaction")}
+                      </h5>
+                      <span className="font-body-md text-sm text-on-background/70">
+                        {isTransfer
+                          ? `${t.accountName || "?"} → ${t.destinationAccountName || "?"}`
+                          : (cat?.name || "Uncategorized")
+                        } • {new Date(t.date + "T00:00:00").toLocaleDateString('id-ID')}
+                      </span>
                     </div>
                   </div>
-                  <span className={`font-headline-md text-lg md:text-xl ${t.type === 'income' ? 'text-tertiary dark:text-tertiary-fixed' : 'text-error dark:text-error-fixed'} font-bold whitespace-nowrap`}>
-                    {t.type === 'income' ? '+' : '-'}{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(t.amount)}
+                  <span className={`font-headline-md text-lg md:text-xl font-bold whitespace-nowrap ${
+                    isIncome
+                      ? 'text-tertiary dark:text-tertiary-fixed'
+                      : isTransfer
+                      ? 'text-secondary-fixed-dim'
+                      : 'text-error dark:text-error-fixed'
+                  }`}>
+                    {isIncome ? '+' : isTransfer ? '' : '-'}{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(t.amount)}
                   </span>
                 </div>
                );

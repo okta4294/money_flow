@@ -120,8 +120,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
     }
   }, [amount, showDebtDropdown]);
 
-  if (!open) return null;
-
   const numericAmount = parseInt(amount.replace(/\D/g, "") || "0");
   const numericDebtPayment = parseInt(debtPaymentAmount.replace(/\D/g, "") || "0");
 

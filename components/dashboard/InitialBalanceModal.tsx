@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { setInitialBalance } from "@/lib/firestore/balances";
 
@@ -31,6 +31,12 @@ export function InitialBalanceModal({
     currentBalance > 0 ? currentBalance.toString() : ""
   );
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setRawValue(currentBalance > 0 ? currentBalance.toString() : "");
+    }
+  }, [currentBalance, open]);
 
   if (!open) return null;
 

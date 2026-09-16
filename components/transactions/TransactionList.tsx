@@ -146,30 +146,31 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileHover={{ scale: 1.01, y: -2 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={() => onEdit(t)}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className="bg-surface neo-brutalist-border rounded-xl p-4 flex items-center gap-4 neo-brutalist-shadow cursor-pointer group relative overflow-hidden"
+                  className="bg-surface border-2 border-outline rounded-2xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4 shadow-[3px_3px_0_0_var(--theme-outline)] hover:shadow-[5px_5px_0_0_var(--theme-outline)] cursor-pointer group relative overflow-hidden transition-all"
                 >
-                  <div className={`w-14 h-14 flex items-center justify-center rounded-xl neo-brutalist-border ${getCategoryColor(t)} z-10 relative text-black`}>
+                  <div className={`w-11 h-11 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center rounded-xl border-2 border-outline ${getCategoryColor(t)} z-10 relative text-black`}>
                     {(() => {
                       const cat = [...incomeCategories, ...expenseCategories].find((c) => c.id === t.categoryId || c.name === t.category);
-                      if (cat?.icon?.includes("fa-")) return <i className={`fa-solid ${cat.icon} text-2xl`}></i>;
+                      if (cat?.icon?.includes("fa-")) return <i className={`fa-solid ${cat.icon} text-lg sm:text-2xl`}></i>;
                       return (
-                        <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                        <span className="material-symbols-outlined text-2xl sm:text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                           {getCategoryIcon(t)}
                         </span>
                       );
                     })()}
                   </div>
-                  <div className="flex-1 z-10 relative" onClick={() => onEdit(t)}>
-                    <p className="font-headline-md text-body-lg text-on-background leading-tight line-clamp-1">{t.note || t.category}</p>
-                    <p className="font-body-md text-on-surface-variant text-sm">
+                  <div className="flex-1 min-w-0 z-10 relative">
+                    <p className="font-headline-md text-sm sm:text-base text-on-background leading-tight truncate">{t.note || t.category}</p>
+                    <p className="font-body-md text-on-surface-variant text-xs sm:text-sm truncate mt-0.5">
                       {t.type === "transfer" ? `${t.accountName || "?"} → ${t.destinationAccountName || "?"}` : (t.category || "Uncategorized")}
                     </p>
                   </div>
-                  <div className="text-right z-10 relative flex flex-col items-end">
-                    <p className={`font-headline-md text-lg md:text-xl font-bold whitespace-nowrap ${
+                  <div className="text-right z-10 relative flex flex-col items-end shrink-0 pl-2">
+                    <p className={`font-headline-md text-sm sm:text-lg md:text-xl font-bold whitespace-nowrap ${
                       t.type === "income" ? "text-tertiary" : 
                       t.type === "transfer" ? "text-secondary-fixed-dim" : 
                       "text-error"
@@ -180,7 +181,8 @@ export function TransactionList({ transactions, loading, onEdit, variant = "list
                     <button
                         onClick={(e) => { e.stopPropagation(); handleDelete(t.id); }}
                         disabled={deletingId === t.id}
-                        className="mt-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 text-error hover:text-error-container transition-opacity"
+                        className="mt-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 text-error hover:text-error-container transition-opacity p-1"
+                        aria-label="Hapus transaksi"
                       >
                         <span className="material-symbols-outlined text-sm">delete</span>
                     </button>

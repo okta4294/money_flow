@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useMemo, ReactNode } from "react";
 import { useAuth } from "./auth-context";
 import { subscribeToCategories, Category } from "./firestore/categories";
 import { subscribeToAccounts, Account } from "./firestore/accounts";
@@ -66,12 +66,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
     };
   }, [user?.uid]);
 
+  const value = useMemo(() => ({
+    categories, categoriesLoading,
+    accounts, accountsLoading,
+    debts, debtsLoading,
+  }), [categories, categoriesLoading, accounts, accountsLoading, debts, debtsLoading]);
+
   return (
-    <DataContext.Provider value={{
-      categories, categoriesLoading,
-      accounts, accountsLoading,
-      debts, debtsLoading
-    }}>
+    <DataContext.Provider value={value}>
       {children}
     </DataContext.Provider>
   );

@@ -147,7 +147,7 @@ export function AccountManager() {
           whileHover={{ scale: 1.02, y: -2 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleOpenNew}
-          className="aspect-[2/1] rounded-3xl border-4 border-dashed border-outline bg-surface hover:bg-surface-bright flex flex-col items-center justify-center gap-2 transition-all group shadow-[4px_4px_0_0_var(--theme-outline)]"
+          className="min-h-[160px] sm:aspect-[2/1] rounded-3xl border-4 border-dashed border-outline bg-surface hover:bg-surface-bright flex flex-col items-center justify-center gap-2 transition-all group shadow-[4px_4px_0_0_var(--theme-outline)]"
         >
           <div className="w-12 h-12 rounded-xl bg-surface-container-highest border-2 border-outline flex items-center justify-center transition-colors">
              <span className="material-symbols-outlined text-on-background text-2xl group-hover:rotate-90 transition-transform">add</span>
@@ -165,7 +165,7 @@ export function AccountManager() {
               whileHover={{ scale: 1.02, y: -2 }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
               key={acc.id}
-              className={`group relative aspect-[2/1] border-4 border-outline rounded-3xl p-5 flex flex-col justify-between items-start text-left shadow-[4px_4px_0_0_var(--theme-outline)] hover:shadow-[6px_6px_0_0_var(--theme-outline)] transition-all ${colorClass}`}
+              className={`group relative min-h-[160px] sm:aspect-[2/1] border-4 border-outline rounded-3xl p-5 flex flex-col justify-between items-start text-left shadow-[4px_4px_0_0_var(--theme-outline)] hover:shadow-[6px_6px_0_0_var(--theme-outline)] transition-all ${colorClass}`}
             >
               <div className="flex w-full justify-between items-start">
                 <div className="flex items-center gap-3">
@@ -200,7 +200,7 @@ export function AccountManager() {
               {balances[acc.id] !== undefined && (
                 <div className="mt-4">
                   <p className="text-xs font-label-bold uppercase tracking-widest opacity-80 mb-1">Balance</p>
-                  <p className="font-display-lg text-3xl tracking-tighter" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>
+                  <p className="font-display-lg text-2xl sm:text-3xl tracking-tighter truncate max-w-full" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>
                     {formatRupiah(balances[acc.id])}
                   </p>
                 </div>

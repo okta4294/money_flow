@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import { Transaction } from "@/lib/firestore/transactions";
+import { Transaction, getTransactionsByMonth } from "@/lib/firestore/transactions";
 import { useAuth } from "@/lib/auth-context";
 import { checkAiLimit, markAiUsage } from "@/lib/firestore/ai-usage";
 
@@ -77,6 +77,25 @@ export function AISummaryCard({
         throw new Error("Batas penggunaan harian (1x/hari) telah tercapai. Silakan coba lagi besok");
       }
 
+      let effectivePrevMonthData = prevMonthData;
+      if (!effectivePrevMonthData) {
+        const prevDate = new Date(year, month - 2);
+        const prevYear = prevDate.getFullYear();
+        const prevMonth = prevDate.getMonth() + 1;
+        const prevTxs = await getTransactionsByMonth(user.uid, prevYear, prevMonth);
+        if (prevTxs.length > 0) {
+          const prevTotalIncome = prevTxs.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0);
+          const prevTotalExpense = prevTxs.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0);
+          effectivePrevMonthData = {
+            month: prevMonth,
+            year: prevYear,
+            transactions: prevTxs,
+            totalIncome: prevTotalIncome,
+            totalExpense: prevTotalExpense,
+          };
+        }
+      }
+
       const response = await fetch("/api/summary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -89,7 +108,7 @@ export function AISummaryCard({
           transactions,
           activeDebts,
           totalDebt,
-          prevMonthData,
+          prevMonthData: effectivePrevMonthData,
         }),
       });
 

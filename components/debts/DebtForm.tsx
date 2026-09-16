@@ -40,8 +40,6 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
     setError("");
   }, [editData, open]);
 
-  if (!open) return null;
-
   const numericAmount = parseInt(amount.replace(/\D/g, "") || "0");
 
   const handleSubmit = async (e: React.FormEvent) => {

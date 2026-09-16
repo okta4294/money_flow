@@ -147,10 +147,12 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                whileHover={{ scale: 1.05, rotate: -2 }}
+                whileHover={{ scale: 1.03, rotate: -1 }}
+                whileTap={{ scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 key={cat.id}
-                className={`group relative aspect-square rounded-2xl border-4 border-outline p-4 md:p-6 flex flex-col justify-between items-start text-left shadow-[4px_4px_0_0_var(--theme-outline)] hover:shadow-[6px_6px_0_0_var(--theme-outline)] transition-all ${colorClass}`}
+                onClick={() => openEdit(cat)}
+                className={`group relative aspect-square rounded-2xl border-4 border-outline p-4 md:p-6 flex flex-col justify-between items-start text-left shadow-[4px_4px_0_0_var(--theme-outline)] hover:shadow-[6px_6px_0_0_var(--theme-outline)] transition-all cursor-pointer ${colorClass}`}
               >
                 <div className="w-12 h-12 bg-white neo-brutalist-border rounded-xl flex items-center justify-center">
                   {isFa ? (

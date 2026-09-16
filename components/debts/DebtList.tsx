@@ -30,7 +30,9 @@ function formatDate(dateStr: string) {
 
 function isOverdue(dueDate?: string): boolean {
   if (!dueDate) return false;
-  return new Date(dueDate) < new Date(new Date().toISOString().split("T")[0]);
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  return dueDate < todayStr;
 }
 
 export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {

@@ -7,6 +7,7 @@ import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { MonthSelector } from "@/components/layout/MonthSelector";
 import { Transaction } from "@/lib/firestore/transactions";
 import { motion } from "framer-motion";
+import { formatRupiah } from "@/lib/utils";
 
 export default function TransactionsPage() {
   const now = new Date();
@@ -38,10 +39,6 @@ export default function TransactionsPage() {
     setEditTransaction(t);
     setShowForm(true);
   };
-
-  function formatRupiah(n: number) {
-    return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
-  }
 
   const budget = 5000000; // Hardcoded budget for now, we can fetch later if we have monthly budget global
   const spentPercent = Math.min((totalExpense / budget) * 100, 100);

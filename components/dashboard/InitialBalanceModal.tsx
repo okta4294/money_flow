@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { setInitialBalance } from "@/lib/firestore/balances";
+import { formatRupiahInput } from "@/lib/utils";
 
 interface InitialBalanceModalProps {
   open: boolean;
@@ -17,11 +18,6 @@ const MONTHS = [
   "Januari","Februari","Maret","April","Mei","Juni",
   "Juli","Agustus","September","Oktober","November","Desember",
 ];
-
-function formatRupiah(value: string) {
-  const num = value.replace(/\D/g, "");
-  return num ? parseInt(num).toLocaleString("id-ID") : "";
-}
 
 export function InitialBalanceModal({
   open, onClose, currentBalance, year, month, onSaved,
@@ -97,7 +93,7 @@ export function InitialBalanceModal({
               id="initial-balance-input"
               type="text"
               inputMode="numeric"
-              value={formatRupiah(rawValue)}
+              value={formatRupiahInput(rawValue)}
               onChange={(e) => setRawValue(e.target.value.replace(/\D/g, ""))}
               placeholder="0"
               className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-slate-900 dark:text-white text-base font-semibold focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all"

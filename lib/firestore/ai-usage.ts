@@ -13,12 +13,8 @@ function getTodayDateString(): string {
   return `${year}-${month}-${date}`;
 }
 
-export async function checkAiLimit(uid: string, email: string | null | undefined): Promise<boolean> {
-  // 1. Cek Super Akun
-  const superEmail = process.env.NEXT_PUBLIC_SUPER_USER_EMAIL;
-  if (superEmail && email?.toLowerCase() === superEmail.toLowerCase()) return true;
-
-  // 2. Cek Penggunaan Reguler (1x sehari)
+export async function checkAiLimit(uid: string): Promise<boolean> {
+  // Cek Penggunaan Reguler (1x sehari)
   const dateStr = getTodayDateString();
   const docRef = doc(db, `users/${uid}/ai-usage/${dateStr}`);
   
@@ -34,12 +30,8 @@ export async function checkAiLimit(uid: string, email: string | null | undefined
 
 /**
  * Menandai bahwa pengguna telah berhasil menggunakan AI hari ini.
- * Jika Super Akun, fungsi ini boleh diabaikan agar tidak menuh-menuhin database.
  */
-export async function markAiUsage(uid: string, email: string | null | undefined): Promise<void> {
-  const superEmail = process.env.NEXT_PUBLIC_SUPER_USER_EMAIL;
-  if (superEmail && email?.toLowerCase() === superEmail.toLowerCase()) return;
-
+export async function markAiUsage(uid: string): Promise<void> {
   const dateStr = getTodayDateString();
   const docRef = doc(db, `users/${uid}/ai-usage/${dateStr}`);
   

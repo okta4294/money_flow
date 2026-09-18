@@ -8,24 +8,12 @@ import { useAccounts } from "@/hooks/useAccounts";
 import { addTransaction, updateTransaction, Transaction, TransactionInput } from "@/lib/firestore/transactions";
 import { payDebt } from "@/lib/firestore/debts";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatRupiah, formatRupiahInput } from "@/lib/utils";
 
 interface TransactionFormProps {
   open: boolean;
   onClose: () => void;
   editData?: Transaction | null;
-}
-
-function formatRupiah(value: string) {
-  const num = value.replace(/\D/g, "");
-  return num ? parseInt(num).toLocaleString("id-ID") : "";
-}
-
-function formatRupiahNum(amount: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
 }
 
 /** Cek apakah nama kategori mengandung kata 'hutang' atau 'paylater' */
@@ -248,7 +236,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                 id="transaction-amount"
                 type="text"
                 inputMode="numeric"
-                value={formatRupiah(amount)}
+                value={formatRupiahInput(amount)}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0"
                 className={`w-full bg-surface-container neo-brutalist-border pl-12 pr-4 py-3 text-on-surface text-xl font-display-lg focus:outline-none focus:ring-2 transition-colors ${
@@ -446,7 +434,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                       <option value="">-- PILIH HUTANG --</option>
                       {activeDebts.map((debt) => (
                         <option key={debt.id} value={debt.id}>
-                          {debt.name} (SISA {formatRupiahNum(debt.remainingAmount)})
+                          {debt.name} (SISA {formatRupiah(debt.remainingAmount)})
                         </option>
                       ))}
                     </select>
@@ -463,7 +451,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                           id="debt-payment-amount"
                           type="text"
                           inputMode="numeric"
-                          value={formatRupiah(debtPaymentAmount)}
+                          value={formatRupiahInput(debtPaymentAmount)}
                           onChange={(e) => setDebtPaymentAmount(e.target.value)}
                           placeholder="0"
                           className="w-full bg-surface neo-brutalist-border pl-12 pr-4 py-3 text-on-surface text-lg font-display-lg focus:outline-none focus:ring-2 focus:ring-tertiary transition-colors"

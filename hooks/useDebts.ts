@@ -7,21 +7,13 @@ import { Debt } from "@/lib/firestore/debts";
 export function useDebts() {
   const { debts, debtsLoading: loading } = useGlobalData();
 
-  const { activeDebts, paidDebts, totalDebt, upcomingMonths, nextMonthDebtEstimate } = useMemo(() => {
+  const { activeDebts, paidDebts, totalDebt, upcomingMonths } = useMemo(() => {
     const active = debts.filter((d) => d.status === "active");
     const paid = debts.filter((d) => d.status === "paid");
     const total = active.reduce((sum, d) => sum + d.remainingAmount, 0);
 
     const now = new Date();
     const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    
-    // Estimasi hutang bulan kalender berikutnya (sesuai spesifikasi AGENTS.md)
-    const nextMonthDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    const nextMonthStr = `${nextMonthDate.getFullYear()}-${String(nextMonthDate.getMonth() + 1).padStart(2, '0')}`;
-    
-    const nextMonthEst = active
-      .filter((d) => d.dueDate && d.dueDate.substring(0, 7) === nextMonthStr)
-      .reduce((sum, d) => sum + d.remainingAmount, 0);
 
     const upcomingDebtsByMonth = active
       .filter((d) => d.dueDate && d.dueDate.substring(0, 7) > currentMonthStr)
@@ -46,9 +38,8 @@ export function useDebts() {
       paidDebts: paid,
       totalDebt: total,
       upcomingMonths: upcoming,
-      nextMonthDebtEstimate: nextMonthEst,
     };
   }, [debts]);
 
-  return { debts, activeDebts, paidDebts, totalDebt, upcomingMonths, nextMonthDebtEstimate, loading };
+  return { debts, activeDebts, paidDebts, totalDebt, upcomingMonths, loading };
 }

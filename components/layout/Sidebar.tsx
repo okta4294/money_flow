@@ -19,11 +19,6 @@ export function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 h-full flex-col p-4 z-40 bg-surface neo-brutalist-border border-l-0 border-t-0 border-b-0 w-24 hidden md:flex items-center gap-8 py-8">
-      {/* Header icon / Home */}
-      <Link href="/dashboard" className="p-3 bg-primary-container neo-brutalist-border rounded-lg neo-brutalist-shadow-sm cursor-pointer active-press group hover:bg-secondary-container transition-colors">
-        <span className="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform">bolt</span>
-      </Link>
-
       {/* Main Navigation */}
       <nav className="flex-1 flex flex-col items-center gap-4 w-full">
         {navItems.map(({ href, label, icon }) => {

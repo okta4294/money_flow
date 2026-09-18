@@ -5,27 +5,12 @@ import { useAuth } from "@/lib/auth-context";
 import { deleteTransaction, Transaction } from "@/lib/firestore/transactions";
 import { useCategories } from "@/hooks/useCategories";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatRupiah, formatDate } from "@/lib/utils";
 
 interface TransactionListProps {
   transactions: Transaction[];
   loading: boolean;
   onEdit: (t: Transaction) => void;
-  variant?: "list" | "table";
-}
-
-function formatRupiah(amount: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", {
-    day: "numeric",
-    month: "short",
-  });
 }
 
 const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
@@ -43,7 +28,7 @@ function getDayLabel(dateStr: string) {
   return formatDate(dateStr) + ", " + date.getFullYear();
 }
 
-export function TransactionList({ transactions, loading, onEdit, variant = "list" }: TransactionListProps) {
+export function TransactionList({ transactions, loading, onEdit }: TransactionListProps) {
   const { user } = useAuth();
   const { incomeCategories, expenseCategories } = useCategories();
   const [deletingId, setDeletingId] = useState<string | null>(null);

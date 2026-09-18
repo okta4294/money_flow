@@ -4,28 +4,13 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { deleteDebt, Debt } from "@/lib/firestore/debts";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatRupiah, formatDate } from "@/lib/utils";
 
 interface DebtListProps {
   debts: Debt[];
   loading: boolean;
   onEdit: (debt: Debt) => void;
   filter: "active" | "paid" | "all";
-}
-
-function formatRupiah(amount: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
 }
 
 function isOverdue(dueDate?: string): boolean {

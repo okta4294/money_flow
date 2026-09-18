@@ -6,14 +6,7 @@ import { Debt } from "@/lib/firestore/debts";
 import { DebtForm } from "@/components/debts/DebtForm";
 import { DebtList } from "@/components/debts/DebtList";
 import { motion } from "framer-motion";
-
-function formatRupiah(n: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(n);
-}
+import { formatRupiah } from "@/lib/utils";
 
 export default function DebtsPage() {
   const { debts, activeDebts, paidDebts, totalDebt, loading, upcomingMonths } = useDebts();

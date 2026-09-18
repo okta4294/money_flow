@@ -4,16 +4,12 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { addDebt, updateDebt, Debt, DebtInput } from "@/lib/firestore/debts";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatRupiahInput } from "@/lib/utils";
 
 interface DebtFormProps {
   open: boolean;
   onClose: () => void;
   editData?: Debt | null;
-}
-
-function formatRupiah(value: string) {
-  const num = value.replace(/\D/g, "");
-  return num ? parseInt(num).toLocaleString("id-ID") : "";
 }
 
 export function DebtForm({ open, onClose, editData }: DebtFormProps) {
@@ -125,7 +121,7 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
                 id="debt-amount-input"
                 type="text"
                 inputMode="numeric"
-                value={formatRupiah(amount)}
+                value={formatRupiahInput(amount)}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0"
                 className="w-full bg-surface border-2 border-outline rounded-xl pl-12 pr-4 py-3 text-on-surface text-xl font-display-lg focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors"

@@ -43,6 +43,7 @@ export function AISummaryCard({
 
   const [limitReached, setLimitReached] = useState(false);
   const [checkingLimit, setCheckingLimit] = useState(true);
+  const [isSuper, setIsSuper] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -53,7 +54,7 @@ export function AISummaryCard({
       }
       setCheckingLimit(true);
       try {
-        const canUse = await checkAiLimit(user.uid, user.email);
+        const canUse = await checkAiLimit(user.uid);
         if (mounted) setLimitReached(!canUse);
       } catch (err) {
         console.error("Gagal mengecek limit AI:", err);
@@ -71,8 +72,8 @@ export function AISummaryCard({
     setLoading(true);
     setError(null);
     try {
-      const canUse = await checkAiLimit(user.uid, user.email);
-      if (!canUse) {
+      const canUse = await checkAiLimit(user.uid);
+      if (!canUse && !isSuper) {
         setLimitReached(true);
         throw new Error("Batas penggunaan harian (1x/hari) telah tercapai. Silakan coba lagi besok");
       }
@@ -96,9 +97,13 @@ export function AISummaryCard({
         }
       }
 
+      const idToken = await user.getIdToken();
       const response = await fetch("/api/summary", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${idToken}`,
+        },
         body: JSON.stringify({
           month,
           year,
@@ -118,19 +123,19 @@ export function AISummaryCard({
       }
 
       setSummary(data.text);
-      await markAiUsage(user.uid, user.email);
-      
-      const canStillUse = await checkAiLimit(user.uid, user.email);
-      setLimitReached(!canStillUse);
+      if (data.isSuper) {
+        setIsSuper(true);
+      } else {
+        await markAiUsage(user.uid);
+        const canStillUse = await checkAiLimit(user.uid);
+        setLimitReached(!canStillUse);
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
-
-  const superEmail = process.env.NEXT_PUBLIC_SUPER_USER_EMAIL;
-  const isSuper = !!superEmail && user?.email?.toLowerCase() === superEmail.toLowerCase();
 
   return (
     <div className="ai-glow rounded-2xl p-stack-lg h-full flex flex-col relative z-10 overflow-hidden">

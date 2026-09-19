@@ -50,7 +50,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Debt payment state
   const [selectedDebtId, setSelectedDebtId] = useState("");
   const [debtPaymentAmount, setDebtPaymentAmount] = useState("");
 
@@ -80,7 +79,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
     }
   }, [editData, open]);
 
-  // Reset category & debt fields when type changes
   useEffect(() => {
     if (!editData) {
       setCategoryId("");
@@ -90,7 +88,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
     }
   }, [type]);
 
-  // Reset debt fields when category changes away from debt category
   const selectedCategory = categories.find((c) => c.id === categoryId);
   const showDebtDropdown = type === "expense" && selectedCategory && isDebtCategory(selectedCategory.name);
 
@@ -101,7 +98,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
     }
   }, [showDebtDropdown]);
 
-  // Sinkronkan nominal pembayaran hutang dengan jumlah pengeluaran secara otomatis
   useEffect(() => {
     if (showDebtDropdown && amount) {
       setDebtPaymentAmount(amount.replace(/\D/g, ""));
@@ -179,7 +175,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
           className="relative bg-surface rounded-3xl border-4 border-outline p-6 shadow-[8px_8px_0_0_var(--theme-outline)] w-full sm:max-w-md max-h-[90vh] overflow-y-auto z-10"
         >
-          {/* Header */}
         <div className="flex items-center justify-between mb-6 border-b-4 border-black dark:border-white pb-4">
           <h2 className="font-display-lg text-2xl text-on-surface uppercase tracking-tighter">
             {editData ? "Edit Transaksi" : "Tambah Transaksi"}
@@ -189,7 +184,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           </button>
         </div>
 
-        {/* Type Toggle */}
         <div className="flex gap-2 mb-6">
           <button
             type="button"
@@ -227,7 +221,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Amount */}
           <div>
             <label className="font-label-bold text-on-surface uppercase tracking-widest text-xs block mb-2">Jumlah</label>
             <div className="relative">
@@ -248,7 +241,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
             </div>
           </div>
 
-          {/* Category */}
           {type !== "transfer" && (
           <div>
             <label className="font-label-bold text-on-surface uppercase tracking-widest text-xs block mb-2">Kategori</label>
@@ -287,7 +279,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           </div>
           )}
 
-          {/* Transfer UI */}
           {type === "transfer" ? (
             <div className="bg-secondary-container border-4 border-black dark:border-white p-4 space-y-4">
               <div className="flex items-center gap-2 mb-2 border-b-2 border-black dark:border-white pb-2">
@@ -301,7 +292,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                 </div>
               ) : (
                 <>
-                  {/* Sumber */}
                   <div>
                     <label className="font-label-bold text-on-secondary-container uppercase tracking-widest text-xs block mb-2">Dari Akun <span className="text-error">*</span></label>
                     <div className="grid grid-cols-2 gap-2">
@@ -328,7 +318,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                   <div className="flex items-center justify-center">
                     <i className="fa-solid fa-arrow-down text-on-secondary-container text-xl"></i>
                   </div>
-                  {/* Tujuan */}
                   <div>
                     <label className="font-label-bold text-on-secondary-container uppercase tracking-widest text-xs block mb-2">Ke Akun <span className="text-error">*</span></label>
                     <div className="grid grid-cols-2 gap-2">
@@ -404,7 +393,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           </div>
           )}
 
-          {/* Debt Payment Section */}
           {showDebtDropdown && (
             <div className="bg-tertiary-container border-4 border-black dark:border-white p-4 space-y-4">
               <div className="flex items-center gap-2 mb-2 border-b-2 border-black dark:border-white pb-2">
@@ -467,7 +455,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
             </div>
           )}
 
-          {/* Date */}
           <div>
             <label className="font-label-bold text-on-surface uppercase tracking-widest text-xs block mb-2">Tanggal</label>
             <input
@@ -483,7 +470,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
             />
           </div>
 
-          {/* Note */}
           <div>
             <label className="font-label-bold text-on-surface uppercase tracking-widest text-xs block mb-2">Catatan (opsional)</label>
             <input

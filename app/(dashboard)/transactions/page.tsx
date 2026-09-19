@@ -40,12 +40,8 @@ export default function TransactionsPage() {
     setShowForm(true);
   };
 
-  const budget = 5000000; // Hardcoded budget for now, we can fetch later if we have monthly budget global
-  const spentPercent = Math.min((totalExpense / budget) * 100, 100);
-
   return (
     <div className="flex flex-col gap-8 max-w-2xl mx-auto w-full">
-      {/* Search & Month Selector Row */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 w-full">
         <div className="relative flex-1 w-full min-w-0">
           <input
@@ -71,24 +67,27 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      {/* Insights Bento Section */}
       <section className="grid grid-cols-2 gap-4">
-        <motion.div whileHover={{ scale: 1.02 }} className="col-span-2 md:col-span-1 bg-primary-container border-2 border-outline rounded-2xl p-5 sm:p-6 shadow-[4px_4px_0_0_var(--theme-outline)] relative overflow-hidden group">
-          <motion.div animate={{ rotate: [12, 45, 12] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} className="absolute -right-6 -top-6 opacity-20 pointer-events-none">
+        <motion.div whileHover={{ scale: 1.02 }} className="col-span-2 md:col-span-1 bg-primary-container border-2 border-outline rounded-2xl p-5 sm:p-6 shadow-[4px_4px_0_0_var(--theme-outline)] relative overflow-hidden group flex flex-col justify-between">
+          <div className="absolute -right-6 -top-6 opacity-20 pointer-events-none rotate-12">
              <span className="material-symbols-outlined text-8xl text-on-primary-container">outbound</span>
-          </motion.div>
-          <p className="font-label-bold text-on-primary-container uppercase mb-1 text-xs sm:text-sm">Total Pengeluaran</p>
-          <p className="font-display-lg text-3xl sm:text-4xl text-on-primary-container tracking-tighter" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>{formatRupiah(totalExpense)}</p>
-          <div className="mt-4 h-3 bg-white border-2 border-outline rounded-full overflow-hidden">
-            <motion.div initial={{ width: 0 }} animate={{ width: `${spentPercent}%` }} transition={{ duration: 1 }} className="h-full bg-error border-r-[2px] border-outline"></motion.div>
           </div>
-          <p className="font-body-md text-on-surface-variant mt-2 text-xs sm:text-sm">{Math.round(spentPercent)}% of basic limit</p>
+          <div>
+            <p className="font-label-bold text-on-primary-container uppercase mb-1 text-xs sm:text-sm">Total Pengeluaran</p>
+            <p className="font-display-lg text-3xl sm:text-4xl text-on-primary-container tracking-tighter" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>{formatRupiah(totalExpense)}</p>
+          </div>
+          <div className="mt-4 flex items-center gap-2">
+            <span className="bg-surface border-2 border-outline rounded-full px-3 py-1 text-xs font-label-bold text-on-surface flex items-center gap-1.5 shadow-[2px_2px_0_0_var(--theme-outline)]">
+              <span className="material-symbols-outlined text-sm text-error">trending_down</span>
+              Cashflow Keluar
+            </span>
+          </div>
         </motion.div>
         
         <motion.div whileHover={{ scale: 1.02 }} className="col-span-2 md:col-span-1 bg-secondary-container border-2 border-outline rounded-2xl p-5 sm:p-6 shadow-[4px_4px_0_0_var(--theme-outline)] relative overflow-hidden group flex flex-col justify-between">
-          <motion.div animate={{ rotate: [-12, -45, -12] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} className="absolute -right-6 -bottom-6 opacity-20 pointer-events-none">
+          <div className="absolute -right-6 -bottom-6 opacity-20 pointer-events-none -rotate-12">
              <span className="material-symbols-outlined text-8xl text-on-secondary-container">call_received</span>
-          </motion.div>
+          </div>
           <div>
             <p className="font-label-bold text-on-secondary-container uppercase mb-1 text-xs sm:text-sm">Total Pemasukan</p>
             <p className="font-display-lg text-3xl sm:text-4xl text-on-secondary-container tracking-tighter" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>{formatRupiah(totalIncome)}</p>
@@ -102,7 +101,6 @@ export default function TransactionsPage() {
         </motion.div>
       </section>
 
-      {/* Filter Tabs & Count */}
       <div className="flex items-center justify-between gap-3 overflow-x-auto pb-1 no-scrollbar">
         <div className="flex gap-2 shrink-0">
           {(["all", "income", "expense"] as const).map((f) => {
@@ -129,14 +127,12 @@ export default function TransactionsPage() {
         </span>
       </div>
 
-      {/* List */}
       <TransactionList
         transactions={filtered}
         loading={loading}
         onEdit={handleEdit}
       />
 
-      {/* FAB */}
       <motion.button
         id="add-transaction-fab"
         whileHover={{ scale: 1.1, rotate: 90 }}

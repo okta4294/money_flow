@@ -96,7 +96,6 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
 
   return (
     <div>
-      {/* Tab */}
       <div className="flex gap-4 mb-8 overflow-x-auto pb-2 no-scrollbar">
         <button
           onClick={() => setTab("expense")}
@@ -120,7 +119,6 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
         </button>
       </div>
 
-      {/* Grid */}
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
@@ -129,7 +127,6 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          {/* Add Button */}
           <button
             id="add-category-btn"
             onClick={openAdd}
@@ -173,7 +170,6 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                   </h3>
                 </div>
 
-                {/* Hover actions */}
                 <div className="absolute top-2 right-2 flex gap-1">
                   <button
                     onClick={(e) => { e.stopPropagation(); openEdit(cat); }}
@@ -194,7 +190,6 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
         </div>
       )}
 
-      {/* Form Modal */}
       <AnimatePresence>
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -244,7 +239,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
               </div>
 
               {error && (
-                <div className="bg-error-container border-2 border-outline p-3 rounded-lg text-error font-label-bold text-sm">
+                <div className="bg-error-container border-2 border-outline p-3 rounded-lg text-on-error-container font-label-bold text-sm">
                   {error}
                 </div>
               )}

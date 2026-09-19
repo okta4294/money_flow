@@ -19,7 +19,6 @@ export function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 h-full flex-col p-4 z-40 bg-surface neo-brutalist-border border-l-0 border-t-0 border-b-0 w-24 hidden md:flex items-center gap-8 py-8">
-      {/* Main Navigation */}
       <nav className="flex-1 flex flex-col items-center gap-4 w-full">
         {navItems.map(({ href, label, icon }) => {
           const active = pathname === href;
@@ -40,7 +39,6 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Footer Navigation */}
       <div className="flex flex-col gap-4 mt-auto w-full items-center">
         {user?.isAnonymous && (
           <a

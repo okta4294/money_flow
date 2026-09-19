@@ -66,7 +66,6 @@ export default function DashboardPage() {
 
   return (
     <>
-      {/* Header Section */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
         <div>
           <h2 className="font-display-lg text-4xl md:text-5xl text-on-surface tracking-tighter uppercase">OVERVIEW</h2>
@@ -86,13 +85,11 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* 12-Column Grid Layout */}
       <div className="grid grid-cols-12 gap-6 w-full">
-        {/* Hero Balance Card (Bento Item 1) */}
         <motion.div whileHover={{ scale: 1.02, y: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="col-span-12 lg:col-span-8 bg-primary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group rounded-3xl">
-          <motion.div animate={{ rotate: [12, 15, 12] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} className="absolute -right-10 -bottom-10 opacity-20 transform rotate-12 pointer-events-none">
+          <div className="absolute -right-10 -bottom-10 opacity-20 transform rotate-12 pointer-events-none">
             <span className="material-symbols-outlined text-[200px] text-on-primary-container">attach_money</span>
-          </motion.div>
+          </div>
           <div className="relative z-10">
             <div className="inline-block bg-on-background text-surface font-label-bold text-label-bold uppercase px-3 py-1 rounded-full border-2 border-outline mb-4">
                 Total Liquid Assets
@@ -103,11 +100,10 @@ export default function DashboardPage() {
           </div>
         </motion.div>
 
-        {/* AI Roast Card (Bento Item 2) */}
         <motion.div whileHover={{ scale: 1.02, y: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="col-span-12 lg:col-span-4 h-full min-h-[300px] bg-tertiary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-6 flex flex-col relative rounded-3xl">
-           <motion.div animate={{ y: [-5, 5, -5] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} className="absolute -top-6 -right-6 w-16 h-16 bg-background rounded-full border-2 border-outline flex items-center justify-center z-20 shadow-[0_4px_0_0_var(--theme-outline)]">
-              <span className="material-symbols-outlined text-on-background text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
-           </motion.div>
+           <div className="absolute -top-4 -right-4 w-12 h-12 bg-background rounded-2xl border-2 border-outline flex items-center justify-center z-20 shadow-[2px_2px_0_0_var(--theme-outline)]">
+              <span className="material-symbols-outlined text-on-background text-2xl">insights</span>
+           </div>
            {(!loading && !balanceLoading) ? (
              <AISummaryCard
               transactions={transactions}
@@ -128,14 +124,12 @@ export default function DashboardPage() {
            )}
         </motion.div>
 
-        {/* Income vs Expenses Chart (Bento Item 3) */}
         <motion.div whileHover={{ scale: 1.02 }} className="col-span-12 lg:col-span-6 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] flex flex-col rounded-3xl overflow-hidden">
           <div className="bg-secondary-container border-b-[3px] border-outline px-6 py-4 flex justify-between items-center">
             <h4 className="font-headline-md text-xl text-on-secondary-container uppercase font-bold" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>Cash Flow</h4>
             <span className="font-label-bold text-label-bold text-on-secondary-container opacity-90 px-3 py-1 bg-surface-container/20 rounded-full border-2 border-outline">This Month</span>
           </div>
           <div className="p-6 flex-1 flex flex-col justify-center gap-8">
-            {/* Income Bar */}
             <div>
               <div className="flex justify-between items-end mb-2">
                 <span className="font-label-bold text-label-bold text-on-surface uppercase flex items-center gap-1">
@@ -149,7 +143,6 @@ export default function DashboardPage() {
                 <motion.div initial={{ width: 0 }} animate={{ width: `${incomePercent}%` }} transition={{ duration: 1, type: "spring" }} className="absolute top-0 left-0 h-full bg-tertiary-container border-r-[3px] border-outline"></motion.div>
               </div>
             </div>
-            {/* Expense Bar */}
             <div>
               <div className="flex justify-between items-end mb-2">
                 <span className="font-label-bold text-label-bold text-on-surface uppercase flex items-center gap-1">
@@ -166,7 +159,6 @@ export default function DashboardPage() {
           </div>
         </motion.div>
 
-        {/* Budget Tracker (Bento Item 4) */}
         <div className="col-span-12 lg:col-span-6 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] flex flex-col overflow-hidden">
           <div className="bg-primary-container border-2 border-outline border-l-0 border-r-0 border-t-0 px-6 py-3 flex justify-between items-center">
             <h4 className="font-headline-md text-xl text-on-primary-container uppercase font-bold">Budget Heat</h4>
@@ -205,7 +197,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Recent Transactions (Bento Item 5) */}
         <div className="col-span-12 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] overflow-hidden mb-12">
           <div className="border-2 border-outline border-t-0 border-l-0 border-r-0 px-6 py-4 flex justify-between items-center bg-surface-variant">
             <h4 className="font-headline-md text-xl text-on-surface uppercase font-bold">Recent Hits</h4>
@@ -268,7 +259,6 @@ export default function DashboardPage() {
 
       </div>
 
-      {/* FAB */}
       <motion.button
         id="add-transaction-fab"
         whileHover={{ scale: 1.1, rotate: 90 }}
@@ -279,7 +269,6 @@ export default function DashboardPage() {
         <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>add</span>
       </motion.button>
 
-      {/* Modals */}
       <InitialBalanceModal
         open={showBalanceModal}
         onClose={() => setShowBalanceModal(false)}

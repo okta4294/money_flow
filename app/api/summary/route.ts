@@ -16,7 +16,6 @@ function sanitizeText(input: unknown, maxLen = 60): string {
 
 export async function POST(req: Request) {
   try {
-    // 1. Verifikasi Autentikasi Server-Side
     const authHeader = req.headers.get("authorization");
     const token = authHeader?.startsWith("Bearer ") ? authHeader.substring(7) : null;
 
@@ -79,7 +78,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2. Validasi Input Payload
     const body = await req.json();
     const {
       month,
@@ -103,7 +101,6 @@ export async function POST(req: Request) {
     const safeTransactions = Array.isArray(transactions) ? transactions : [];
     const safeDebts = Array.isArray(activeDebts) ? activeDebts : [];
 
-    // 3. Sanitasi & Pengelompokan Transaksi (Mitigasi Prompt Injection)
     const categories: Record<string, { total: number; notes: Set<string> }> = {};
     let hasTransactions = false;
 
@@ -145,7 +142,6 @@ export async function POST(req: Request) {
           .join("\n")
       : "Tidak ada hutang.";
 
-    // Memproses data bulan sebelumnya jika ada
     let prevFormattedTransactions = "Tidak ada data bulan sebelumnya.";
     if (prevMonthData && Array.isArray(prevMonthData.transactions) && prevMonthData.transactions.length > 0) {
       const prevCategories: Record<string, { total: number }> = {};
@@ -174,7 +170,6 @@ Pengeluaran per Kategori (Bulan Sebelumnya):
 ${prevFormattedTransactions}
 ` : "";
 
-    // 4. Prompt Hardening dengan Tag Terisolasi
     const prompt = `
 Peran: Anda adalah penasihat keuangan KRITIS & BLAK-BLAKAN. Analisis data keuangan bulan ${month}/${year}.
 Gaya Bahasa: WAJIB gunakan BAHASA INDONESIA yang gaul, santai tapi nyelekit. Roasting keras jika boros, puji tipis jika hemat.

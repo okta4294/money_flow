@@ -79,7 +79,6 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
           className="relative bg-tertiary-container border-4 border-outline p-6 rounded-3xl shadow-[8px_8px_0_0_var(--theme-outline)] w-full sm:max-w-md max-h-[90vh] overflow-y-auto z-10"
         >
-          {/* Header */}
           <div className="flex items-center justify-between mb-6 border-b-4 border-outline pb-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 border-2 border-outline bg-tertiary flex items-center justify-center rounded-2xl shadow-sm">
@@ -95,7 +94,6 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
           </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Name */}
           <div>
             <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">
               Nama Hutang / Paylater
@@ -110,7 +108,6 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
             />
           </div>
 
-          {/* Total Amount */}
           <div>
             <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">
               {editData ? "Total Hutang (diperbarui)" : "Total Hutang"}
@@ -129,7 +126,6 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
             </div>
           </div>
 
-          {/* Due Date */}
           <div>
             <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2 flex items-center gap-2">
               <i className="fa-solid fa-calendar"></i>
@@ -144,7 +140,6 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
             />
           </div>
 
-          {/* Note */}
           <div>
             <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">Catatan (opsional)</label>
             <input

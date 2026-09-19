@@ -82,11 +82,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         })}
       </nav>
 
-      {/* Layout wrapper */}
       <div className="min-h-screen bg-surface flex transition-colors">
         <Sidebar />
 
-        {/* Main Content */}
         <main className="flex-1 w-full md:pl-24 pb-24 md:pb-0 relative">
           <AnimatePresence mode="popLayout">
             <motion.div

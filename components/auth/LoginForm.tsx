@@ -86,27 +86,25 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full backdrop-blur-[40px] bg-white/[0.03] border border-white/10 rounded-[24px] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05),0_30px_60px_rgba(0,0,0,0.6)] p-8 md:p-10 flex flex-col gap-6">
-      {/* Header */}
+    <div className="w-full bg-surface border-4 border-outline rounded-3xl p-8 md:p-10 shadow-[6px_6px_0_0_var(--theme-outline)] flex flex-col gap-6">
       <div className="flex flex-col items-center text-center gap-2">
-        <div className="w-12 h-12 rounded-xl bg-primary-fixed-dim/20 border border-primary-fixed-dim/30 flex items-center justify-center mb-2 shadow-[inset_0_0_15px_rgba(0,220,229,0.2)]">
-          <i className="fa-solid fa-wallet text-primary-fixed-dim text-2xl"></i>
+        <div className="w-12 h-12 rounded-2xl bg-primary-container border-2 border-outline flex items-center justify-center mb-2 shadow-[2px_2px_0_0_var(--theme-outline)]">
+          <i className="fa-solid fa-wallet text-on-primary-container text-2xl"></i>
         </div>
-        <h1 className="font-headline-md text-headline-md text-on-background tracking-tighter">
+        <h1 className="font-headline-md text-2xl text-on-background tracking-tighter uppercase font-bold" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>
           {mode === "login" ? "Masuk ke Money Flow" : "Buat Akun Baru"}
         </h1>
-        <p className="font-body-md text-body-md text-on-surface-variant">
+        <p className="font-body-md text-sm text-on-surface-variant">
           {mode === "login" ? "Akses dashboard finansial Anda" : "Mulai mencatat keuangan Anda"}
         </p>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full mt-2">
         {mode === "register" && (
           <div className="flex flex-col gap-1">
-            <label className="font-label-sm text-label-sm text-on-surface-variant ml-1" htmlFor="name">Nama Lengkap</label>
+            <label className="font-label-bold text-xs uppercase tracking-widest text-on-surface-variant ml-1" htmlFor="name">Nama Lengkap</label>
             <div className="relative group">
-              <i className="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 group-focus-within:text-primary-fixed-dim transition-colors text-[20px]"></i>
+              <i className="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/70 text-lg"></i>
               <input
                 id="name"
                 type="text"
@@ -114,17 +112,16 @@ export function LoginForm() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full bg-surface-container-lowest/50 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-on-background font-body-md text-body-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] placeholder:text-on-surface-variant/30 focus:outline-none focus:border-primary-fixed-dim focus:ring-1 focus:ring-primary-fixed-dim focus:shadow-[0_0_12px_rgba(0,220,229,0.3)] transition-all bg-transparent"
+                className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl py-3 pl-10 pr-4 text-on-background font-body-md text-sm placeholder:text-on-surface-variant/40 focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-all"
               />
             </div>
           </div>
         )}
 
-        {/* Email Input */}
         <div className="flex flex-col gap-1">
-          <label className="font-label-sm text-label-sm text-on-surface-variant ml-1" htmlFor="email">Email</label>
+          <label className="font-label-bold text-xs uppercase tracking-widest text-on-surface-variant ml-1" htmlFor="email">Email</label>
           <div className="relative group">
-            <i className="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 group-focus-within:text-primary-fixed-dim transition-colors text-[20px]"></i>
+            <i className="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/70 text-lg"></i>
             <input
               id="email"
               type="email"
@@ -132,21 +129,20 @@ export function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-surface-container-lowest/50 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-on-background font-body-md text-body-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] placeholder:text-on-surface-variant/30 focus:outline-none focus:border-primary-fixed-dim focus:ring-1 focus:ring-primary-fixed-dim focus:shadow-[0_0_12px_rgba(0,220,229,0.3)] transition-all bg-transparent"
+              className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl py-3 pl-10 pr-4 text-on-background font-body-md text-sm placeholder:text-on-surface-variant/40 focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-all"
             />
           </div>
         </div>
 
-        {/* Password Input */}
         <div className="flex flex-col gap-1 mt-1">
           <div className="flex justify-between items-center ml-1">
-            <label className="font-label-sm text-label-sm text-on-surface-variant" htmlFor="password">Kata Sandi</label>
+            <label className="font-label-bold text-xs uppercase tracking-widest text-on-surface-variant" htmlFor="password">Kata Sandi</label>
             {mode === "login" && (
-              <a href="#" className="font-label-sm text-label-sm text-primary-fixed-dim hover:text-primary-fixed transition-colors">Lupa sandi?</a>
+              <a href="#" className="font-label-bold text-xs text-primary-fixed-dim hover:text-primary-fixed transition-colors">Lupa sandi?</a>
             )}
           </div>
           <div className="relative group">
-            <i className="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 group-focus-within:text-primary-fixed-dim transition-colors text-[20px]"></i>
+            <i className="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/70 text-lg"></i>
             <input
               id="password"
               type={showPassword ? "text" : "password"}
@@ -154,52 +150,50 @@ export function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-surface-container-lowest/50 border border-white/10 rounded-lg py-3 pl-10 pr-10 text-on-background font-body-md text-body-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] placeholder:text-on-surface-variant/30 focus:outline-none focus:border-primary-fixed-dim focus:ring-1 focus:ring-primary-fixed-dim focus:shadow-[0_0_12px_rgba(0,220,229,0.3)] transition-all bg-transparent"
+              className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl py-3 pl-10 pr-10 text-on-background font-body-md text-sm placeholder:text-on-surface-variant/40 focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-all"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-white transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/70 hover:text-on-surface transition-colors p-1"
             >
-              <i className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"} text-[20px]`}></i>
+              <i className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"} text-base`}></i>
             </button>
           </div>
         </div>
 
         {error && (
-          <div className="bg-error/10 border border-error/30 rounded-lg px-4 py-3 text-error font-label-sm text-label-sm mt-2">
+          <div className="bg-error-container text-on-error-container border-2 border-outline rounded-xl px-4 py-3 font-label-bold text-xs mt-2 flex items-center gap-2">
+            <i className="fa-solid fa-triangle-exclamation"></i>
             {error}
           </div>
         )}
 
-        {/* Primary Login Button */}
         <button
           id="submit-auth"
           type="submit"
           disabled={loading}
-          className="mt-4 w-full bg-primary-fixed-dim/80 text-on-primary-fixed font-label-sm text-label-sm font-bold tracking-wide rounded-lg py-3.5 px-4 flex items-center justify-center gap-2 hover:bg-primary-fixed-dim hover:shadow-[0_0_20px_rgba(0,220,229,0.4)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-4 w-full bg-primary-container text-on-primary-container border-2 border-outline font-label-bold text-xs uppercase tracking-wider rounded-xl py-3.5 px-4 flex items-center justify-center gap-2 shadow-[2px_2px_0_0_var(--theme-outline)] hover:shadow-[4px_4px_0_0_var(--theme-outline)] active-press transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <span>{loading ? "Memproses..." : mode === "login" ? "Masuk" : "Daftar"}</span>
-          <i className="fa-solid fa-arrow-right text-[18px]"></i>
+          <i className="fa-solid fa-arrow-right text-sm"></i>
         </button>
       </form>
 
-      {/* Divider */}
       <div className="flex items-center gap-4 w-full opacity-60">
-        <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-white/20"></div>
-        <span className="font-label-sm text-label-sm text-on-surface-variant">atau</span>
-        <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-white/20"></div>
+        <div className="h-[2px] flex-1 bg-outline"></div>
+        <span className="font-label-bold text-xs uppercase tracking-widest text-on-surface-variant">atau</span>
+        <div className="h-[2px] flex-1 bg-outline"></div>
       </div>
 
-      {/* Social / Alternative Logins (Ghost Buttons) */}
       <div className="flex flex-col gap-3 w-full">
         <button
           type="button"
           onClick={handleGoogle}
           disabled={loading}
-          className="w-full bg-transparent border border-white/10 text-on-background font-label-sm text-label-sm rounded-lg py-3 px-4 flex items-center justify-center gap-3 hover:bg-white/5 hover:border-white/20 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+          className="w-full bg-surface border-2 border-outline text-on-background font-label-bold text-xs uppercase tracking-wider rounded-xl py-3 px-4 flex items-center justify-center gap-3 hover:bg-surface-bright shadow-[2px_2px_0_0_var(--theme-outline)] active-press transition-all disabled:opacity-50"
         >
-          <i className="fa-brands fa-google text-[20px]"></i>
+          <i className="fa-brands fa-google text-lg"></i>
           <span>Lanjutkan dengan Google</span>
         </button>
         <button
@@ -207,23 +201,22 @@ export function LoginForm() {
           id="guest-login-btn"
           onClick={handleGuest}
           disabled={loading}
-          className="w-full bg-transparent border border-white/10 text-on-background font-label-sm text-label-sm rounded-lg py-3 px-4 flex items-center justify-center gap-3 hover:bg-white/5 hover:border-white/20 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+          className="w-full bg-surface border-2 border-outline text-on-background font-label-bold text-xs uppercase tracking-wider rounded-xl py-3 px-4 flex items-center justify-center gap-3 hover:bg-surface-bright shadow-[2px_2px_0_0_var(--theme-outline)] active-press transition-all disabled:opacity-50"
         >
-          <i className="fa-solid fa-user-secret text-[20px]"></i>
+          <i className="fa-solid fa-user-secret text-lg"></i>
           <span>Lanjutkan sebagai Tamu</span>
         </button>
       </div>
 
-      {/* Footer Link */}
       <div className="text-center mt-2">
-        <p className="font-body-md text-body-md text-on-surface-variant">
+        <p className="font-body-md text-sm text-on-surface-variant">
           {mode === "login" ? (
             <>
               Belum punya akun?{" "}
               <button
                 type="button"
                 onClick={() => { setMode("register"); setError(""); }}
-                className="text-primary-fixed-dim font-bold hover:text-primary-fixed hover:underline underline-offset-4 transition-colors"
+                className="text-on-background font-bold underline underline-offset-4 hover:opacity-80 transition-opacity"
               >
                 Daftar
               </button>
@@ -234,7 +227,7 @@ export function LoginForm() {
               <button
                 type="button"
                 onClick={() => { setMode("login"); setError(""); }}
-                className="text-primary-fixed-dim font-bold hover:text-primary-fixed hover:underline underline-offset-4 transition-colors"
+                className="text-on-background font-bold underline underline-offset-4 hover:opacity-80 transition-opacity"
               >
                 Masuk
               </button>

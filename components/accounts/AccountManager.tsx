@@ -140,9 +140,7 @@ export function AccountManager() {
 
   return (
     <div>
-      {/* Account List */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Add Button */}
         <motion.button
           whileHover={{ scale: 1.02, y: -2 }}
           whileTap={{ scale: 0.98 }}
@@ -180,7 +178,6 @@ export function AccountManager() {
                   </div>
                 </div>
 
-                {/* Actions */}
                 <div className="flex gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => handleOpenEdit(acc)}
@@ -210,7 +207,6 @@ export function AccountManager() {
         })}
       </div>
 
-      {/* Modal Form */}
       <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

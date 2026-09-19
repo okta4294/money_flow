@@ -25,7 +25,6 @@ export default function DebtsPage() {
   return (
     <div className="space-y-8 max-w-4xl mx-auto w-full">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Hero Section: Total Debt */}
         <motion.section whileHover={{ scale: 1.02, y: -2 }} className="col-span-1 md:col-span-2 bg-tertiary-container border-4 border-outline rounded-3xl p-6 shadow-[4px_4px_0_0_var(--theme-outline)] relative overflow-hidden">
           <div className="relative z-10">
             <p className="font-label-bold text-on-tertiary-container uppercase tracking-widest mb-2 font-bold">Total Beban Hidup</p>
@@ -39,11 +38,9 @@ export default function DebtsPage() {
               </div>
             </div>
           </div>
-          {/* Decorative Element */}
-          <motion.span animate={{ rotate: [12, 15, 12] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }} className="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] text-on-tertiary-container opacity-20 pointer-events-none">account_balance</motion.span>
+          <span className="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] text-on-tertiary-container opacity-20 pointer-events-none rotate-12">account_balance</span>
         </motion.section>
 
-        {/* Upcoming Debts Estimate Card */}
         <motion.section whileHover={{ scale: 1.02, y: -2 }} className="col-span-1 bg-surface-container border-4 border-outline rounded-3xl p-6 shadow-[4px_4px_0_0_var(--theme-outline)] flex flex-col justify-start max-h-[300px] overflow-y-auto no-scrollbar">
           <div className="flex items-center gap-2 mb-4 sticky top-0 bg-surface-container z-10 py-1">
              <span className="material-symbols-outlined text-error">calendar_month</span>
@@ -77,7 +74,6 @@ export default function DebtsPage() {
         </motion.section>
       </div>
 
-      {/* Debt Categories Tabs */}
       <section className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
         {(["all", "active", "paid"] as const).map((f) => {
            const isSelected = filter === f;
@@ -99,7 +95,6 @@ export default function DebtsPage() {
         })}
       </section>
 
-      {/* Debt List Grid */}
       <DebtList
         debts={filteredDebts}
         loading={loading}
@@ -107,19 +102,16 @@ export default function DebtsPage() {
         filter={filter}
       />
       
-      {/* Motivation Quote Section */}
       <motion.section whileHover={{ rotate: 1 }} className="bg-surface-container-high border-2 border-outline rounded-3xl p-6 border-dashed text-center mt-10">
         <p className="italic font-body-md text-on-surface-variant font-bold">"Hutang adalah beban, makan jangan kebanyakan utang, balikin sana."</p>
       </motion.section>
 
-      {/* Modals */}
       <DebtForm
         open={showForm}
         onClose={() => { setShowForm(false); setEditDebt(null); }}
         editData={editDebt}
       />
       
-      {/* Floating Action Button */}
       <motion.button
         whileHover={{ scale: 1.1, rotate: 90 }}
         whileTap={{ scale: 0.9 }}

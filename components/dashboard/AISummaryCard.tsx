@@ -138,22 +138,22 @@ export function AISummaryCard({
   };
 
   return (
-    <div className="ai-glow rounded-2xl p-stack-lg h-full flex flex-col relative z-10 overflow-hidden">
-      <div className="flex items-center gap-2 mb-6">
-        <i className="fa-solid fa-robot text-primary-fixed drop-shadow-[0_0_8px_rgba(99,247,255,0.6)] text-2xl"></i>
-        <h3 className="font-headline-md text-headline-md text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">AI Roaster</h3>
+    <div className="h-full flex flex-col relative z-10 overflow-hidden">
+      <div className="flex items-center gap-2 mb-4">
+        <i className="fa-solid fa-brain text-on-tertiary-container text-xl"></i>
+        <h3 className="font-headline-md text-xl text-on-tertiary-container font-bold uppercase tracking-tight">AI Roaster</h3>
       </div>
       
-      <div className="flex-1 text-on-surface font-body-md mb-6 leading-relaxed bg-surface-container-lowest/40 p-4 rounded-xl border border-white/5 flex flex-col justify-center">
+      <div className="flex-1 text-on-surface font-body-md mb-4 leading-relaxed bg-surface border-2 border-outline p-4 rounded-2xl shadow-[2px_2px_0_0_var(--theme-outline)] flex flex-col justify-center">
         {!summary && !loading && !error && (
-          <p className="text-center italic opacity-80">
+          <p className="text-center italic opacity-80 text-on-surface-variant text-sm">
             Dapatkan analisis untuk pengeluaranmu yang banyak tapi pemasukan sedikit itu... Biarkan AI memasak Anda.
           </p>
         )}
 
         {error && (
-          <div className="flex items-center gap-2 text-error bg-error/10 p-3 rounded-lg border border-error/20 mt-2 text-sm shadow-[0_0_10px_rgba(255,180,171,0.2)]">
-            <i className="fa-solid fa-triangle-exclamation text-[16px]"></i>
+          <div className="flex items-center gap-2 text-on-error-container bg-error-container border-2 border-outline p-3 rounded-xl mt-2 text-xs font-label-bold">
+            <i className="fa-solid fa-triangle-exclamation text-base"></i>
             {error}
           </div>
         )}
@@ -163,15 +163,15 @@ export function AISummaryCard({
             <div className="h-4 w-3/4 bg-surface-bright rounded-md animate-pulse" />
             <div className="h-4 w-1/2 bg-surface-bright rounded-md animate-pulse" />
             <div className="h-4 w-5/6 bg-surface-bright rounded-md animate-pulse" />
-            <div className="flex items-center justify-center gap-2 mt-4 text-primary-fixed font-label-sm animate-pulse drop-shadow-[0_0_5px_rgba(99,247,255,0.4)]">
-              <i className="fa-solid fa-wand-magic-sparkles text-[16px] animate-pulse"></i>
-              Mengorek aib finansialmu...
+            <div className="flex items-center justify-center gap-2 mt-4 text-on-surface font-label-sm">
+              <span className="material-symbols-outlined text-base animate-spin">progress_activity</span>
+              Mengorek catatan finansialmu...
             </div>
           </div>
         )}
 
         {summary && !loading && (
-          <div className="text-sm max-w-none leading-relaxed [&_h1]:text-white [&_h1]:font-bold [&_h1]:text-xl [&_h1]:mb-3 [&_h2]:text-white [&_h2]:font-bold [&_h2]:text-lg [&_h2]:mb-2 [&_h2]:mt-4 [&_h3]:text-white [&_h3]:font-bold [&_h3]:mb-2 [&_h3]:mt-3 [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3 [&_li]:mb-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3 [&_strong]:text-primary-fixed [&_strong]:drop-shadow-[0_0_5px_rgba(99,247,255,0.3)] [&_strong]:font-semibold overflow-y-auto max-h-[300px] no-scrollbar pr-2">
+          <div className="text-sm max-w-none leading-relaxed [&_h1]:text-on-surface [&_h1]:font-bold [&_h1]:text-lg [&_h1]:mb-2 [&_h2]:text-on-surface [&_h2]:font-bold [&_h2]:text-base [&_h2]:mb-2 [&_h2]:mt-3 [&_h3]:text-on-surface [&_h3]:font-bold [&_h3]:mb-1 [&_h3]:mt-2 [&_p]:text-on-surface-variant [&_p]:mb-2.5 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-2.5 [&_li]:mb-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-2.5 [&_strong]:text-on-surface [&_strong]:font-bold overflow-y-auto max-h-[280px] no-scrollbar pr-2">
             <ReactMarkdown>{summary}</ReactMarkdown>
           </div>
         )}
@@ -189,20 +189,20 @@ export function AISummaryCard({
                 ? "Anda menggunakan Super Akun (Tanpa Batas)" 
                 : "Sisa jatah harian: 1x"
         }
-        className={`w-full font-label-md text-label-md py-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 ${
+        className={`w-full font-label-bold text-xs uppercase tracking-wider py-3 px-4 rounded-xl flex items-center justify-center gap-2 border-2 border-outline transition-all active-press ${
           isAnonymous || limitReached
-            ? "bg-surface-variant text-on-surface-variant cursor-not-allowed border border-white/5"
-            : "bg-gradient-to-r from-secondary-container to-primary-fixed text-white hover:shadow-[0_0_20px_rgba(96,1,209,0.5)] border-none"
+            ? "bg-surface-variant text-on-surface-variant cursor-not-allowed opacity-60"
+            : "bg-primary-container text-on-primary-container shadow-[2px_2px_0_0_var(--theme-outline)] hover:shadow-[4px_4px_0_0_var(--theme-outline)]"
         }`}
       >
         {checkingLimit ? (
           <span className="flex items-center gap-2">Memeriksa...</span>
         ) : isAnonymous ? (
-          <><i className="fa-solid fa-lock text-[18px]"></i> Login untuk mencoba</>
+          <><i className="fa-solid fa-lock text-[16px]"></i> Login untuk mencoba</>
         ) : limitReached ? (
-          <><i className="fa-solid fa-shield-halved text-[18px]"></i> Jatah Habis</>
+          <><i className="fa-solid fa-shield-halved text-[16px]"></i> Jatah Habis</>
         ) : (
-          <><i className="fa-solid fa-wand-magic-sparkles text-[18px]"></i> {summary ? "Analisis Ulang" : "Analisis Sekarang"} {isSuper && "✨"}</>
+          <><i className="fa-solid fa-chart-pie text-[16px]"></i> {summary ? "Analisis Ulang" : "Analisis Sekarang"}</>
         )}
       </button>
     </div>

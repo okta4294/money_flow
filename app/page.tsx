@@ -16,12 +16,12 @@ export default function RootPage() {
   }, [user, loading, router]);
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center animate-pulse">
-          <span className="text-2xl">💰</span>
+        <div className="w-12 h-12 bg-primary-container border-2 border-outline rounded-2xl flex items-center justify-center shadow-[2px_2px_0_0_var(--theme-outline)]">
+          <span className="material-symbols-outlined text-2xl text-on-primary-container animate-spin">progress_activity</span>
         </div>
-        <p className="text-slate-500 text-sm">Memuat...</p>
+        <p className="text-on-surface-variant font-label-bold text-xs uppercase tracking-wider">Memuat...</p>
       </div>
     </div>
   );

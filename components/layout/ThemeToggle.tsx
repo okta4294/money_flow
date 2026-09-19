@@ -12,7 +12,7 @@ export function ThemeToggle() {
   }, []);
 
   if (!mounted) {
-    return <div className="w-10 h-10 rounded-full glass-panel border border-white/5 animate-pulse" />;
+    return <div className="w-10 h-10 rounded-xl bg-surface-container border-2 border-outline animate-pulse" />;
   }
 
   const currentTheme = resolvedTheme || theme;
@@ -20,11 +20,11 @@ export function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
-      className="flex items-center justify-center w-10 h-10 rounded-full glass-panel text-on-surface-variant hover:text-primary-fixed hover:bg-white/5 transition-colors border border-transparent hover:border-white/10"
+      className="flex items-center justify-center w-10 h-10 rounded-xl bg-surface border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] text-on-surface hover:bg-surface-bright active-press-sm transition-all"
       aria-label="Toggle theme"
     >
       <span key={currentTheme} className="flex items-center justify-center w-full h-full">
-        {currentTheme === "dark" ? <i className="fa-regular fa-sun text-[20px]"></i> : <i className="fa-regular fa-moon text-[20px]"></i>}
+        {currentTheme === "dark" ? <i className="fa-regular fa-sun text-[18px]"></i> : <i className="fa-regular fa-moon text-[18px]"></i>}
       </span>
     </button>
   );

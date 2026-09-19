@@ -54,39 +54,37 @@ export function InitialBalanceModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Modal */}
-      <div className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/50 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-        {/* Close */}
+      <div className="relative bg-surface rounded-3xl w-full max-w-md p-6 border-[3px] border-outline shadow-[6px_6px_0_0_var(--theme-outline)] z-10">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-on-surface-variant hover:text-on-surface transition-colors p-1"
+          aria-label="Tutup"
         >
           <i className="fa-solid fa-xmark text-xl"></i>
         </button>
 
-        {/* Icon */}
-        <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-4">
-          <i className="fa-solid fa-piggy-bank text-emerald-400 text-2xl"></i>
+        <div className="w-12 h-12 bg-primary-container border-2 border-outline rounded-2xl flex items-center justify-center mb-4 text-on-primary-container shadow-sm">
+          <i className="fa-solid fa-piggy-bank text-2xl"></i>
         </div>
 
-        <h2 className="text-slate-900 dark:text-white font-semibold text-lg mb-1">Saldo Awal</h2>
-        <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
+        <h2 className="font-headline-lg text-on-background text-2xl tracking-tighter" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>
+          Saldo Awal
+        </h2>
+        <p className="font-body-md text-on-surface-variant text-sm mb-6">
           Set saldo awal untuk {MONTHS[month - 1]} {year}
         </p>
 
-        {/* Input */}
         <div className="mb-6">
-          <label className="text-slate-500 dark:text-slate-400 text-xs font-medium block mb-2">
+          <label className="font-label-bold text-on-surface uppercase tracking-widest text-xs block mb-2">
             Jumlah Saldo Awal
           </label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 text-sm font-medium">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 font-display-lg text-on-surface text-xl">
               Rp
             </span>
             <input
@@ -96,7 +94,7 @@ export function InitialBalanceModal({
               value={formatRupiahInput(rawValue)}
               onChange={(e) => setRawValue(e.target.value.replace(/\D/g, ""))}
               placeholder="0"
-              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-slate-900 dark:text-white text-base font-semibold focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all"
+              className="w-full bg-surface-container neo-brutalist-border pl-12 pr-4 py-3 text-on-surface text-xl font-display-lg focus:outline-none focus:ring-2 focus:ring-primary-container transition-colors"
             />
           </div>
         </div>
@@ -104,7 +102,7 @@ export function InitialBalanceModal({
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium transition-all"
+            className="flex-1 py-3.5 rounded-xl bg-surface border-2 border-outline text-on-background font-label-bold uppercase tracking-wider transition-all hover:bg-surface-bright active-press"
           >
             Batal
           </button>
@@ -112,7 +110,7 @@ export function InitialBalanceModal({
             id="save-initial-balance"
             onClick={handleSave}
             disabled={loading}
-            className="flex-1 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+            className="flex-1 py-3.5 rounded-xl bg-primary-container border-2 border-outline text-on-primary-container font-label-bold uppercase tracking-wider transition-all disabled:opacity-50 active-press shadow-[2px_2px_0_0_var(--theme-outline)] hover:shadow-[4px_4px_0_0_var(--theme-outline)]"
           >
             {loading ? "Menyimpan..." : "Simpan"}
           </button>

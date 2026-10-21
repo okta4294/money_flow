@@ -4,8 +4,8 @@ import type { Metadata } from "next";
 import { LoginForm } from "@/components/auth/LoginForm";
 
 export const metadata: Metadata = {
-  title: "Masuk — Money Flow",
-  description: "Mencatat jalur kemiskinan anda sejak dini",
+  title: "Masuk - Money Flow",
+  description: "Mencatat jalur keuangan dan arus kas Anda sejak dini",
 };
 
 export default function LoginPage() {

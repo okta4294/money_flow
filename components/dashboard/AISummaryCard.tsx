@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { Transaction, getTransactionsByMonth } from "@/lib/firestore/transactions";
 import { useAuth } from "@/lib/auth-context";
-import { checkAiLimit, markAiUsage } from "@/lib/firestore/ai-usage";
+import { checkAiLimit, markAiUsage, getTodayDateString } from "@/lib/firestore/ai-usage";
 
 interface AISummaryCardProps {
   transactions: Transaction[];
@@ -54,6 +54,21 @@ export function AISummaryCard({
       }
       setCheckingLimit(true);
       try {
+        const idToken = await user.getIdToken();
+        const res = await fetch("/api/summary", {
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+          },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (mounted && data.success) {
+            setIsSuper(Boolean(data.isSuper));
+            setLimitReached(!data.canUse);
+            return;
+          }
+        }
+        // Fallback jika GET gagal
         const canUse = await checkAiLimit(user.uid);
         if (mounted) setLimitReached(!canUse);
       } catch (err) {
@@ -72,9 +87,7 @@ export function AISummaryCard({
     setLoading(true);
     setError(null);
     try {
-      const canUse = await checkAiLimit(user.uid);
-      if (!canUse && !isSuper) {
-        setLimitReached(true);
+      if (!isSuper && limitReached) {
         throw new Error("Batas penggunaan harian (1x/hari) telah tercapai. Silakan coba lagi besok");
       }
 
@@ -105,6 +118,7 @@ export function AISummaryCard({
           "Authorization": `Bearer ${idToken}`,
         },
         body: JSON.stringify({
+          clientDate: getTodayDateString(),
           month,
           year,
           initialBalance,
@@ -125,6 +139,7 @@ export function AISummaryCard({
       setSummary(data.text);
       if (data.isSuper) {
         setIsSuper(true);
+        setLimitReached(false);
       } else {
         await markAiUsage(user.uid);
         const canStillUse = await checkAiLimit(user.uid);
@@ -141,7 +156,7 @@ export function AISummaryCard({
     <div className="h-full flex flex-col relative z-10 overflow-hidden">
       <div className="flex items-center gap-2 mb-4">
         <i className="fa-solid fa-brain text-on-tertiary-container text-xl"></i>
-        <h3 className="font-headline-md text-xl text-on-tertiary-container font-bold uppercase tracking-tight">AI Roaster</h3>
+        <h3 className="font-headline-md text-xl text-on-tertiary-container font-bold uppercase tracking-tight">Analisis AI</h3>
       </div>
       
       <div className="flex-1 text-on-surface font-body-md mb-4 leading-relaxed bg-surface border-2 border-outline p-4 rounded-2xl shadow-[2px_2px_0_0_var(--theme-outline)] flex flex-col justify-center">
@@ -179,18 +194,18 @@ export function AISummaryCard({
 
       <button
         onClick={handleGenerate}
-        disabled={loading || isAnonymous || limitReached || checkingLimit}
+        disabled={loading || isAnonymous || (!isSuper && limitReached) || checkingLimit}
         title={
           isAnonymous 
             ? "Daftar akun gratis untuk menggunakan fitur AI" 
-            : limitReached 
-              ? "Batas penggunaan harian tercapai" 
-              : isSuper 
-                ? "Anda menggunakan Super Akun (Tanpa Batas)" 
+            : isSuper
+              ? "Anda menggunakan Super Akun (Akses Tanpa Batas)" 
+              : limitReached 
+                ? "Batas penggunaan harian tercapai" 
                 : "Sisa jatah harian: 1x"
         }
         className={`w-full font-label-bold text-xs uppercase tracking-wider py-3 px-4 rounded-xl flex items-center justify-center gap-2 border-2 border-outline transition-all active-press ${
-          isAnonymous || limitReached
+          isAnonymous || (!isSuper && limitReached)
             ? "bg-surface-variant text-on-surface-variant cursor-not-allowed opacity-60"
             : "bg-primary-container text-on-primary-container shadow-[2px_2px_0_0_var(--theme-outline)] hover:shadow-[4px_4px_0_0_var(--theme-outline)]"
         }`}
@@ -198,9 +213,11 @@ export function AISummaryCard({
         {checkingLimit ? (
           <span className="flex items-center gap-2">Memeriksa...</span>
         ) : isAnonymous ? (
-          <><i className="fa-solid fa-lock text-[16px]"></i> Login untuk mencoba</>
-        ) : limitReached ? (
+          <><i className="fa-solid fa-lock text-[16px]"></i> Masuk untuk mencoba</>
+        ) : (!isSuper && limitReached) ? (
           <><i className="fa-solid fa-shield-halved text-[16px]"></i> Jatah Habis</>
+        ) : isSuper ? (
+          <><i className="fa-solid fa-bolt text-[16px] text-amber-500"></i> {summary ? "Analisis Ulang (Super)" : "Analisis Sekarang (Super)"}</>
         ) : (
           <><i className="fa-solid fa-chart-pie text-[16px]"></i> {summary ? "Analisis Ulang" : "Analisis Sekarang"}</>
         )}

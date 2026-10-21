@@ -25,7 +25,7 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleDelete = async (debt: Debt) => {
-    if (!user || !confirm(`Delete debt "${debt.name}"?`)) return;
+    if (!user || !confirm(`Hapus hutang "${debt.name}"?`)) return;
     setDeletingId(debt.id);
     try {
       await deleteDebt(user.uid, debt.id);
@@ -62,10 +62,10 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
           </span>
         </div>
         <p className="font-headline-md text-on-surface text-lg">
-          {filter === "paid" ? "No paid debts yet" : "No active debts"}
+          {filter === "paid" ? "Belum ada hutang yang lunas" : "Tidak ada hutang aktif"}
         </p>
         <p className="font-body-md text-on-surface-variant mt-1">
-          {filter === "paid" ? "Pay a debt to see it here" : "You're debt free!"}
+          {filter === "paid" ? "Catatan hutang yang telah lunas akan tersimpan di sini" : "Hebat! Anda bebas dari beban hutang."}
         </p>
       </div>
     );
@@ -123,7 +123,7 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                       <span className={`font-label-bold text-[11px] flex items-center gap-1 ${overdue && !isPaid ? 'text-error' : 'text-on-surface-variant'}`}>
                         <span className="material-symbols-outlined text-[12px]">schedule</span>
                         {formatDate(debt.dueDate)}
-                        {overdue && !isPaid && " (Overdue)"}
+                        {overdue && !isPaid && " (Lewat Jatuh Tempo)"}
                       </span>
                     )}
                     {debt.note && <p className="text-on-surface-variant text-[11px] font-label-bold line-clamp-1">{debt.note}</p>}
@@ -131,7 +131,7 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                 </div>
               </div>
               <span className={`${isPaid ? "bg-primary-container" : overdue ? "bg-error-container" : "bg-surface-container-highest"} border-2 border-outline rounded-full px-3 py-1 text-[10px] font-bold uppercase`}>
-                {isPaid ? "Paid" : overdue ? "Urgent" : "Active"}
+                {isPaid ? "Lunas" : overdue ? "Mendesak" : "Aktif"}
               </span>
             </div>
 
@@ -147,7 +147,7 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                  </div>
               </div>
               <div className="flex justify-between font-label-bold text-on-background text-xs">
-                <span>Progress</span>
+                <span>Persentase</span>
                 <span>{Math.round(pct)}%</span>
               </div>
               <div className="h-6 w-full bg-surface-container border-2 border-outline rounded-full overflow-hidden relative">

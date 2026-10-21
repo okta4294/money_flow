@@ -12,11 +12,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 const navItems = [
-  { href: "/dashboard", label: "Home", icon: "home" },
-  { href: "/transactions", label: "History", icon: "history" },
-  { href: "/categories", label: "Categories", icon: "category" },
-  { href: "/accounts", label: "Accounts", icon: "account_balance_wallet" },
-  { href: "/debts", label: "Debt", icon: "account_balance" },
+  { href: "/dashboard", label: "Dasbor", icon: "home" },
+  { href: "/transactions", label: "Transaksi", icon: "history" },
+  { href: "/budget", label: "Anggaran", icon: "pie_chart" },
+  { href: "/categories", label: "Kategori", icon: "category" },
+  { href: "/accounts", label: "Dompet", icon: "account_balance_wallet" },
+  { href: "/debts", label: "Hutang", icon: "account_balance" },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -46,7 +47,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {user?.photoURL ? (
               <Image
                 src={user.photoURL}
-                alt="User Avatar"
+                alt="Avatar Pengguna"
                 width={48}
                 height={48}
                 className="w-full h-full object-cover"
@@ -55,7 +56,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span className="font-bold text-base sm:text-lg text-on-primary-container">{(user?.displayName || user?.email || "U")[0].toUpperCase()}</span>
             )}
           </motion.div>
-          <h1 className="font-display-lg text-xl sm:text-2xl text-primary uppercase tracking-tighter" style={{ WebkitTextStroke: '0.5px var(--theme-outline)', color: 'var(--theme-primary-container)' }}>My Wallet</h1>
+          <h1 className="font-display-lg text-xl sm:text-2xl text-primary uppercase tracking-tighter" style={{ WebkitTextStroke: '0.5px var(--theme-outline)', color: 'var(--theme-primary-container)' }}>Money Flow</h1>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
           <ThemeToggle />

@@ -4,12 +4,20 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { Category, addCategory, updateCategory, deleteCategory } from "@/lib/firestore/categories";
 import { TransactionType } from "@/lib/firestore/transactions";
+import {
+  isFixedExpenseCategory,
+  isEssentialExpenseCategory,
+  isEligibleIncomeCategory,
+} from "@/lib/budget-calculator";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CategoryManagerProps {
   categories: Category[];
   loading: boolean;
 }
+
+type ExpenseClassification = "auto" | "essential" | "fixed" | "variable";
+type IncomeRole = "auto" | "primary" | "secondary";
 
 const PRESET_ICONS = [
   "restaurant",
@@ -41,6 +49,9 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
   const [editData, setEditData] = useState<Category | null>(null);
   const [name, setName] = useState("");
   const [icon, setIcon] = useState(PRESET_ICONS[0]);
+  const [expenseClassification, setExpenseClassification] =
+    useState<ExpenseClassification>("auto");
+  const [incomeRole, setIncomeRole] = useState<IncomeRole>("auto");
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -50,6 +61,8 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
     setEditData(null);
     setName("");
     setIcon(PRESET_ICONS[0]);
+    setExpenseClassification("auto");
+    setIncomeRole("auto");
     setError("");
     setShowForm(true);
   };
@@ -58,30 +71,74 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
     setEditData(cat);
     setName(cat.name);
     setIcon(cat.icon || PRESET_ICONS[0]);
+
+    if (cat.isFixedExpense === true) {
+      setExpenseClassification("fixed");
+    } else if (cat.isEssentialExpense === true) {
+      setExpenseClassification("essential");
+    } else if (cat.isFixedExpense === false && cat.isEssentialExpense === false) {
+      setExpenseClassification("variable");
+    } else {
+      setExpenseClassification("auto");
+    }
+
+    if (cat.isEligibleForBudget === true) {
+      setIncomeRole("primary");
+    } else if (cat.isEligibleForBudget === false) {
+      setIncomeRole("secondary");
+    } else {
+      setIncomeRole("auto");
+    }
+
     setError("");
     setShowForm(true);
   };
 
   const handleSave = async () => {
-    if (!user || !name.trim()) { setError("Category name is required"); return; }
+    if (!user || !name.trim()) { setError("Nama kategori wajib diisi"); return; }
     setFormLoading(true);
     setError("");
     try {
+      const budgetFlags =
+        tab === "income"
+          ? incomeRole === "auto"
+            ? { isEligibleForBudget: null }
+            : incomeRole === "primary"
+            ? { isEligibleForBudget: true }
+            : { isEligibleForBudget: false }
+          : expenseClassification === "auto"
+          ? { isFixedExpense: null, isEssentialExpense: null }
+          : expenseClassification === "fixed"
+          ? { isFixedExpense: true, isEssentialExpense: false }
+          : expenseClassification === "essential"
+          ? { isFixedExpense: false, isEssentialExpense: true }
+          : { isFixedExpense: false, isEssentialExpense: false };
+
       if (editData) {
-        await updateCategory(user.uid, editData.id, { name: name.trim(), icon });
+        await updateCategory(user.uid, editData.id, {
+          name: name.trim(),
+          icon,
+          ...budgetFlags,
+        });
       } else {
-        await addCategory(user.uid, { name: name.trim(), type: tab, icon, color: "#000000" });
+        await addCategory(user.uid, {
+          name: name.trim(),
+          type: tab,
+          icon,
+          color: "#000000",
+          ...budgetFlags,
+        });
       }
       setShowForm(false);
     } catch {
-      setError("Failed to save category");
+      setError("Gagal menyimpan kategori");
     } finally {
       setFormLoading(false);
     }
   };
 
   const handleDelete = async (cat: Category) => {
-    if (!user || !confirm(`Delete category "${cat.name}"?`)) return;
+    if (!user || !confirm(`Hapus kategori "${cat.name}"?`)) return;
     await deleteCategory(user.uid, cat.id);
   };
 
@@ -160,11 +217,47 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                 </div>
                 
                 <div className="w-full">
-                  {cat.isDefault && (
-                    <span className="text-[10px] font-bold uppercase tracking-widest bg-on-background text-background px-2 py-0.5 rounded-sm inline-block mb-1">
-                      DEFAULT
-                    </span>
-                  )}
+                  <div className="flex flex-wrap gap-1 mb-1">
+                    {cat.isDefault && (
+                      <span className="text-[10px] font-bold uppercase tracking-widest bg-on-background text-background px-2 py-0.5 rounded-sm inline-block">
+                        BAWAAN
+                      </span>
+                    )}
+                    {cat.type === "expense" && (() => {
+                      const isFixed = isFixedExpenseCategory(cat);
+                      const isEssential = !isFixed && isEssentialExpenseCategory(cat);
+                      const classification = isFixed ? "TETAP" : isEssential ? "POKOK" : "VARIABEL";
+                      const isManual = typeof cat.isFixedExpense === "boolean" || typeof cat.isEssentialExpense === "boolean";
+                      return (
+                        <span
+                          className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-sm inline-flex items-center gap-1 ${
+                            classification === "TETAP"
+                              ? "bg-amber-400 text-slate-950 dark:bg-amber-300 dark:text-slate-950"
+                              : classification === "POKOK"
+                              ? "bg-emerald-500 text-white dark:bg-emerald-400 dark:text-slate-950"
+                              : "bg-surface-container-high text-on-surface-variant border border-outline/30"
+                          }`}
+                        >
+                          {classification}
+                          {isManual && <span className="text-[8px] opacity-75 font-normal">MANUAL</span>}
+                        </span>
+                      );
+                    })()}
+                    {cat.type === "income" && (() => {
+                      const isPrimary = isEligibleIncomeCategory(cat);
+                      const isManual = typeof cat.isEligibleForBudget === "boolean";
+                      return isPrimary ? (
+                        <span className="text-[10px] font-bold uppercase tracking-widest bg-emerald-500 text-white dark:bg-emerald-400 dark:text-slate-950 px-2 py-0.5 rounded-sm inline-flex items-center gap-1">
+                          DASAR ANGGARAN
+                          {isManual && <span className="text-[8px] opacity-75 font-normal">MANUAL</span>}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold uppercase tracking-widest bg-surface-container-high text-on-surface-variant border border-outline/30 px-2 py-0.5 rounded-sm inline-block">
+                          SAMPINGAN
+                        </span>
+                      );
+                    })()}
+                  </div>
                   <h3 className="font-headline-md text-lg leading-tight line-clamp-2">
                     {cat.name}
                   </h3>
@@ -199,28 +292,28 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }} 
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="relative bg-surface rounded-3xl w-full max-w-sm p-6 border-[3px] border-outline shadow-[6px_6px_0_0_var(--theme-outline)] z-10"
+            className="relative bg-surface rounded-3xl w-full max-w-md p-6 border-[3px] border-outline shadow-[6px_6px_0_0_var(--theme-outline)] z-10 max-h-[90vh] overflow-y-auto"
           >
             <h3 className="font-headline-lg text-on-background mb-5 tracking-tighter" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>
-              {editData ? "Edit Category" : "New Category"}
+              {editData ? "Edit Kategori" : "Kategori Baru"}
             </h3>
 
             <div className="space-y-4">
               <div>
-                <label className="text-on-surface-variant font-label-bold block mb-1.5 uppercase tracking-widest text-xs">Name</label>
+                <label className="text-on-surface-variant font-label-bold block mb-1.5 uppercase tracking-widest text-xs">Nama Kategori</label>
                 <input
                   id="category-name-input"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Category Name"
+                  placeholder="Contoh: Makanan & Minuman"
                   className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl px-4 py-3 text-on-background font-body-md focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-all"
                 />
               </div>
 
               <div>
-                <label className="text-on-surface-variant font-label-bold block mb-2 uppercase tracking-widest text-xs">Icon</label>
-                <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-1 no-scrollbar">
+                <label className="text-on-surface-variant font-label-bold block mb-2 uppercase tracking-widest text-xs">Ikon Kategori</label>
+                <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-1 no-scrollbar">
                   {PRESET_ICONS.map((i) => (
                     <motion.button
                       whileHover={{ scale: 1.1 }}
@@ -238,6 +331,144 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                 </div>
               </div>
 
+              {tab === "expense" ? (
+                <div className="bg-surface-container border-2 border-outline rounded-2xl p-3.5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-on-surface-variant font-label-bold block uppercase tracking-widest text-xs">
+                      Klasifikasi Smart Budget
+                    </label>
+                    <span className="text-[11px] font-medium text-on-surface-variant/80">
+                      {expenseClassification === "auto" ? "Deteksi Otomatis" : "Diatur Manual"}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {[
+                      {
+                        id: "auto",
+                        label: "Otomatis",
+                        desc: "Ikuti kata kunci sistem",
+                        icon: "smart_toy",
+                      },
+                      {
+                        id: "essential",
+                        label: "Pokok",
+                        desc: "Makan, bensin, sembako",
+                        icon: "restaurant",
+                      },
+                      {
+                        id: "fixed",
+                        label: "Tetap",
+                        desc: "Kos, listrik, wifi rutin",
+                        icon: "home",
+                      },
+                      {
+                        id: "variable",
+                        label: "Variabel",
+                        desc: "Gaya hidup, hiburan, hobi",
+                        icon: "sports_esports",
+                      },
+                    ].map((opt) => {
+                      const isSelected = expenseClassification === opt.id;
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => setExpenseClassification(opt.id as ExpenseClassification)}
+                          className={`p-2.5 rounded-xl text-left border-2 transition-all flex flex-col justify-between ${
+                            isSelected
+                              ? "bg-primary-container text-on-primary-container border-outline shadow-[2px_2px_0_0_var(--theme-outline)] font-bold -translate-y-0.5"
+                              : "bg-surface text-on-surface border-outline/40 hover:bg-surface-bright hover:border-outline"
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <span className="material-symbols-outlined text-[16px]">{opt.icon}</span>
+                            <span className="text-xs font-bold leading-none">{opt.label}</span>
+                          </div>
+                          <span className="text-[10px] leading-tight text-on-surface-variant opacity-85">
+                            {opt.desc}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[10px] text-on-surface-variant pt-1 leading-relaxed">
+                    {expenseClassification === "auto" &&
+                      "Sistem otomatis mendeteksi kata kunci nama (contoh: 'makan'/'belanja' jadi Pokok, 'kos'/'listrik' jadi Tetap, sisanya Variabel)."}
+                    {expenseClassification === "essential" &&
+                      "Kebutuhan pokok dilindungi dari pemangkasan saat budget menipis."}
+                    {expenseClassification === "fixed" &&
+                      "Pengeluaran tetap bulanan dikecualikan dari batas harian agar tidak memicu overbudget palsu."}
+                    {expenseClassification === "variable" &&
+                      "Pengeluaran gaya hidup fleksibel dipangkas jika beban hutang tinggi."}
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-surface-container border-2 border-outline rounded-2xl p-3.5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-on-surface-variant font-label-bold block uppercase tracking-widest text-xs">
+                      Peran dalam Smart Budget
+                    </label>
+                    <span className="text-[11px] font-medium text-on-surface-variant/80">
+                      {incomeRole === "auto" ? "Deteksi Otomatis" : "Diatur Manual"}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {[
+                      {
+                        id: "auto",
+                        label: "Otomatis",
+                        desc: "Kata kunci nama",
+                        icon: "smart_toy",
+                      },
+                      {
+                        id: "primary",
+                        label: "Utama",
+                        desc: "Dasar budget rutin",
+                        icon: "payments",
+                      },
+                      {
+                        id: "secondary",
+                        label: "Sampingan",
+                        desc: "Di luar budget rutin",
+                        icon: "savings",
+                      },
+                    ].map((opt) => {
+                      const isSelected = incomeRole === opt.id;
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => setIncomeRole(opt.id as IncomeRole)}
+                          className={`p-2.5 rounded-xl text-left border-2 transition-all flex flex-col justify-between ${
+                            isSelected
+                              ? "bg-primary-container text-on-primary-container border-outline shadow-[2px_2px_0_0_var(--theme-outline)] font-bold -translate-y-0.5"
+                              : "bg-surface text-on-surface border-outline/40 hover:bg-surface-bright hover:border-outline"
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <span className="material-symbols-outlined text-[16px]">{opt.icon}</span>
+                            <span className="text-xs font-bold leading-none">{opt.label}</span>
+                          </div>
+                          <span className="text-[10px] leading-tight text-on-surface-variant opacity-85">
+                            {opt.desc}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[10px] text-on-surface-variant pt-1 leading-relaxed">
+                    {incomeRole === "auto" &&
+                      "Sistem otomatis mendeteksi kata kunci nama (seperti gaji, salary, uang saku, atau uang bulanan)."}
+                    {incomeRole === "primary" &&
+                      "Pemasukan ini menjadi pondasi siklus gajian untuk menentukan batas belanja harian."}
+                    {incomeRole === "secondary" &&
+                      "Pemasukan sampingan/tambahan tidak dijadikan patokan batas budget bulanan rutin."}
+                  </p>
+                </div>
+              )}
+
               {error && (
                 <div className="bg-error-container border-2 border-outline p-3 rounded-lg text-on-error-container font-label-bold text-sm">
                   {error}
@@ -249,7 +480,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                   onClick={() => setShowForm(false)}
                   className="flex-1 py-3 rounded-xl bg-surface border-2 border-outline text-on-background font-label-bold transition-all hover:bg-surface-bright active-press"
                 >
-                  Cancel
+                  Batal
                 </button>
                 <button
                   id="save-category"
@@ -257,7 +488,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                   disabled={formLoading}
                   className="flex-1 py-3 rounded-xl bg-primary-container border-2 border-outline text-on-primary-container font-label-bold transition-all disabled:opacity-50 active-press shadow-[2px_2px_0_0_var(--theme-outline)] hover:shadow-[4px_4px_0_0_var(--theme-outline)]"
                 >
-                  {formLoading ? "Saving..." : "Save"}
+                  {formLoading ? "Menyimpan..." : "Simpan"}
                 </button>
               </div>
             </div>

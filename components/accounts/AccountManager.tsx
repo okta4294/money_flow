@@ -15,9 +15,9 @@ const COLORS = [
 
 const ACCOUNT_TYPES: { value: AccountType; label: string; icon: string }[] = [
   { value: "bank", label: "Bank", icon: "account_balance" },
-  { value: "ewallet", label: "E-Wallet", icon: "account_balance_wallet" },
-  { value: "cash", label: "Cash", icon: "payments" },
-  { value: "other", label: "Other", icon: "help" },
+  { value: "ewallet", label: "Dompet Digital", icon: "account_balance_wallet" },
+  { value: "cash", label: "Uang Tunai", icon: "payments" },
+  { value: "other", label: "Lainnya", icon: "help" },
 ];
 
 export function AccountManager() {
@@ -103,7 +103,7 @@ export function AccountManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!user || !confirm("Delete this account?")) return;
+    if (!user || !confirm("Hapus akun ini?")) return;
     await deleteAccount(user.uid, id);
   };
 
@@ -150,7 +150,7 @@ export function AccountManager() {
           <div className="w-12 h-12 rounded-xl bg-surface-container-highest border-2 border-outline flex items-center justify-center transition-colors">
              <span className="material-symbols-outlined text-on-background text-2xl group-hover:rotate-90 transition-transform">add</span>
           </div>
-          <span className="font-label-bold text-on-surface-variant font-bold">Add Account</span>
+          <span className="font-label-bold text-on-surface-variant font-bold">Tambah Akun</span>
         </motion.button>
 
         {accounts.map((acc, idx) => {
@@ -196,7 +196,7 @@ export function AccountManager() {
 
               {balances[acc.id] !== undefined && (
                 <div className="mt-4">
-                  <p className="text-xs font-label-bold uppercase tracking-widest opacity-80 mb-1">Balance</p>
+                  <p className="text-xs font-label-bold uppercase tracking-widest opacity-80 mb-1">Saldo</p>
                   <p className="font-display-lg text-2xl sm:text-3xl tracking-tighter truncate max-w-full" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>
                     {formatRupiah(balances[acc.id])}
                   </p>
@@ -220,25 +220,25 @@ export function AccountManager() {
           >
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-headline-lg text-on-background tracking-tighter" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>
-                {editingId ? "Edit Account" : "New Account"}
+                {editingId ? "Edit Akun" : "Akun Baru"}
               </h2>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="text-on-surface-variant font-label-bold block mb-1.5 uppercase tracking-widest text-xs">Account Name</label>
+                <label className="text-on-surface-variant font-label-bold block mb-1.5 uppercase tracking-widest text-xs">Nama Akun</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="BCA, Gopay, Wallet..."
+                  placeholder="Contoh: BCA, GoPay, Dompet Tunai..."
                   className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl px-4 py-3 text-on-background font-body-md focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-all"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-on-surface-variant font-label-bold block mb-1.5 uppercase tracking-widest text-xs">Type</label>
+                <label className="text-on-surface-variant font-label-bold block mb-1.5 uppercase tracking-widest text-xs">Tipe Akun</label>
                 <div className="grid grid-cols-2 gap-2">
                   {ACCOUNT_TYPES.map((t) => (
                     <motion.button
@@ -265,14 +265,14 @@ export function AccountManager() {
                   onClick={() => setIsOpen(false)}
                   className="flex-1 py-3 rounded-xl bg-surface border-2 border-outline text-on-background font-label-bold transition-all hover:bg-surface-bright active-press"
                 >
-                  Cancel
+                  Batal
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
                   className="flex-1 py-3 rounded-xl bg-primary-container border-2 border-outline text-on-primary-container font-label-bold transition-all disabled:opacity-50 active-press shadow-[2px_2px_0_0_var(--theme-outline)] hover:shadow-[4px_4px_0_0_var(--theme-outline)]"
                 >
-                  {submitting ? "Saving..." : "Save"}
+                  {submitting ? "Menyimpan..." : "Simpan"}
                 </button>
               </div>
             </form>

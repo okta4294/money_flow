@@ -8,7 +8,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--fon
 const anton = Anton({ subsets: ["latin"], weight: "400", variable: "--font-display" });
 
 export const metadata: Metadata = {
-  title: "My wallet - Money Flow",
+  title: "Money Flow - Catatan Keuangan Pribadi",
   description: "Aplikasi pencatatan keuangan pribadi. Catat pemasukan, pengeluaran, dan kelola keuangan Anda dengan mudah.",
 };
 

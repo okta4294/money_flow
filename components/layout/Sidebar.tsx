@@ -6,11 +6,12 @@ import { useAuth } from "@/lib/auth-context";
 import { ThemeToggle } from "./ThemeToggle";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: "home" },
-  { href: "/transactions", label: "Transactions", icon: "history" },
-  { href: "/categories", label: "Categories", icon: "category" },
-  { href: "/accounts", label: "Accounts", icon: "account_balance_wallet" },
-  { href: "/debts", label: "Debt Tracker", icon: "account_balance" },
+  { href: "/dashboard", label: "Dasbor", icon: "home" },
+  { href: "/transactions", label: "Transaksi", icon: "history" },
+  { href: "/budget", label: "Anggaran", icon: "pie_chart" },
+  { href: "/categories", label: "Kategori", icon: "category" },
+  { href: "/accounts", label: "Dompet", icon: "account_balance_wallet" },
+  { href: "/debts", label: "Hutang", icon: "account_balance" },
 ];
 
 export function Sidebar() {
@@ -44,7 +45,7 @@ export function Sidebar() {
           <a
             href="/login"
             className="p-3 rounded-lg flex items-center justify-center text-primary-fixed hover:bg-surface-container-high transition-colors"
-            title="Log In"
+            title="Masuk"
           >
             <span className="material-symbols-outlined text-2xl">person_add</span>
           </a>
@@ -55,7 +56,7 @@ export function Sidebar() {
         <button
           onClick={signOut}
           className="p-3 rounded-lg flex items-center justify-center text-error hover:bg-error-container transition-colors"
-          title="Log Out"
+          title="Keluar"
         >
           <span className="material-symbols-outlined text-2xl">logout</span>
         </button>

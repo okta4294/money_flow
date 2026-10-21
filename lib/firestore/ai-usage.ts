@@ -4,7 +4,7 @@ import { db } from "../firebase";
 /**
  * Mendapatkan format tanggal hari ini (YYYY-MM-DD) berdasarkan waktu lokal
  */
-function getTodayDateString(): string {
+export function getTodayDateString(): string {
   const today = new Date();
   // Gunakan local timezone agar sesuai dengan zona waktu pengguna
   const year = today.getFullYear();

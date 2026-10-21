@@ -76,7 +76,7 @@ export function InitialBalanceModal({
           Saldo Awal
         </h2>
         <p className="font-body-md text-on-surface-variant text-sm mb-6">
-          Set saldo awal untuk {MONTHS[month - 1]} {year}
+          Atur saldo awal untuk {MONTHS[month - 1]} {year}
         </p>
 
         <div className="mb-6">

@@ -16,11 +16,7 @@ interface TransactionFormProps {
   editData?: Transaction | null;
 }
 
-/** Cek apakah nama kategori mengandung kata 'hutang' atau 'paylater' */
-function isDebtCategory(categoryName: string): boolean {
-  const lower = categoryName.toLowerCase();
-  return lower.includes("hutang") || lower.includes("paylater") || lower.includes("pay later");
-}
+import { isDebtCategoryName } from "@/lib/firestore/categories";
 
 const getAccountIcon = (type: string) => {
   switch (type) {
@@ -89,7 +85,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
   }, [type]);
 
   const selectedCategory = categories.find((c) => c.id === categoryId);
-  const showDebtDropdown = type === "expense" && selectedCategory && isDebtCategory(selectedCategory.name);
+  const showDebtDropdown = type === "expense" && selectedCategory && isDebtCategoryName(selectedCategory.name);
 
   useEffect(() => {
     if (!showDebtDropdown) {

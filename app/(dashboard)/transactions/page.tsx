@@ -41,7 +41,16 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-8 max-w-2xl mx-auto w-full">
+    <div className="flex flex-col gap-6 max-w-2xl mx-auto w-full">
+      <header className="mb-2">
+        <h2 className="font-headline-lg text-2xl sm:text-3xl text-on-surface tracking-tight uppercase">
+          RIWAYAT TRANSAKSI
+        </h2>
+        <p className="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">
+          Lacak seluruh arus kas masuk, pengeluaran, dan transfer antar akun Anda.
+        </p>
+      </header>
+
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 w-full">
         <div className="relative flex-1 w-full min-w-0">
           <input
@@ -79,7 +88,7 @@ export default function TransactionsPage() {
           <div className="mt-4 flex items-center gap-2">
             <span className="bg-surface border-2 border-outline rounded-full px-3 py-1 text-xs font-label-bold text-on-surface flex items-center gap-1.5 shadow-[2px_2px_0_0_var(--theme-outline)]">
               <span className="material-symbols-outlined text-sm text-error">trending_down</span>
-              Cashflow Keluar
+              Arus Kas Keluar
             </span>
           </div>
         </motion.div>
@@ -95,7 +104,7 @@ export default function TransactionsPage() {
           <div className="mt-4 flex items-center gap-2">
             <span className="bg-surface border-2 border-outline rounded-full px-3 py-1 text-xs font-label-bold text-on-surface flex items-center gap-1.5 shadow-[2px_2px_0_0_var(--theme-outline)]">
               <span className="material-symbols-outlined text-sm text-tertiary">trending_up</span>
-              Cashflow Masuk
+              Arus Kas Masuk
             </span>
           </div>
         </motion.div>
@@ -139,6 +148,7 @@ export default function TransactionsPage() {
         whileTap={{ scale: 0.9 }}
         onClick={() => { setEditTransaction(null); setShowForm(true); }}
         className="fixed bottom-24 right-6 md:bottom-12 md:right-12 w-16 h-16 bg-primary-container neo-brutalist-border rounded-full neo-brutalist-shadow z-50 flex items-center justify-center"
+        aria-label="Tambah Transaksi"
       >
         <span className="material-symbols-outlined text-4xl text-on-background" style={{ fontVariationSettings: "'FILL' 1" }}>add</span>
       </motion.button>

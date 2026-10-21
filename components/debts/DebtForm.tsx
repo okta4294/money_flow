@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { useCategories } from "@/hooks/useCategories";
 import { addDebt, updateDebt, Debt, DebtInput } from "@/lib/firestore/debts";
+import { ensureDebtCategoryExists } from "@/lib/firestore/categories";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatRupiahInput } from "@/lib/utils";
 
@@ -14,6 +16,7 @@ interface DebtFormProps {
 
 export function DebtForm({ open, onClose, editData }: DebtFormProps) {
   const { user } = useAuth();
+  const { categories } = useCategories();
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -47,7 +50,7 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
     setError("");
     setLoading(true);
     try {
-      // Bangun objek tanpa field undefined — Firestore tidak bisa menyimpan undefined
+      // Bangun objek tanpa field undefined: Firestore tidak bisa menyimpan undefined
       const data: DebtInput = {
         name: name.trim(),
         totalAmount: numericAmount,
@@ -58,6 +61,7 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
         await updateDebt(user.uid, editData.id, data);
       } else {
         await addDebt(user.uid, data);
+        await ensureDebtCategoryExists(user.uid, categories);
       }
       onClose();
     } catch {

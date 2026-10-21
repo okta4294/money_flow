@@ -13,7 +13,7 @@ interface TransactionListProps {
   onEdit: (t: Transaction) => void;
 }
 
-const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+const rtf = new Intl.RelativeTimeFormat('id', { numeric: 'auto' });
 
 function getDayLabel(dateStr: string) {
   const date = new Date(dateStr + "T00:00:00");
@@ -50,7 +50,7 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
   };
 
   const handleDelete = async (id: string) => {
-    if (!user || !confirm("Delete this transaction?")) return;
+    if (!user || !confirm("Hapus transaksi ini?")) return;
     setDeletingId(id);
     try {
       await deleteTransaction(user.uid, id);
@@ -82,8 +82,8 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
         <div className="w-20 h-20 bg-surface-container neo-brutalist-border rounded-2xl flex items-center justify-center mb-4 neo-brutalist-shadow-sm">
           <span className="material-symbols-outlined text-4xl text-on-surface-variant">inbox</span>
         </div>
-        <p className="font-headline-md text-on-surface">No hits yet.</p>
-        <p className="font-body-md text-on-surface-variant mt-1">Make a move and record your first transaction.</p>
+        <p className="font-headline-md text-on-surface">Belum ada transaksi.</p>
+        <p className="font-body-md text-on-surface-variant mt-1">Mulai catat transaksi pertama Anda bulan ini.</p>
       </div>
     );
   }
@@ -116,10 +116,10 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
               </h3>
               <div className="flex gap-4">
                 <span className="font-label-bold text-xs uppercase text-tertiary">
-                  In: {formatRupiah(dayIncome)}
+                  Masuk: {formatRupiah(dayIncome)}
                 </span>
                 <span className="font-label-bold text-xs uppercase text-error">
-                  Out: {formatRupiah(dayExpense)}
+                  Keluar: {formatRupiah(dayExpense)}
                 </span>
               </div>
             </div>
@@ -151,7 +151,7 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
                   <div className="flex-1 min-w-0 z-10 relative">
                     <p className="font-headline-md text-sm sm:text-base text-on-background leading-tight truncate">{t.note || t.category}</p>
                     <p className="font-body-md text-on-surface-variant text-xs sm:text-sm truncate mt-0.5">
-                      {t.type === "transfer" ? `${t.accountName || "?"} → ${t.destinationAccountName || "?"}` : (t.category || "Uncategorized")}
+                      {t.type === "transfer" ? `${t.accountName || "?"} → ${t.destinationAccountName || "?"}` : (t.category || "Tanpa Kategori")}
                     </p>
                   </div>
                   <div className="text-right z-10 relative flex flex-col items-end shrink-0 pl-2">

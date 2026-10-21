@@ -14,6 +14,113 @@ function sanitizeText(input: unknown, maxLen = 60): string {
     .substring(0, maxLen);
 }
 
+export async function GET(req: Request) {
+  try {
+    const authHeader = req.headers.get("authorization");
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.substring(7) : null;
+
+    if (!token) {
+      return NextResponse.json(
+        { success: false, error: "Akses ditolak: Autentikasi diperlukan." },
+        { status: 401 }
+      );
+    }
+
+    const firebaseApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+    if (!firebaseApiKey) {
+      return NextResponse.json(
+        { success: false, error: "Konfigurasi Firebase belum lengkap di server." },
+        { status: 500 }
+      );
+    }
+
+    const verifyRes = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${firebaseApiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken: token }),
+      }
+    );
+
+    if (!verifyRes.ok) {
+      return NextResponse.json(
+        { success: false, error: "Token autentikasi tidak valid atau telah kedaluwarsa." },
+        { status: 401 }
+      );
+    }
+
+    const verifyData = await verifyRes.json();
+    const authUser = verifyData.users?.[0];
+
+    if (!authUser) {
+      return NextResponse.json(
+        { success: false, error: "User tidak ditemukan." },
+        { status: 401 }
+      );
+    }
+
+    const isAnonymous = !authUser.email || !authUser.providerUserInfo || authUser.providerUserInfo.length === 0;
+    if (isAnonymous) {
+      return NextResponse.json({
+        success: true,
+        isSuper: false,
+        canUse: false,
+        isAnonymous: true,
+      });
+    }
+
+    const superEmail = process.env.SUPER_USER_EMAIL || "";
+    const isSuper = !!superEmail && authUser.email?.toLowerCase() === superEmail.toLowerCase();
+
+    if (isSuper) {
+      return NextResponse.json({
+        success: true,
+        isSuper: true,
+        canUse: true,
+      });
+    }
+
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    const userId = authUser.localId;
+    const today = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Jakarta",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date());
+
+    let canUse = true;
+    if (projectId && userId) {
+      try {
+        const usageCheckUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}/ai-usage/${today}`;
+        const checkRes = await fetch(usageCheckUrl, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (checkRes.ok) {
+          canUse = false;
+        }
+      } catch (err) {
+        console.warn("Gagal mengecek limit AI via GET:", err);
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      isSuper: false,
+      canUse,
+    });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: error?.message || "Internal Error" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const authHeader = req.headers.get("authorization");
@@ -68,8 +175,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const superEmail = process.env.SUPER_USER_EMAIL;
-    const isSuper = !!superEmail && authUser.email.toLowerCase() === superEmail.toLowerCase();
+    const superEmail = process.env.SUPER_USER_EMAIL || "";
+    const isSuper = !!superEmail && authUser.email?.toLowerCase() === superEmail.toLowerCase();
 
     if (!apiKey) {
       return NextResponse.json(
@@ -89,7 +196,44 @@ export async function POST(req: Request) {
       activeDebts = [],
       totalDebt = 0,
       prevMonthData = null,
+      clientDate = null,
     } = body;
+
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    const userId = authUser.localId;
+    const today = (typeof clientDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(clientDate))
+      ? clientDate
+      : new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Asia/Jakarta",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).format(new Date());
+
+    // Proteksi Server-Side: Batasi 1x per hari jika BUKAN akun super
+    if (!isSuper && projectId && userId) {
+      try {
+        const usageCheckUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}/ai-usage/${today}`;
+        const checkRes = await fetch(usageCheckUrl, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (checkRes.ok) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Batas penggunaan harian (1x/hari) telah tercapai. Silakan coba lagi besok.",
+            },
+            { status: 429 }
+          );
+        }
+      } catch (checkErr) {
+        console.warn("Gagal memeriksa limit AI di server:", checkErr);
+      }
+    }
 
     if (typeof month !== "number" || month < 1 || month > 12) {
       return NextResponse.json({ success: false, error: "Bulan tidak valid." }, { status: 400 });
@@ -226,6 +370,27 @@ Format Keluaran (Markdown):
         text = await tryGenerate("gemini-2.5-pro");
       } catch (fallbackError: any) {
         throw new Error("Kedua model AI (gemini-2.5-flash & gemini-2.5-pro) sedang tidak tersedia: " + (fallbackError?.message || String(fallbackError)));
+      }
+    }
+
+    // Catat penggunaan untuk akun reguler di Firestore via server
+    if (!isSuper && projectId && userId) {
+      try {
+        const createUsageUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}/ai-usage?documentId=${today}&key=${firebaseApiKey}`;
+        await fetch(createUsageUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            fields: {
+              usedAt: { stringValue: new Date().toISOString() },
+            },
+          }),
+        });
+      } catch (markErr) {
+        console.warn("Gagal mencatat limit AI di server:", markErr);
       }
     }
 

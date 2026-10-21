@@ -23,18 +23,27 @@ export default function DebtsPage() {
     filter === "active" ? activeDebts : filter === "paid" ? paidDebts : debts;
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto w-full">
+    <div className="space-y-6 max-w-4xl mx-auto w-full">
+      <header className="mb-2">
+        <h2 className="font-headline-lg text-2xl sm:text-3xl text-on-surface tracking-tight uppercase">
+          Beban Hidupmu
+        </h2>
+        <p className="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">
+          Udah tau miskin masih ngutang
+        </p>
+      </header>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <motion.section whileHover={{ scale: 1.02, y: -2 }} className="col-span-1 md:col-span-2 bg-tertiary-container border-4 border-outline rounded-3xl p-6 shadow-[4px_4px_0_0_var(--theme-outline)] relative overflow-hidden">
           <div className="relative z-10">
-            <p className="font-label-bold text-on-tertiary-container uppercase tracking-widest mb-2 font-bold">Total Beban Hidup</p>
+            <p className="font-label-bold text-on-tertiary-container uppercase tracking-widest mb-2 font-bold">Total Beban Hutang</p>
             <h2 className="text-4xl md:text-5xl tracking-tighter text-outline font-display-lg" style={{ color: 'var(--theme-on-tertiary-container)', WebkitTextStroke: '2px var(--theme-outline)' }}>
                {loading ? "..." : formatRupiah(totalDebt)}
             </h2>
             <div className="mt-6 flex gap-4">
               <div className="bg-surface border-2 border-outline rounded-full px-4 py-1 flex items-center gap-2">
                 <span className="material-symbols-outlined text-tertiary">warning</span>
-                <span className="font-label-bold text-on-surface">{activeDebts.length} Active Debts</span>
+                <span className="font-label-bold text-on-surface">{activeDebts.length} Hutang Aktif</span>
               </div>
             </div>
           </div>
@@ -77,7 +86,7 @@ export default function DebtsPage() {
       <section className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
         {(["all", "active", "paid"] as const).map((f) => {
            const isSelected = filter === f;
-           const label = f === "active" ? `Active` : f === "paid" ? `Paid` : `All Debts`;
+           const label = f === "active" ? "Aktif" : f === "paid" ? "Lunas" : "Semua";
            return (
             <motion.button
               whileTap={{ scale: 0.95 }}
@@ -103,7 +112,7 @@ export default function DebtsPage() {
       />
       
       <motion.section whileHover={{ rotate: 1 }} className="bg-surface-container-high border-2 border-outline rounded-3xl p-6 border-dashed text-center mt-10">
-        <p className="italic font-body-md text-on-surface-variant font-bold">"Hutang adalah beban, makan jangan kebanyakan utang, balikin sana."</p>
+        <p className="italic font-body-md text-on-surface-variant font-bold">"Bayar hutangmu sebelum malaikat menagihnya di akhirat."</p>
       </motion.section>
 
       <DebtForm
@@ -117,6 +126,7 @@ export default function DebtsPage() {
         whileTap={{ scale: 0.9 }}
         onClick={() => { setEditDebt(null); setShowForm(true); }}
         className="fixed right-6 bottom-24 md:right-12 md:bottom-12 w-16 h-16 bg-primary-container border-[3px] border-outline rounded-full shadow-[4px_4px_0_0_var(--theme-outline)] z-50 flex items-center justify-center group"
+        aria-label="Tambah Hutang"
       >
         <span className="material-symbols-outlined text-3xl">add</span>
       </motion.button>

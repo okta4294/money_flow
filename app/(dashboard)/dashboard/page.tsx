@@ -10,6 +10,8 @@ import { InitialBalanceModal } from "@/components/dashboard/InitialBalanceModal"
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { MonthSelector } from "@/components/layout/MonthSelector";
 import { AISummaryCard } from "@/components/dashboard/AISummaryCard";
+import { SafeToSpendCard } from "@/components/dashboard/SafeToSpendCard";
+import { useBudgetRecommendation } from "@/hooks/useBudgetRecommendation";
 import { Transaction } from "@/lib/firestore/transactions";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -23,6 +25,11 @@ export default function DashboardPage() {
   const { transactions, loading, totalIncome, totalExpense } = useTransactions(year, month);
   const { categories } = useCategories();
   const { activeDebts, totalDebt } = useDebts();
+  const {
+    budget,
+    dailyCheck,
+    loading: budgetLoading,
+  } = useBudgetRecommendation(year, month, transactions);
 
   const [initialBalance, setInitialBalance] = useState(0);
   const [balanceLoading, setBalanceLoading] = useState(true);
@@ -68,8 +75,8 @@ export default function DashboardPage() {
     <>
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
         <div>
-          <h2 className="font-display-lg text-4xl md:text-5xl text-on-surface tracking-tighter uppercase">OVERVIEW</h2>
-          <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Hai miskin gimana kabarnya.</p>
+          <h2 className="font-display-lg text-3xl sm:text-4xl md:text-5xl text-on-surface tracking-tighter uppercase">Dasbor</h2>
+          <p className="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">Hai miskin gimana kabarnya</p>
         </div>
         <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto">
           <div className="bg-surface-container border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] flex items-center justify-center p-1 rounded-xl flex-1 sm:flex-initial">
@@ -92,7 +99,7 @@ export default function DashboardPage() {
           </div>
           <div className="relative z-10">
             <div className="inline-block bg-on-background text-surface font-label-bold text-label-bold uppercase px-3 py-1 rounded-full border-2 border-outline mb-4">
-                Total Liquid Assets
+                Total Saldo Bersih
             </div>
             <h3 className="text-[clamp(2.5rem,5vw,4.5rem)] leading-none tracking-tight mt-2 font-display-lg break-words w-full" style={{ color: 'var(--theme-primary)', WebkitTextStroke: '2px var(--theme-outline)' }}>
                 {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(currentBalance)}
@@ -124,10 +131,16 @@ export default function DashboardPage() {
            )}
         </motion.div>
 
+        <SafeToSpendCard
+          budget={budget}
+          dailyCheck={dailyCheck}
+          loading={budgetLoading || loading}
+        />
+
         <motion.div whileHover={{ scale: 1.02 }} className="col-span-12 lg:col-span-6 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] flex flex-col rounded-3xl overflow-hidden">
           <div className="bg-secondary-container border-b-[3px] border-outline px-6 py-4 flex justify-between items-center">
-            <h4 className="font-headline-md text-xl text-on-secondary-container uppercase font-bold" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>Cash Flow</h4>
-            <span className="font-label-bold text-label-bold text-on-secondary-container opacity-90 px-3 py-1 bg-surface-container/20 rounded-full border-2 border-outline">This Month</span>
+            <h4 className="font-headline-md text-xl text-on-secondary-container uppercase font-bold" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>Arus Kas</h4>
+            <span className="font-label-bold text-label-bold text-on-secondary-container opacity-90 px-3 py-1 bg-surface-container/20 rounded-full border-2 border-outline">Bulan Ini</span>
           </div>
           <div className="p-6 flex-1 flex flex-col justify-center gap-8">
             <div>
@@ -159,9 +172,9 @@ export default function DashboardPage() {
           </div>
         </motion.div>
 
-        <div className="col-span-12 lg:col-span-6 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] flex flex-col overflow-hidden">
-          <div className="bg-primary-container border-2 border-outline border-l-0 border-r-0 border-t-0 px-6 py-3 flex justify-between items-center">
-            <h4 className="font-headline-md text-xl text-on-primary-container uppercase font-bold">Budget Heat</h4>
+        <div className="col-span-12 lg:col-span-6 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] flex flex-col rounded-3xl overflow-hidden">
+          <div className="bg-primary-container border-2 border-outline border-l-0 border-r-0 border-t-0 px-6 py-3.5 flex justify-between items-center">
+            <h4 className="font-headline-md text-xl text-on-primary-container uppercase font-bold">Pengeluaran</h4>
           </div>
           <div className="p-6 flex flex-col gap-6 flex-1 justify-start max-h-[300px] overflow-y-auto no-scrollbar">
              {withSpending.length === 0 ? (
@@ -171,7 +184,7 @@ export default function DashboardPage() {
                  const colors = ['bg-tertiary-container', 'bg-secondary-container', 'bg-primary-container'];
                  return (
                    <div key={cat.id} className="flex items-center gap-4">
-                     <div className={`w-12 h-12 ${colors[idx % 3]} border-2 border-outline flex items-center justify-center shrink-0`}>
+                     <div className={`w-12 h-12 ${colors[idx % 3]} border-2 border-outline rounded-xl flex items-center justify-center shrink-0`}>
                        {cat.icon?.includes("fa-") ? (
                          <i className={`fa-solid ${cat.icon} text-black text-xl`}></i>
                        ) : (
@@ -185,23 +198,24 @@ export default function DashboardPage() {
                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(spent)}
                          </span>
                        </div>
-                       <div className="h-4 w-full bg-on-background border-2 border-outline relative">
-                         <div className={`absolute top-0 left-0 h-full ${colors[idx % 3]} border-2 border-outline border-l-0 border-t-0 border-b-0 transition-all duration-500`} style={{ width: `${(spent / maxSpent) * 100}%` }}></div>
+                       <div className="h-4 w-full bg-on-background border-2 border-outline relative rounded-full overflow-hidden">
+                         <div className={`absolute top-0 left-0 h-full ${colors[idx % 3]} border-r-2 border-outline transition-all duration-500`} style={{ width: `${(spent / maxSpent) * 100}%` }}></div>
                        </div>
                      </div>
                    </div>
                  );
                })
              )}
-             {categories.length === 0 && <p className="text-on-surface-variant text-center">No categories found.</p>}
+             {categories.length === 0 && <p className="text-on-surface-variant text-center">Kategori tidak ditemukan.</p>}
           </div>
         </div>
 
-        <div className="col-span-12 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] overflow-hidden mb-12">
+        <div className="col-span-12 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] rounded-3xl overflow-hidden mb-12">
           <div className="border-2 border-outline border-t-0 border-l-0 border-r-0 px-6 py-4 flex justify-between items-center bg-surface-variant">
-            <h4 className="font-headline-md text-xl text-on-surface uppercase font-bold">Recent Hits</h4>
-            <Link className="font-label-bold text-label-bold text-primary-fixed hover:underline flex items-center" href="/transactions">
-               View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+            <h4 className="font-headline-md text-xl text-on-surface uppercase font-bold">Transaksi Terbaru</h4>
+            <Link className="font-label-bold text-label-bold text-primary-fixed hover:underline flex items-center gap-1" href="/transactions">
+               <span>Lihat Semua</span>
+               <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
             </Link>
           </div>
           <div className="flex flex-col">
@@ -211,9 +225,9 @@ export default function DashboardPage() {
                const isIncome = t.type === "income";
 
                return (
-                <div key={t.id} onClick={() => { setEditTransaction(t); setShowTransactionForm(true); }} className="flex items-center justify-between p-4 md:p-6 border-2 border-outline border-t-0 border-l-0 border-r-0 hover:bg-surface-bright transition-colors group cursor-pointer">
+                <div key={t.id} onClick={() => { setEditTransaction(t); setShowTransactionForm(true); }} className="flex items-center justify-between p-4 md:p-6 border-b-2 border-outline hover:bg-surface-bright transition-colors group cursor-pointer last:border-b-0">
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 bg-on-background border-2 border-outline flex items-center justify-center transition-colors ${
+                    <div className={`w-12 h-12 bg-on-background border-2 border-outline rounded-xl flex items-center justify-center transition-colors ${
                       isIncome
                         ? "group-hover:bg-tertiary-container"
                         : isTransfer
@@ -230,12 +244,12 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <h5 className="font-label-bold text-label-bold text-on-background line-clamp-1">
-                        {t.note || (isTransfer ? "Transfer" : cat?.name || t.category || "Transaction")}
+                        {t.note || (isTransfer ? "Transfer" : cat?.name || t.category || "Transaksi")}
                       </h5>
                       <span className="font-body-md text-sm text-on-background/70">
                         {isTransfer
                           ? `${t.accountName || "?"} → ${t.destinationAccountName || "?"}`
-                          : (cat?.name || "Uncategorized")
+                          : (cat?.name || "Tanpa Kategori")
                         } • {new Date(t.date + "T00:00:00").toLocaleDateString('id-ID')}
                       </span>
                     </div>
@@ -252,7 +266,7 @@ export default function DashboardPage() {
                 </div>
                );
             }) : (
-              <div className="p-8 text-center text-on-surface-variant">No transactions this month.</div>
+              <div className="p-8 text-center text-on-surface-variant font-body-md">Belum ada transaksi di bulan ini.</div>
             )}
           </div>
         </div>

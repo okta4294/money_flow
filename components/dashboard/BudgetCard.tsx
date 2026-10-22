@@ -94,21 +94,21 @@ export function BudgetCard({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {budget.budgetCycle?.isPaydayCycle && (
-            <span className="hidden sm:inline-flex items-center h-8 px-3 text-xs font-label-bold uppercase bg-tertiary-container text-on-tertiary-container rounded-full border-2 border-outline shadow-[1px_1px_0_0_var(--theme-outline)]">
+            <span className="inline-flex items-center h-7 sm:h-8 px-2.5 sm:px-3 text-[10px] sm:text-xs font-label-bold uppercase bg-tertiary-container text-on-tertiary-container rounded-full border-2 border-outline shadow-[1px_1px_0_0_var(--theme-outline)]">
               Siklus Gajian
             </span>
           )}
-          <span className="h-8 px-3 inline-flex items-center font-label-bold text-xs uppercase bg-surface border-2 border-outline rounded-full text-on-surface">
+          <span className="h-7 sm:h-8 px-2.5 sm:px-3 inline-flex items-center font-label-bold text-[10px] sm:text-xs uppercase bg-surface border-2 border-outline rounded-full text-on-surface">
             {budget.budgetCycle?.isPaydayCycle ? budget.budgetCycle.label : `${month}/${year}`}
           </span>
           <button
             onClick={() => setShowDetails(!showDetails)}
-            className="h-8 px-3.5 inline-flex items-center gap-1.5 font-label-bold text-xs uppercase bg-surface-container hover:bg-surface-bright border-2 border-outline rounded-full text-on-surface active-press shadow-[1px_1px_0_0_var(--theme-outline)]"
+            className="h-7 sm:h-8 px-3 sm:px-3.5 inline-flex items-center gap-1.5 font-label-bold text-[10px] sm:text-xs uppercase bg-surface-container hover:bg-surface-bright border-2 border-outline rounded-full text-on-surface active-press shadow-[1px_1px_0_0_var(--theme-outline)]"
           >
             <span>{showDetails ? "Tutup Rincian" : "Lihat Rincian"}</span>
-            <span className="material-symbols-outlined text-sm leading-none">
+            <span className="material-symbols-outlined text-xs sm:text-sm leading-none">
               {showDetails ? "expand_less" : "expand_more"}
             </span>
           </button>
@@ -174,8 +174,8 @@ export function BudgetCard({
                 <span className="font-label-bold text-xs uppercase text-on-surface-variant block mb-1">
                   Batas Belanja Hari Ini (Total)
                 </span>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-display-lg text-primary tracking-tight">
+                <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2.5">
+                  <span className="text-2xl sm:text-3xl font-display-lg text-primary tracking-tight">
                     {formatRupiah(dailyRemainingBalance)}
                   </span>
                   <span className="text-xs font-label-bold text-on-surface-variant uppercase">
@@ -204,52 +204,52 @@ export function BudgetCard({
                   />
                 </div>
                 <p className="text-[10px] text-right text-on-surface-variant font-label-md">
-                  Tersisa {remainingDays} hari di siklus ini
+                  Tersisa {remainingDays} hari (termasuk hari ini) di siklus ini
                 </p>
               </div>
             </div>
 
             {/* Sub-kuota bertingkat: Pokok & Sekunder */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-outline/30">
-              <div className="bg-surface-container rounded-xl border-2 border-outline p-3 shadow-[1px_1px_0_0_var(--theme-outline)] flex items-center justify-between">
-                <div>
+              <div className="bg-surface-container rounded-xl border-2 border-outline p-3 shadow-[1px_1px_0_0_var(--theme-outline)] flex items-center justify-between gap-2">
+                <div className="min-w-0 flex-1 pr-2">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span className="font-label-bold text-xs uppercase text-on-surface">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                    <span className="font-label-bold text-xs uppercase text-on-surface truncate">
                       Batas Pokok Harian
                     </span>
                   </div>
-                  <p className="text-[11px] text-on-surface-variant mt-0.5 font-label-md">
-                    Makan, bbm, kebutuhan harian
+                  <p className="text-[11px] text-on-surface-variant mt-0.5 font-label-md truncate">
+                    Makan, transport & kebutuhan pokok
                   </p>
                 </div>
-                <div className="text-right">
-                  <span className="font-display-lg text-sm font-bold text-emerald-600 dark:text-emerald-400 block">
+                <div className="text-right shrink-0 min-w-[70px]">
+                  <span className="font-display-lg text-sm sm:text-base font-bold text-emerald-600 dark:text-emerald-400 block">
                     {formatRupiah(essentialRemaining)}
                   </span>
-                  <span className="text-[10px] text-on-surface-variant font-label-bold uppercase">
+                  <span className="text-[10px] text-on-surface-variant font-label-bold uppercase block leading-tight">
                     dari {formatRupiah(dailyEssentialBudget)}/hari
                   </span>
                 </div>
               </div>
 
-              <div className="bg-surface-container rounded-xl border-2 border-outline p-3 shadow-[1px_1px_0_0_var(--theme-outline)] flex items-center justify-between">
-                <div>
+              <div className="bg-surface-container rounded-xl border-2 border-outline p-3 shadow-[1px_1px_0_0_var(--theme-outline)] flex items-center justify-between gap-2">
+                <div className="min-w-0 flex-1 pr-2">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-                    <span className="font-label-bold text-xs uppercase text-on-surface">
+                    <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
+                    <span className="font-label-bold text-xs uppercase text-on-surface truncate">
                       Batas Sekunder Harian
                     </span>
                   </div>
-                  <p className="text-[11px] text-on-surface-variant mt-0.5 font-label-md">
+                  <p className="text-[11px] text-on-surface-variant mt-0.5 font-label-md truncate">
                     Jajan, hiburan, gaya hidup
                   </p>
                 </div>
-                <div className="text-right">
-                  <span className="font-display-lg text-sm font-bold text-indigo-600 dark:text-indigo-400 block">
+                <div className="text-right shrink-0 min-w-[70px]">
+                  <span className="font-display-lg text-sm sm:text-base font-bold text-indigo-600 dark:text-indigo-400 block">
                     {formatRupiah(discretionaryRemaining)}
                   </span>
-                  <span className="text-[10px] text-on-surface-variant font-label-bold uppercase">
+                  <span className="text-[10px] text-on-surface-variant font-label-bold uppercase block leading-tight">
                     dari {formatRupiah(dailyDiscretionaryBudget)}/hari
                   </span>
                 </div>
@@ -417,8 +417,8 @@ export function BudgetCard({
                 ) : (
                   <div className="space-y-2">
                     {budget.paidDebtInCycle > 0 && (
-                      <div className="bg-surface rounded-xl border-2 border-outline p-3 flex flex-wrap items-center justify-between gap-2 shadow-[2px_2px_0_0_var(--theme-outline)]">
-                        <div className="space-y-0.5">
+                      <div className="bg-surface rounded-xl border-2 border-outline p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-[2px_2px_0_0_var(--theme-outline)]">
+                        <div className="min-w-0 flex-1 space-y-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-label-bold text-sm text-on-surface">
                               Pelunasan Cicilan di Muka
@@ -431,11 +431,11 @@ export function BudgetCard({
                             Pembayaran hutang yang telah direalisasikan di dalam siklus ini
                           </p>
                         </div>
-                        <div className="text-right">
-                          <span className="text-[10px] uppercase font-label-bold text-on-surface-variant block">
+                        <div className="flex sm:flex-col justify-between sm:justify-center items-center sm:items-end pt-2 sm:pt-0 border-t sm:border-t-0 border-outline/20 shrink-0">
+                          <span className="text-[10px] uppercase font-label-bold text-on-surface-variant">
                             Telah Terpotong
                           </span>
-                          <span className="text-base font-display-lg font-bold text-tertiary dark:text-tertiary-fixed">
+                          <span className="text-sm sm:text-base font-display-lg font-bold text-tertiary dark:text-tertiary-fixed">
                             {formatRupiah(budget.paidDebtInCycle)}
                           </span>
                         </div>
@@ -445,9 +445,9 @@ export function BudgetCard({
                     {debtObligations.map((d) => (
                       <div
                         key={d.debtId}
-                        className="bg-surface rounded-xl border-2 border-outline p-3 flex flex-wrap items-center justify-between gap-2 shadow-[2px_2px_0_0_var(--theme-outline)]"
+                        className="bg-surface rounded-xl border-2 border-outline p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-[2px_2px_0_0_var(--theme-outline)]"
                       >
-                        <div className="space-y-0.5">
+                        <div className="min-w-0 flex-1 space-y-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-label-bold text-sm text-on-surface">
                               {d.debtName}
@@ -479,11 +479,11 @@ export function BudgetCard({
                             {d.isUpcoming ? ` • Bukan beban siklus ini` : ""}
                           </p>
                         </div>
-                        <div className="text-right">
-                          <span className="text-[10px] uppercase font-label-bold text-on-surface-variant block">
+                        <div className="flex sm:flex-col justify-between sm:justify-center items-center sm:items-end pt-2 sm:pt-0 border-t sm:border-t-0 border-outline/20 shrink-0">
+                          <span className="text-[10px] uppercase font-label-bold text-on-surface-variant">
                             Beban Siklus Ini
                           </span>
-                          <span className={`text-base font-display-lg font-bold ${
+                          <span className={`text-sm sm:text-base font-display-lg font-bold ${
                             d.monthlyObligation > 0 ? "text-error" : "text-on-surface-variant"
                           }`}>
                             {formatRupiah(d.monthlyObligation)}

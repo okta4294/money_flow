@@ -66,18 +66,23 @@ export function SafeToSpendCard({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {budgetCycle?.isPaydayCycle && (
-            <span className="hidden sm:inline-flex items-center h-8 px-3 bg-surface border-2 border-outline rounded-full text-on-surface font-label-bold text-xs uppercase">
-              {budgetCycle.label}
-            </span>
+            <>
+              <span className="inline-flex items-center h-7 sm:h-8 px-2.5 sm:px-3 text-[10px] sm:text-xs font-label-bold uppercase bg-tertiary-container text-on-tertiary-container rounded-full border-2 border-outline shadow-[1px_1px_0_0_var(--theme-outline)]">
+                Siklus Gajian
+              </span>
+              <span className="inline-flex items-center h-7 sm:h-8 px-2.5 sm:px-3 bg-surface border-2 border-outline rounded-full text-on-surface font-label-bold text-[10px] sm:text-xs uppercase">
+                {budgetCycle.label}
+              </span>
+            </>
           )}
           <Link
             href="/budget"
-            className="h-8 px-3.5 inline-flex items-center gap-1.5 bg-surface-container hover:bg-surface-bright border-2 border-outline rounded-full text-on-surface font-label-bold text-xs uppercase active-press shadow-[1px_1px_0_0_var(--theme-outline)]"
+            className="h-7 sm:h-8 px-3 sm:px-3.5 inline-flex items-center gap-1.5 bg-surface-container hover:bg-surface-bright border-2 border-outline rounded-full text-on-surface font-label-bold text-[10px] sm:text-xs uppercase active-press shadow-[1px_1px_0_0_var(--theme-outline)]"
           >
             <span>Buka Anggaran</span>
-            <span className="material-symbols-outlined text-sm leading-none">arrow_forward</span>
+            <span className="material-symbols-outlined text-xs sm:text-sm leading-none">arrow_forward</span>
           </Link>
         </div>
       </div>
@@ -140,8 +145,8 @@ export function SafeToSpendCard({
                 <span className="font-label-bold text-xs uppercase text-on-surface-variant block mb-1">
                   Sisa Kuota Belanja Hari Ini (Total)
                 </span>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl md:text-3xl font-display-lg text-primary tracking-tight">
+                <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2.5">
+                  <span className="text-2xl sm:text-3xl font-display-lg text-primary tracking-tight">
                     {formatRupiah(dailyRemainingBalance)}
                   </span>
                   <span className="text-xs font-label-bold text-on-surface-variant uppercase">
@@ -170,52 +175,52 @@ export function SafeToSpendCard({
                   />
                 </div>
                 <p className="text-[10px] text-right text-on-surface-variant font-label-md">
-                  Tersisa {remainingDays} hari • Sisa dana {formatRupiah(budget.fundsForDaily)}
+                  Tersisa {remainingDays} hari (termasuk hari ini) • Sisa dana {formatRupiah(budget.fundsForDaily)}
                 </p>
               </div>
             </div>
 
             {/* Sub-kuota bertingkat: Pokok & Sekunder */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2.5 border-t border-outline/30">
-              <div className="bg-surface-container rounded-xl border-2 border-outline p-2.5 shadow-[1px_1px_0_0_var(--theme-outline)] flex items-center justify-between">
-                <div>
+              <div className="bg-surface-container rounded-xl border-2 border-outline p-2.5 shadow-[1px_1px_0_0_var(--theme-outline)] flex items-center justify-between gap-2">
+                <div className="min-w-0 flex-1 pr-2">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span className="font-label-bold text-[11px] uppercase text-on-surface">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                    <span className="font-label-bold text-[11px] uppercase text-on-surface truncate">
                       Batas Pokok
                     </span>
                   </div>
-                  <span className="text-[10px] text-on-surface-variant font-label-md">
+                  <span className="text-[10px] text-on-surface-variant font-label-md truncate block">
                     Makan & BBM
                   </span>
                 </div>
-                <div className="text-right">
-                  <span className="font-display-lg text-sm font-bold text-emerald-600 dark:text-emerald-400 block">
+                <div className="text-right shrink-0 min-w-[70px]">
+                  <span className="font-display-lg text-sm sm:text-base font-bold text-emerald-600 dark:text-emerald-400 block">
                     {formatRupiah(essentialRemaining)}
                   </span>
-                  <span className="text-[9px] text-on-surface-variant font-label-bold uppercase">
+                  <span className="text-[9px] text-on-surface-variant font-label-bold uppercase block leading-tight">
                     dari {formatRupiah(dailyEssentialBudget)}/hari
                   </span>
                 </div>
               </div>
 
-              <div className="bg-surface-container rounded-xl border-2 border-outline p-2.5 shadow-[1px_1px_0_0_var(--theme-outline)] flex items-center justify-between">
-                <div>
+              <div className="bg-surface-container rounded-xl border-2 border-outline p-2.5 shadow-[1px_1px_0_0_var(--theme-outline)] flex items-center justify-between gap-2">
+                <div className="min-w-0 flex-1 pr-2">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-                    <span className="font-label-bold text-[11px] uppercase text-on-surface">
+                    <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
+                    <span className="font-label-bold text-[11px] uppercase text-on-surface truncate">
                       Batas Sekunder
                     </span>
                   </div>
-                  <span className="text-[10px] text-on-surface-variant font-label-md">
+                  <span className="text-[10px] text-on-surface-variant font-label-md truncate block">
                     Jajan & Hiburan
                   </span>
                 </div>
-                <div className="text-right">
-                  <span className="font-display-lg text-sm font-bold text-indigo-600 dark:text-indigo-400 block">
+                <div className="text-right shrink-0 min-w-[70px]">
+                  <span className="font-display-lg text-sm sm:text-base font-bold text-indigo-600 dark:text-indigo-400 block">
                     {formatRupiah(discretionaryRemaining)}
                   </span>
-                  <span className="text-[9px] text-on-surface-variant font-label-bold uppercase">
+                  <span className="text-[9px] text-on-surface-variant font-label-bold uppercase block leading-tight">
                     dari {formatRupiah(dailyDiscretionaryBudget)}/hari
                   </span>
                 </div>

@@ -63,21 +63,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </header>
 
-      <nav className="fixed bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 z-50 flex justify-around items-center px-1.5 py-1.5 bg-surface border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] rounded-2xl md:hidden transition-colors">
+      <nav className="fixed bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 max-w-lg mx-auto z-50 flex items-center justify-between p-1.5 bg-surface border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] rounded-2xl md:hidden transition-colors">
         {navItems.map(({ href, label, icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
               key={href}
               href={href}
-              className={`flex flex-col items-center justify-center py-1.5 px-2.5 sm:px-3 rounded-xl transition-all active-press-sm ${
+              className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl transition-all active-press-sm ${
                 active
-                  ? "bg-primary-container text-on-primary-container shadow-[inset_0_-2px_0_rgba(0,0,0,0.2)]"
-                  : "text-on-surface-variant hover:text-on-background"
+                  ? "bg-primary-container text-on-primary-container border-2 border-outline shadow-[1.5px_1.5px_0_0_var(--theme-outline)]"
+                  : "text-on-surface-variant hover:text-on-background border-2 border-transparent"
               }`}
             >
-              <motion.span whileHover={{ y: -2 }} className="material-symbols-outlined text-[20px] sm:text-[24px]">{icon}</motion.span>
-              <span className={`font-label-bold text-[9px] sm:text-[10px] mt-0.5 ${active ? "opacity-100" : "opacity-70"}`}>{label}</span>
+              <span className="material-symbols-outlined text-[19px] sm:text-[21px] leading-none shrink-0">
+                {icon}
+              </span>
+              <span
+                className={`font-label-bold text-[9px] sm:text-[10px] mt-1 truncate max-w-full text-center leading-none ${
+                  active ? "font-extrabold opacity-100" : "opacity-75"
+                }`}
+              >
+                {label}
+              </span>
             </Link>
           );
         })}

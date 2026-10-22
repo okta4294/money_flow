@@ -28,10 +28,15 @@ export function SafeToSpendCard({
     );
   }
 
-  const { remainingDays, dailyBudget, budgetCycle } = budget;
+  const { remainingDays, dailyBudget, dailyEssentialBudget, dailyDiscretionaryBudget, budgetCycle } = budget;
   const isOverBudget = dailyCheck?.isOverBudget ?? false;
   const overAmount = dailyCheck?.overAmount ?? 0;
   const eligibleDailySpending = dailyCheck?.eligibleDailySpending ?? 0;
+  const essentialDailySpending = dailyCheck?.essentialDailySpending ?? 0;
+  const discretionaryDailySpending = dailyCheck?.discretionaryDailySpending ?? 0;
+
+  const essentialRemaining = Math.max(0, dailyEssentialBudget - essentialDailySpending);
+  const discretionaryRemaining = Math.max(0, dailyDiscretionaryBudget - discretionaryDailySpending);
 
   const dailyRemainingBalance = Math.max(0, dailyBudget - eligibleDailySpending);
   const dailyProgressPercent =
@@ -80,7 +85,7 @@ export function SafeToSpendCard({
       <div className="p-5 space-y-4">
         {/* Peringatan Over-Budget Harian */}
         {isOverBudget ? (
-          <div className="bg-error-container border-3 border-outline rounded-2xl p-4 shadow-[3px_3px_0_0_var(--theme-outline)] text-on-error-container space-y-1.5">
+          <div className="bg-error-container border-3 border-outline rounded-2xl p-4 shadow-[3px_3px_0_0_var(--theme-outline)] text-on-error-container space-y-2">
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-error font-bold text-xl">
                 warning
@@ -100,48 +105,121 @@ export function SafeToSpendCard({
               </strong>
               .
             </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px]">
+              <div className="bg-surface/80 rounded-xl border border-outline p-2 text-on-surface">
+                <span className="font-label-bold block uppercase text-[9px] text-on-surface-variant">
+                  Pokok (Makan/BBM)
+                </span>
+                <span className="font-bold">
+                  {formatRupiah(essentialDailySpending)} / {formatRupiah(dailyEssentialBudget)}
+                </span>
+                {dailyCheck?.isOverEssentialBudget && (
+                  <span className="text-[9px] font-bold text-error block">Lewat kuota pokok</span>
+                )}
+              </div>
+              <div className="bg-surface/80 rounded-xl border border-outline p-2 text-on-surface">
+                <span className="font-label-bold block uppercase text-[9px] text-on-surface-variant">
+                  Sekunder (Jajan/Gaya Hidup)
+                </span>
+                <span className="font-bold">
+                  {formatRupiah(discretionaryDailySpending)} / {formatRupiah(dailyDiscretionaryBudget)}
+                </span>
+                {dailyCheck?.isOverDiscretionaryBudget && (
+                  <span className="text-[9px] font-bold text-error block">Lewat kuota sekunder</span>
+                )}
+              </div>
+            </div>
             <p className="font-label-md text-[10px] opacity-80">
               Catatan: Cicilan hutang dan tagihan bulanan (kos, listrik, dll) tidak dihitung dalam kuota ini.
             </p>
           </div>
         ) : (
-          <div className="bg-surface rounded-2xl border-2 border-outline p-4 shadow-[2px_2px_0_0_var(--theme-outline)] flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <span className="font-label-bold text-xs uppercase text-on-surface-variant block mb-1">
-                Sisa Kuota Belanja Hari Ini
-              </span>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl md:text-3xl font-display-lg text-primary tracking-tight">
-                  {formatRupiah(dailyRemainingBalance)}
+          <div className="bg-surface rounded-2xl border-2 border-outline p-4 shadow-[2px_2px_0_0_var(--theme-outline)] flex flex-col space-y-3.5">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <span className="font-label-bold text-xs uppercase text-on-surface-variant block mb-1">
+                  Sisa Kuota Belanja Hari Ini (Total)
                 </span>
-                <span className="text-xs font-label-bold text-on-surface-variant uppercase">
-                  tersisa dari kuota {formatRupiah(dailyBudget)}/hari
-                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl md:text-3xl font-display-lg text-primary tracking-tight">
+                    {formatRupiah(dailyRemainingBalance)}
+                  </span>
+                  <span className="text-xs font-label-bold text-on-surface-variant uppercase">
+                    tersisa dari kuota {formatRupiah(dailyBudget)}/hari
+                  </span>
+                </div>
+                {dailyCheck && dailyCheck.excludedCount > 0 && (
+                  <p className="text-[11px] text-tertiary dark:text-tertiary-fixed font-bold mt-1 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-sm">check_circle</span>
+                    <span>{dailyCheck.excludedCount} tagihan bulanan/cicilan hari ini dikecualikan</span>
+                  </p>
+                )}
               </div>
-              {dailyCheck && dailyCheck.excludedCount > 0 && (
-                <p className="text-[11px] text-tertiary dark:text-tertiary-fixed font-bold mt-1 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-sm">check_circle</span>
-                  <span>{dailyCheck.excludedCount} tagihan bulanan/cicilan hari ini dikecualikan</span>
+
+              <div className="w-full md:w-64 space-y-1.5">
+                <div className="flex justify-between text-xs font-label-bold text-on-surface">
+                  <span>Terpakai Hari Ini</span>
+                  <span>{formatRupiah(eligibleDailySpending)}</span>
+                </div>
+                <div className="h-3.5 w-full bg-surface-container-high border-2 border-outline rounded-full overflow-hidden relative">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${dailyProgressPercent}%` }}
+                    transition={{ duration: 0.6, type: "spring" }}
+                    className="h-full bg-primary border-r-2 border-outline"
+                  />
+                </div>
+                <p className="text-[10px] text-right text-on-surface-variant font-label-md">
+                  Tersisa {remainingDays} hari • Sisa dana {formatRupiah(budget.fundsForDaily)}
                 </p>
-              )}
+              </div>
             </div>
 
-            <div className="w-full md:w-64 space-y-1.5">
-              <div className="flex justify-between text-xs font-label-bold text-on-surface">
-                <span>Terpakai Hari Ini</span>
-                <span>{formatRupiah(eligibleDailySpending)}</span>
+            {/* Sub-kuota bertingkat: Pokok & Sekunder */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2.5 border-t border-outline/30">
+              <div className="bg-surface-container rounded-xl border-2 border-outline p-2.5 shadow-[1px_1px_0_0_var(--theme-outline)] flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span className="font-label-bold text-[11px] uppercase text-on-surface">
+                      Batas Pokok
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-on-surface-variant font-label-md">
+                    Makan & BBM
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="font-display-lg text-sm font-bold text-emerald-600 dark:text-emerald-400 block">
+                    {formatRupiah(essentialRemaining)}
+                  </span>
+                  <span className="text-[9px] text-on-surface-variant font-label-bold uppercase">
+                    dari {formatRupiah(dailyEssentialBudget)}/hari
+                  </span>
+                </div>
               </div>
-              <div className="h-3.5 w-full bg-surface-container-high border-2 border-outline rounded-full overflow-hidden relative">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${dailyProgressPercent}%` }}
-                  transition={{ duration: 0.6, type: "spring" }}
-                  className="h-full bg-primary border-r-2 border-outline"
-                />
+
+              <div className="bg-surface-container rounded-xl border-2 border-outline p-2.5 shadow-[1px_1px_0_0_var(--theme-outline)] flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                    <span className="font-label-bold text-[11px] uppercase text-on-surface">
+                      Batas Sekunder
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-on-surface-variant font-label-md">
+                    Jajan & Hiburan
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="font-display-lg text-sm font-bold text-indigo-600 dark:text-indigo-400 block">
+                    {formatRupiah(discretionaryRemaining)}
+                  </span>
+                  <span className="text-[9px] text-on-surface-variant font-label-bold uppercase">
+                    dari {formatRupiah(dailyDiscretionaryBudget)}/hari
+                  </span>
+                </div>
               </div>
-              <p className="text-[10px] text-right text-on-surface-variant font-label-md">
-                Tersisa {remainingDays} hari • Sisa dana {formatRupiah(budget.fundsForDaily)}
-              </p>
             </div>
           </div>
         )}

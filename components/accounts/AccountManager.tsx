@@ -38,26 +38,34 @@ export function AccountManager() {
 
     const fetchBalances = async () => {
       const newBalances: Record<string, number> = {};
-      
+      const transactionsRef = collection(db, "users", user.uid, "transactions");
+
+      // Batch query: Ambil seluruh transaksi transfer pengguna sekaligus dalam 1 request
+      const qAllTransfers = query(transactionsRef, where("type", "==", "transfer"));
+      const snapAllTransfers = await getDocs(qAllTransfers);
+      const transferOutMap: Record<string, number> = {};
+      const transferInMap: Record<string, number> = {};
+
+      snapAllTransfers.docs.forEach((doc) => {
+        const d = doc.data();
+        const amt = d.amount || 0;
+        if (d.accountId) transferOutMap[d.accountId] = (transferOutMap[d.accountId] || 0) + amt;
+        if (d.destinationAccountId) transferInMap[d.destinationAccountId] = (transferInMap[d.destinationAccountId] || 0) + amt;
+      });
+
       await Promise.all(accounts.map(async (acc) => {
-        const transactionsRef = collection(db, "users", user.uid, "transactions");
-        
         const qIncome = query(transactionsRef, where("accountId", "==", acc.id), where("type", "==", "income"));
         const qExpense = query(transactionsRef, where("accountId", "==", acc.id), where("type", "==", "expense"));
-        const qTransferOut = query(transactionsRef, where("accountId", "==", acc.id), where("type", "==", "transfer"));
-        const qTransferIn = query(transactionsRef, where("destinationAccountId", "==", acc.id));
 
-        const [snapIncome, snapExpense, snapTrOut, snapTrIn] = await Promise.all([
+        const [snapIncome, snapExpense] = await Promise.all([
           getAggregateFromServer(qIncome, { total: sum("amount") }),
           getAggregateFromServer(qExpense, { total: sum("amount") }),
-          getDocs(qTransferOut),
-          getDocs(qTransferIn),
         ]);
 
         const income = snapIncome.data().total || 0;
         const expense = snapExpense.data().total || 0;
-        const transferOut = snapTrOut.docs.reduce((s, d) => s + (d.data().amount || 0), 0);
-        const transferIn = snapTrIn.docs.reduce((s, d) => s + (d.data().amount || 0), 0);
+        const transferOut = transferOutMap[acc.id] || 0;
+        const transferIn = transferInMap[acc.id] || 0;
 
         newBalances[acc.id] = income - expense - transferOut + transferIn;
       }));

@@ -152,6 +152,8 @@ export function useBudgetRecommendation(
       todayTransactions,
       categories,
       dailyBudget: budget.dailyBudget,
+      dailyEssentialBudget: budget.dailyEssentialBudget,
+      dailyDiscretionaryBudget: budget.dailyDiscretionaryBudget,
     });
   }, [budget, todayTransactions, categories]);
 

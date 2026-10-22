@@ -52,6 +52,25 @@ export function AISummaryCard({
         if (mounted) setCheckingLimit(false);
         return;
       }
+
+      const todayStr = new Date().toISOString().split("T")[0];
+      const sessionKey = `ai_limit_${user.uid}_${todayStr}`;
+
+      if (typeof window !== "undefined") {
+        const cached = sessionStorage.getItem(sessionKey);
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached);
+            if (mounted) {
+              setIsSuper(Boolean(parsed.isSuper));
+              setLimitReached(Boolean(parsed.limitReached));
+              setCheckingLimit(false);
+            }
+            return;
+          } catch {}
+        }
+      }
+
       setCheckingLimit(true);
       try {
         const idToken = await user.getIdToken();
@@ -63,8 +82,16 @@ export function AISummaryCard({
         if (res.ok) {
           const data = await res.json();
           if (mounted && data.success) {
-            setIsSuper(Boolean(data.isSuper));
-            setLimitReached(!data.canUse);
+            const superUser = Boolean(data.isSuper);
+            const reached = !data.canUse;
+            setIsSuper(superUser);
+            setLimitReached(reached);
+            if (typeof window !== "undefined") {
+              sessionStorage.setItem(
+                sessionKey,
+                JSON.stringify({ isSuper: superUser, limitReached: reached })
+              );
+            }
             return;
           }
         }
@@ -137,13 +164,22 @@ export function AISummaryCard({
       }
 
       setSummary(data.text);
+      const todayStr = new Date().toISOString().split("T")[0];
+      const sessionKey = `ai_limit_${user.uid}_${todayStr}`;
       if (data.isSuper) {
         setIsSuper(true);
         setLimitReached(false);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem(sessionKey, JSON.stringify({ isSuper: true, limitReached: false }));
+        }
       } else {
         await markAiUsage(user.uid);
         const canStillUse = await checkAiLimit(user.uid);
-        setLimitReached(!canStillUse);
+        const reached = !canStillUse;
+        setLimitReached(reached);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem(sessionKey, JSON.stringify({ isSuper: false, limitReached: reached }));
+        }
       }
     } catch (err: any) {
       setError(err.message);

@@ -226,7 +226,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                     {cat.type === "expense" && (() => {
                       const isFixed = isFixedExpenseCategory(cat);
                       const isEssential = !isFixed && isEssentialExpenseCategory(cat);
-                      const classification = isFixed ? "TETAP" : isEssential ? "POKOK" : "VARIABEL";
+                      const classification = isFixed ? "TETAP" : isEssential ? "POKOK" : "SEKUNDER";
                       const isManual = typeof cat.isFixedExpense === "boolean" || typeof cat.isEssentialExpense === "boolean";
                       return (
                         <span
@@ -364,7 +364,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                       },
                       {
                         id: "variable",
-                        label: "Variabel",
+                        label: "Sekunder",
                         desc: "Gaya hidup, hiburan, hobi",
                         icon: "sports_esports",
                       },
@@ -394,13 +394,13 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                   </div>
                   <p className="text-[10px] text-on-surface-variant pt-1 leading-relaxed">
                     {expenseClassification === "auto" &&
-                      "Sistem otomatis mendeteksi kata kunci nama (contoh: 'makan'/'belanja' jadi Pokok, 'kos'/'listrik' jadi Tetap, sisanya Variabel)."}
+                      "Sistem otomatis mendeteksi kata kunci nama (contoh: 'makan'/'belanja' jadi Pokok, 'kos'/'listrik' jadi Tetap, sisanya Sekunder)."}
                     {expenseClassification === "essential" &&
                       "Kebutuhan pokok dilindungi dari pemangkasan saat budget menipis."}
                     {expenseClassification === "fixed" &&
                       "Pengeluaran tetap bulanan dikecualikan dari batas harian agar tidak memicu overbudget palsu."}
                     {expenseClassification === "variable" &&
-                      "Pengeluaran gaya hidup fleksibel dipangkas jika beban hutang tinggi."}
+                      "Pengeluaran sekunder / gaya hidup fleksibel dipangkas jika beban hutang tinggi."}
                   </p>
                 </div>
               ) : (

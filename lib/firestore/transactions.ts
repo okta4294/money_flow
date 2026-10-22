@@ -85,11 +85,28 @@ export function subscribeToTransactionsByMonth(
   });
 }
 
+const transactionMonthCache = new Map<string, Transaction[]>();
+
+export function clearTransactionCache(userId?: string) {
+  if (!userId) {
+    transactionMonthCache.clear();
+  } else {
+    for (const key of transactionMonthCache.keys()) {
+      if (key.startsWith(userId)) transactionMonthCache.delete(key);
+    }
+  }
+}
+
 export async function getTransactionsByMonth(
   userId: string,
   year: number,
   month: number
 ): Promise<Transaction[]> {
+  const cacheKey = `${userId}-${year}-${month}`;
+  if (transactionMonthCache.has(cacheKey)) {
+    return transactionMonthCache.get(cacheKey)!;
+  }
+
   const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
   const endDate = `${year}-${String(month).padStart(2, "0")}-31`;
 
@@ -115,10 +132,12 @@ export async function getTransactionsByMonth(
     return timeB - timeA;
   });
 
+  transactionMonthCache.set(cacheKey, transactions);
   return transactions;
 }
 
 export async function addTransaction(userId: string, data: TransactionInput) {
+  clearTransactionCache(userId);
   const clean = Object.fromEntries(
     Object.entries(data).filter(([, v]) => v !== undefined)
   );
@@ -134,11 +153,13 @@ export async function updateTransaction(
   id: string,
   data: Partial<TransactionInput>
 ) {
+  clearTransactionCache(userId);
   const ref = doc(db, "users", userId, "transactions", id);
   await updateDoc(ref, data);
 }
 
 export async function deleteTransaction(userId: string, id: string) {
+  clearTransactionCache(userId);
   const ref = doc(db, "users", userId, "transactions", id);
   await deleteDoc(ref);
 }

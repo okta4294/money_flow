@@ -22,6 +22,7 @@ export interface CategoryBudgetAllocation {
   isFixed: boolean;
   isEssential?: boolean;
   historicalAvg: number;
+  weightPercent?: number;
   recommendedBudget: number;
   currentMonthSpent: number;
 }
@@ -50,7 +51,11 @@ export interface BudgetRecommendationResult {
   budgetCycle: BudgetCycle;
   paidDebtInCycle: number;
   pastDailyExpensesInCycle: number;
+  pastEssentialExpensesInCycle: number;
+  pastDiscretionaryExpensesInCycle: number;
   remainingFundsForDaily: number;
+  remainingEssentialFunds: number;
+  remainingDiscretionaryFunds: number;
   eligibleIncome: number;
   isIncomeEstimated: boolean;
   estimatedIncomeMonth?: string;
@@ -62,6 +67,8 @@ export interface BudgetRecommendationResult {
 
   categoryAllocations: CategoryBudgetAllocation[];
   totalFixedBudget: number;
+  totalEssentialBudget: number;
+  totalDiscretionaryBudget: number;
   totalVariableBudget: number;
   isColdStart: boolean;
   isScaledDown: boolean;
@@ -69,6 +76,8 @@ export interface BudgetRecommendationResult {
   fundsForDaily: number;
   remainingDays: number;
   totalDaysInMonth: number;
+  dailyEssentialBudget: number;
+  dailyDiscretionaryBudget: number;
   dailyBudget: number;
 
   warnings: BudgetWarning[];
@@ -76,8 +85,14 @@ export interface BudgetRecommendationResult {
 
 export interface DailyLimitCheckResult {
   eligibleDailySpending: number;
+  essentialDailySpending: number;
+  discretionaryDailySpending: number;
   dailyBudget: number;
+  dailyEssentialBudget: number;
+  dailyDiscretionaryBudget: number;
   isOverBudget: boolean;
+  isOverEssentialBudget: boolean;
+  isOverDiscretionaryBudget: boolean;
   overAmount: number;
   excludedCount: number;
 }
@@ -632,11 +647,38 @@ export function calculateBudgetRecommendation(params: {
     });
   }
 
-  const historicalCategorySpent = new Map<string, number>();
+  // Urutkan bulan-bulan historis dari yang paling baru ke yang lebih lama
+  const sortedHistoricalMonths = Array.from(historicalMonthSet).sort().reverse();
+
+  if (sortedHistoricalMonths.length > 1) {
+    warnings.push({
+      id: "weighted-history",
+      title: "Rekomendasi Berbasis Pembobotan Tren",
+      description: `Rata-rata pengeluaran dihitung dengan pembobotan tren ${sortedHistoricalMonths.length} bulan terakhir, memprioritaskan bulan terdekat agar target anggaran proporsional.`,
+      severity: "info",
+    });
+  }
+
+  // Tentukan bobot untuk tiap bulan lampau (recency weighting: 3 untuk bulan terdekat, 2 untuk kedua, 1 untuk ketiga dst)
+  const monthWeights = new Map<string, number>();
+  let totalMonthWeights = 0;
+  sortedHistoricalMonths.forEach((mKey, idx) => {
+    const weight = idx === 0 ? 3 : idx === 1 ? 2 : 1;
+    monthWeights.set(mKey, weight);
+    totalMonthWeights += weight;
+  });
+  if (totalMonthWeights === 0) totalMonthWeights = 1;
+
+  // Kelompokkan pengeluaran per kategori per bulan
+  const categoryMonthSpent = new Map<string, Map<string, number>>();
   historicalExpenses.forEach((t) => {
-    if (t.type === "expense" && t.categoryId) {
-      const current = historicalCategorySpent.get(t.categoryId) || 0;
-      historicalCategorySpent.set(t.categoryId, current + t.amount);
+    if (t.type === "expense" && t.categoryId && t.date && t.date.length >= 7) {
+      const mKey = t.date.substring(0, 7);
+      if (!categoryMonthSpent.has(t.categoryId)) {
+        categoryMonthSpent.set(t.categoryId, new Map());
+      }
+      const catMap = categoryMonthSpent.get(t.categoryId)!;
+      catMap.set(mKey, (catMap.get(mKey) || 0) + t.amount);
     }
   });
 
@@ -653,9 +695,18 @@ export function calculateBudgetRecommendation(params: {
   let rawEssentialVariableTotal = 0;
   let rawDiscretionaryVariableTotal = 0;
 
-  const rawAllocations = expenseCategories.map((cat) => {
-    const totalSpent = historicalCategorySpent.get(cat.id) || 0;
-    const historicalAvg = Math.round(totalSpent / historicalMonthsCount);
+  // Hitung rata-rata berbobot awal per kategori
+  const initialCategoryAvgs = expenseCategories.map((cat) => {
+    const catMap = categoryMonthSpent.get(cat.id);
+    let weightedSpentSum = 0;
+    if (catMap) {
+      sortedHistoricalMonths.forEach((mKey) => {
+        const spent = catMap.get(mKey) || 0;
+        const weight = monthWeights.get(mKey) || 1;
+        weightedSpentSum += spent * weight;
+      });
+    }
+    const historicalAvg = Math.round(weightedSpentSum / totalMonthWeights);
     const isFixed = isFixedExpenseCategory(cat);
     const isEssential = !isFixed && isEssentialExpenseCategory(cat);
 
@@ -671,11 +722,27 @@ export function calculateBudgetRecommendation(params: {
     }
 
     return {
+      cat,
+      isFixed,
+      isEssential,
+      historicalAvg,
+    };
+  });
+
+  const totalVariableForWeight = rawVariableTotal || 1;
+
+  const rawAllocations = initialCategoryAvgs.map(({ cat, isFixed, isEssential, historicalAvg }) => {
+    const weightPercent = !isFixed
+      ? Math.round((historicalAvg / totalVariableForWeight) * 100)
+      : undefined;
+
+    return {
       categoryId: cat.id,
       categoryName: cat.name,
       isFixed,
       isEssential,
       historicalAvg,
+      weightPercent,
       recommendedBudget: historicalAvg,
       currentMonthSpent: currentCategorySpent.get(cat.id) || 0,
     };
@@ -683,9 +750,14 @@ export function calculateBudgetRecommendation(params: {
 
   let isScaledDown = false;
   let finalFixedTotal = rawFixedTotal;
+  let finalEssentialTotal = rawEssentialVariableTotal;
+  let finalDiscretionaryTotal = rawDiscretionaryVariableTotal;
   let finalVariableTotal = rawVariableTotal;
 
   let categoryAllocations: CategoryBudgetAllocation[] = [];
+
+  const essentialCats = rawAllocations.filter((a) => !a.isFixed && a.isEssential);
+  const discretionaryCats = rawAllocations.filter((a) => !a.isFixed && !a.isEssential);
 
   if (incomeAfterDebt === 0) {
     categoryAllocations = rawAllocations.map((a) => ({
@@ -693,44 +765,88 @@ export function calculateBudgetRecommendation(params: {
       recommendedBudget: 0,
     }));
     finalFixedTotal = 0;
+    finalEssentialTotal = 0;
+    finalDiscretionaryTotal = 0;
     finalVariableTotal = 0;
-  } else if (rawFixedTotal + rawVariableTotal > incomeAfterDebt && rawVariableTotal > 0) {
+  } else if (incomeAfterDebt <= rawFixedTotal) {
     isScaledDown = true;
+    const fixedScale = incomeAfterDebt / (rawFixedTotal || 1);
+    categoryAllocations = rawAllocations.map((a) => {
+      if (a.isFixed) {
+        return {
+          ...a,
+          recommendedBudget: Math.round(a.historicalAvg * fixedScale),
+        };
+      }
+      return { ...a, recommendedBudget: 0 };
+    });
+    finalFixedTotal = incomeAfterDebt;
+    finalEssentialTotal = 0;
+    finalDiscretionaryTotal = 0;
+    finalVariableTotal = 0;
 
-    if (incomeAfterDebt <= rawFixedTotal) {
-      const fixedScale = incomeAfterDebt / (rawFixedTotal || 1);
-      categoryAllocations = rawAllocations.map((a) => {
-        if (a.isFixed) {
-          return {
-            ...a,
-            recommendedBudget: Math.round(a.historicalAvg * fixedScale),
-          };
-        }
-        return { ...a, recommendedBudget: 0 };
-      });
-      finalFixedTotal = incomeAfterDebt;
-      finalVariableTotal = 0;
+    warnings.push({
+      id: "budget-deficit-fixed",
+      title: "Pengetatan Ekstrem Beban Hutang",
+      description:
+        "Sisa pemasukan setelah dipotong cicilan hutang tidak cukup menutup biaya tetap bulanan. Seluruh pos variabel dinolkan.",
+      severity: "critical",
+    });
+  } else {
+    // Sisa dana yang tersedia untuk Kebutuhan Pokok & Sekunder/Variabel
+    finalFixedTotal = rawFixedTotal;
+    const availableForVariable = incomeAfterDebt - rawFixedTotal;
 
-      warnings.push({
-        id: "budget-deficit-fixed",
-        title: "Pengetatan Ekstrem Beban Hutang",
-        description:
-          "Sisa pemasukan setelah dipotong cicilan hutang tidak cukup menutup biaya tetap bulanan. Seluruh pos variabel dinolkan.",
-        severity: "critical",
-      });
-    } else {
-      const availableForVariable = incomeAfterDebt - rawFixedTotal;
+    // Subcase 1: Cold start (belum ada riwayat pengeluaran pokok maupun sekunder)
+    if (isColdStart || (rawEssentialVariableTotal === 0 && rawDiscretionaryVariableTotal === 0)) {
+      if (essentialCats.length > 0 && discretionaryCats.length > 0) {
+        // Fallback acuan: 75% kebutuhan pokok, 25% kebutuhan sekunder
+        const targetEssential = Math.round(availableForVariable * 0.75);
+        const targetDiscretionary = availableForVariable - targetEssential;
 
-      if (rawEssentialVariableTotal > 0 && availableForVariable >= rawEssentialVariableTotal) {
-        // KEBUTUHAN POKOK TERLINDUNGI 100%:
-        // Dana sisa cukup untuk memenuhi kebutuhan makan & transportasi pokok secara utuh.
-        // Pemangkasan difokuskan pada kategori gaya hidup / non-esensial (jajan, hiburan, belanja).
-        const remainingForDiscretionary = availableForVariable - rawEssentialVariableTotal;
-        const discretionaryScale =
-          rawDiscretionaryVariableTotal > 0
-            ? remainingForDiscretionary / rawDiscretionaryVariableTotal
-            : 0;
+        const essentialPerCat = Math.floor(targetEssential / essentialCats.length);
+        const discretionaryPerCat = Math.floor(targetDiscretionary / discretionaryCats.length);
 
+        categoryAllocations = rawAllocations.map((a) => {
+          if (a.isFixed) return a;
+          if (a.isEssential) {
+            return { ...a, recommendedBudget: essentialPerCat };
+          }
+          return { ...a, recommendedBudget: discretionaryPerCat };
+        });
+
+        finalEssentialTotal = targetEssential;
+        finalDiscretionaryTotal = targetDiscretionary;
+      } else if (essentialCats.length > 0) {
+        const essentialPerCat = Math.floor(availableForVariable / essentialCats.length);
+        categoryAllocations = rawAllocations.map((a) => {
+          if (a.isFixed) return a;
+          if (a.isEssential) return { ...a, recommendedBudget: essentialPerCat };
+          return { ...a, recommendedBudget: 0 };
+        });
+        finalEssentialTotal = availableForVariable;
+        finalDiscretionaryTotal = 0;
+      } else if (discretionaryCats.length > 0) {
+        const discretionaryPerCat = Math.floor(availableForVariable / discretionaryCats.length);
+        categoryAllocations = rawAllocations.map((a) => {
+          if (a.isFixed) return a;
+          return { ...a, recommendedBudget: discretionaryPerCat };
+        });
+        finalEssentialTotal = 0;
+        finalDiscretionaryTotal = availableForVariable;
+      } else {
+        categoryAllocations = rawAllocations;
+        finalEssentialTotal = 0;
+        finalDiscretionaryTotal = 0;
+      }
+      finalVariableTotal = finalEssentialTotal + finalDiscretionaryTotal;
+    } else if (availableForVariable >= rawEssentialVariableTotal) {
+      // Subcase 2: Kebutuhan Pokok Terpenuhi 100%!
+      // Sisa dana (availableForVariable - rawEssentialVariableTotal) dialokasikan untuk kebutuhan sekunder.
+      const remainingForDiscretionary = availableForVariable - rawEssentialVariableTotal;
+
+      if (rawDiscretionaryVariableTotal > 0) {
+        const discretionaryScale = remainingForDiscretionary / rawDiscretionaryVariableTotal;
         categoryAllocations = rawAllocations.map((a) => {
           if (a.isFixed) return a;
           if (a.isEssential) {
@@ -742,72 +858,73 @@ export function calculateBudgetRecommendation(params: {
           };
         });
 
-        finalFixedTotal = rawFixedTotal;
-        finalVariableTotal = availableForVariable;
-
-        warnings.push({
-          id: "budget-scaled-essential-safe",
-          title: "Prioritas Kebutuhan Pokok Terlindungi",
-          description:
-            "Cicilan hutang menyerap sebagian pemasukan. Pos kebutuhan pokok makan dan transportasi dilindungi penuh, pos gaya hidup dan sekunder dipangkas.",
-          severity: "info",
-        });
-      } else if (rawEssentialVariableTotal > 0 && availableForVariable < rawEssentialVariableTotal) {
-        // Kondisi darurat pangan: dana sisa bahkan kurang dari kebutuhan pokok historis.
-        // Seluruh pos non-esensial dipangkas 100% ke 0, seluruh dana sisa dialokasikan ke pos pokok.
-        const essentialScale = availableForVariable / rawEssentialVariableTotal;
-
+        if (discretionaryScale < 1) {
+          isScaledDown = true;
+          warnings.push({
+            id: "budget-scaled-essential-safe",
+            title: "Prioritas Kebutuhan Pokok Terlindungi",
+            description:
+              "Cicilan hutang menyerap sebagian pemasukan. Pos kebutuhan pokok makan dan transportasi dilindungi penuh (100%), sisa dana dialokasikan untuk pos sekunder/variabel.",
+            severity: "info",
+          });
+        }
+      } else if (discretionaryCats.length > 0) {
+        // Jika histori sekunder 0 tapi kategori sekunder terdaftar, bagi rata
+        const perCat = Math.floor(remainingForDiscretionary / discretionaryCats.length);
         categoryAllocations = rawAllocations.map((a) => {
           if (a.isFixed) return a;
-          if (a.isEssential) {
-            return {
-              ...a,
-              recommendedBudget: Math.round(a.historicalAvg * essentialScale),
-            };
-          }
-          return { ...a, recommendedBudget: 0 };
-        });
-
-        finalFixedTotal = rawFixedTotal;
-        finalVariableTotal = availableForVariable;
-
-        warnings.push({
-          id: "budget-scaled-emergency",
-          title: "Fokus Anggaran Pokok (Darurat)",
-          description:
-            "Dana tersisa sangat ketat akibat cicilan hutang. Seluruh pos sekunder dan hiburan dinolkan agar dana difokuskan untuk makan.",
-          severity: "warning",
+          if (a.isEssential) return { ...a, recommendedBudget: a.historicalAvg };
+          return { ...a, recommendedBudget: perCat };
         });
       } else {
-        const variableScale = availableForVariable / (rawVariableTotal || 1);
         categoryAllocations = rawAllocations.map((a) => {
           if (a.isFixed) return a;
-          return {
-            ...a,
-            recommendedBudget: Math.round(a.historicalAvg * variableScale),
-          };
-        });
-        finalFixedTotal = rawFixedTotal;
-        finalVariableTotal = availableForVariable;
-
-        warnings.push({
-          id: "budget-scaled-down",
-          title: "Penyesuaian Budget Diperketat",
-          description:
-            "Total pengeluaran historis melebihi sisa pemasukan setelah dipotong hutang. Kategori variabel disesuaikan proporsional.",
-          severity: "warning",
+          if (a.isEssential) return { ...a, recommendedBudget: a.historicalAvg };
+          return { ...a, recommendedBudget: 0 };
         });
       }
+
+      finalEssentialTotal = rawEssentialVariableTotal;
+      finalDiscretionaryTotal = discretionaryCats.length > 0 ? remainingForDiscretionary : 0;
+      finalVariableTotal = finalEssentialTotal + finalDiscretionaryTotal;
+    } else {
+      // Subcase 3: Kondisi darurat - dana bahkan tidak cukup menutup kebutuhan pokok historis.
+      isScaledDown = true;
+      const essentialScale = availableForVariable / (rawEssentialVariableTotal || 1);
+
+      categoryAllocations = rawAllocations.map((a) => {
+        if (a.isFixed) return a;
+        if (a.isEssential) {
+          return {
+            ...a,
+            recommendedBudget: Math.round(a.historicalAvg * essentialScale),
+          };
+        }
+        return { ...a, recommendedBudget: 0 };
+      });
+
+      finalEssentialTotal = availableForVariable;
+      finalDiscretionaryTotal = 0;
+      finalVariableTotal = availableForVariable;
+
+      warnings.push({
+        id: "budget-scaled-emergency",
+        title: "Fokus Anggaran Pokok (Darurat)",
+        description:
+          "Dana tersisa sangat ketat akibat cicilan hutang. Seluruh pos sekunder dan hiburan dinolkan agar dana difokuskan untuk makan.",
+        severity: "warning",
+      });
     }
-  } else {
-    categoryAllocations = rawAllocations;
   }
 
   const totalFundsForDaily = Math.max(0, incomeAfterDebt - finalFixedTotal);
 
-  // Opsi 2: Hitung pengeluaran harian siklus yang sudah terjadi sebelum hari ini
+  // Hitung pengeluaran harian siklus yang sudah terjadi sebelum hari ini
   // (mengecualikan cicilan hutang dan tagihan tetap bulanan)
   let pastDailyExpensesInCycle = 0;
+  let pastEssentialExpensesInCycle = 0;
+  let pastDiscretionaryExpensesInCycle = 0;
+
   if (cycle.isCurrentCycle) {
     const categoryMap = new Map<string, Category>(categories.map((c) => [c.id, c]));
     cycleTransactions.forEach((t) => {
@@ -829,22 +946,40 @@ export function calculateBudgetRecommendation(params: {
       if (t.category && isFixedExpenseName(t.category)) return;
       if (t.note && isFixedExpenseName(t.note)) return;
 
+      const isEssential = isEssentialExpenseCategory(cat);
+      if (isEssential) {
+        pastEssentialExpensesInCycle += t.amount;
+      } else {
+        pastDiscretionaryExpensesInCycle += t.amount;
+      }
       pastDailyExpensesInCycle += t.amount;
     });
   }
 
   // Sisa dana bebas yang benar-benar masih tersedia untuk hari ini dan sisa hari ke depan
-  const remainingFundsForDaily = cycle.isCurrentCycle
-    ? Math.max(0, totalFundsForDaily - pastDailyExpensesInCycle)
-    : totalFundsForDaily;
+  const remainingEssentialFunds = cycle.isCurrentCycle
+    ? Math.max(0, finalEssentialTotal - pastEssentialExpensesInCycle)
+    : finalEssentialTotal;
+
+  const remainingDiscretionaryFunds = cycle.isCurrentCycle
+    ? Math.max(0, finalDiscretionaryTotal - pastDiscretionaryExpensesInCycle)
+    : finalDiscretionaryTotal;
+
+  const remainingFundsForDaily = remainingEssentialFunds + remainingDiscretionaryFunds;
 
   const remainingDays = Math.max(1, cycle.remainingDays);
   const daysInCycle = cycle.daysInCycle;
 
   // Kuota harian adaptif berjalan: sisa dana riil dibagi sisa hari
-  const dailyBudget = cycle.isCurrentCycle
-    ? Math.floor(remainingFundsForDaily / remainingDays)
-    : Math.floor(totalFundsForDaily / daysInCycle);
+  const dailyEssentialBudget = cycle.isCurrentCycle
+    ? Math.floor(remainingEssentialFunds / remainingDays)
+    : Math.floor(finalEssentialTotal / daysInCycle);
+
+  const dailyDiscretionaryBudget = cycle.isCurrentCycle
+    ? Math.floor(remainingDiscretionaryFunds / remainingDays)
+    : Math.floor(finalDiscretionaryTotal / daysInCycle);
+
+  const dailyBudget = dailyEssentialBudget + dailyDiscretionaryBudget;
 
   if (cycle.isCurrentCycle && totalFundsForDaily > 0 && remainingFundsForDaily === 0) {
     warnings.push({
@@ -859,7 +994,11 @@ export function calculateBudgetRecommendation(params: {
     budgetCycle: cycle,
     paidDebtInCycle,
     pastDailyExpensesInCycle,
+    pastEssentialExpensesInCycle,
+    pastDiscretionaryExpensesInCycle,
     remainingFundsForDaily,
+    remainingEssentialFunds,
+    remainingDiscretionaryFunds,
     eligibleIncome,
     isIncomeEstimated,
     estimatedIncomeMonth,
@@ -870,12 +1009,16 @@ export function calculateBudgetRecommendation(params: {
     isDebtDeficit,
     categoryAllocations,
     totalFixedBudget: finalFixedTotal,
+    totalEssentialBudget: finalEssentialTotal,
+    totalDiscretionaryBudget: finalDiscretionaryTotal,
     totalVariableBudget: finalVariableTotal,
     isColdStart,
     isScaledDown,
     fundsForDaily: remainingFundsForDaily,
     remainingDays,
     totalDaysInMonth: daysInCycle,
+    dailyEssentialBudget,
+    dailyDiscretionaryBudget,
     dailyBudget,
     warnings,
   };
@@ -889,12 +1032,22 @@ export function evaluateDailySpendingLimit(params: {
   todayTransactions: Transaction[];
   categories: Category[];
   dailyBudget: number;
+  dailyEssentialBudget?: number;
+  dailyDiscretionaryBudget?: number;
 }): DailyLimitCheckResult {
-  const { todayTransactions, categories, dailyBudget } = params;
+  const {
+    todayTransactions,
+    categories,
+    dailyBudget,
+    dailyEssentialBudget = 0,
+    dailyDiscretionaryBudget = 0,
+  } = params;
 
   const categoryMap = new Map<string, Category>(categories.map((c) => [c.id, c]));
 
   let eligibleDailySpending = 0;
+  let essentialDailySpending = 0;
+  let discretionaryDailySpending = 0;
   let excludedCount = 0;
 
   todayTransactions.forEach((t) => {
@@ -929,16 +1082,33 @@ export function evaluateDailySpendingLimit(params: {
       return;
     }
 
+    const isEssential = isEssentialExpenseCategory(cat);
+    if (isEssential) {
+      essentialDailySpending += t.amount;
+    } else {
+      discretionaryDailySpending += t.amount;
+    }
+
     eligibleDailySpending += t.amount;
   });
 
   const isOverBudget = dailyBudget > 0 && eligibleDailySpending > dailyBudget;
+  const isOverEssentialBudget =
+    dailyEssentialBudget > 0 && essentialDailySpending > dailyEssentialBudget;
+  const isOverDiscretionaryBudget =
+    dailyDiscretionaryBudget > 0 && discretionaryDailySpending > dailyDiscretionaryBudget;
   const overAmount = isOverBudget ? eligibleDailySpending - dailyBudget : 0;
 
   return {
     eligibleDailySpending,
+    essentialDailySpending,
+    discretionaryDailySpending,
     dailyBudget,
+    dailyEssentialBudget,
+    dailyDiscretionaryBudget,
     isOverBudget,
+    isOverEssentialBudget,
+    isOverDiscretionaryBudget,
     overAmount,
     excludedCount,
   };

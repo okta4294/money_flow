@@ -65,7 +65,11 @@ export function BudgetCard({
 
   const dailyRemainingBalance = Math.max(0, dailyBudget - eligibleDailySpending);
   const dailyProgressPercent =
-    dailyBudget > 0 ? Math.min(100, (eligibleDailySpending / dailyBudget) * 100) : 0;
+    dailyBudget > 0
+      ? Math.min(100, (eligibleDailySpending / dailyBudget) * 100)
+      : eligibleDailySpending > 0
+      ? 100
+      : 0;
 
   return (
     <motion.section
@@ -98,6 +102,11 @@ export function BudgetCard({
           {budget.budgetCycle?.isPaydayCycle && (
             <span className="inline-flex items-center h-7 sm:h-8 px-2.5 sm:px-3 text-[10px] sm:text-xs font-label-bold uppercase bg-tertiary-container text-on-tertiary-container rounded-full border-2 border-outline shadow-[1px_1px_0_0_var(--theme-outline)]">
               Siklus Gajian
+            </span>
+          )}
+          {budget.budgetCalculationMode === "strict_rollover" && (
+            <span className="inline-flex items-center h-7 sm:h-8 px-2.5 sm:px-3 text-[10px] sm:text-xs font-label-bold uppercase bg-secondary-container text-on-secondary-container rounded-full border-2 border-outline shadow-[1px_1px_0_0_var(--theme-outline)]">
+              Disiplin Ketat
             </span>
           )}
           <span className="h-7 sm:h-8 px-2.5 sm:px-3 inline-flex items-center font-label-bold text-[10px] sm:text-xs uppercase bg-surface border-2 border-outline rounded-full text-on-surface">
@@ -228,8 +237,11 @@ export function BudgetCard({
                     {formatRupiah(essentialRemaining)}
                   </span>
                   <span className="text-[10px] text-on-surface-variant font-label-bold uppercase block leading-tight">
-                    dari {formatRupiah(dailyEssentialBudget)}/hari
+                    {dailyEssentialBudget > 0 ? `dari ${formatRupiah(dailyEssentialBudget)}/hari` : "Tanpa kuota (Rp 0)"}
                   </span>
+                  {dailyEssentialBudget === 0 && (
+                    <span className="text-[9px] font-bold text-error block">Kuota Rp 0</span>
+                  )}
                 </div>
               </div>
 
@@ -250,8 +262,11 @@ export function BudgetCard({
                     {formatRupiah(discretionaryRemaining)}
                   </span>
                   <span className="text-[10px] text-on-surface-variant font-label-bold uppercase block leading-tight">
-                    dari {formatRupiah(dailyDiscretionaryBudget)}/hari
+                    {dailyDiscretionaryBudget > 0 ? `dari ${formatRupiah(dailyDiscretionaryBudget)}/hari` : "Tanpa kuota (Rp 0)"}
                   </span>
+                  {dailyDiscretionaryBudget === 0 && (
+                    <span className="text-[9px] font-bold text-error block">Kuota Rp 0</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -300,11 +315,16 @@ export function BudgetCard({
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="font-label-bold text-xs uppercase text-on-surface-variant">
-                    1. Pemasukan Utama
+                    1. {budget.budgetSource === "all_income" ? "Semua Pemasukan" : "Pemasukan Utama"}
                   </span>
                   {budget.isIncomeEstimated && (
                     <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 bg-secondary text-on-secondary rounded-sm">
                       Proyeksi Historis
+                    </span>
+                  )}
+                  {budget.budgetSource === "all_income" && (
+                    <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 bg-tertiary text-on-tertiary rounded-sm">
+                      Semua Pemasukan
                     </span>
                   )}
                 </div>
@@ -319,6 +339,8 @@ export function BudgetCard({
             <p className="font-label-md text-[11px] text-on-surface-variant mt-2">
               {budget.isIncomeEstimated
                 ? `Akumulasi siklus ini masih berjalan. Menggunakan proyeksi acuan ${budget.estimatedIncomeMonth || "siklus lalu"}.`
+                : budget.budgetSource === "all_income"
+                ? "Menghitung seluruh pemasukan (gaji, freelance, bonus, dll) yang tersimpan di akun Anda."
                 : "Kategori rutin (Gaji, Uang Saku, atau Uang Bulanan) sebagai dasar budget."}
             </p>
           </div>
@@ -511,6 +533,7 @@ export function BudgetCard({
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {categoryAllocations.map((cat) => {
+                      const isZeroBudget = cat.recommendedBudget === 0;
                       const maxCompare = Math.max(
                         cat.recommendedBudget,
                         cat.currentMonthSpent,
@@ -521,8 +544,9 @@ export function BudgetCard({
                         (cat.currentMonthSpent / maxCompare) * 100
                       );
                       const isOverCategory =
-                        cat.recommendedBudget > 0 &&
-                        cat.currentMonthSpent > cat.recommendedBudget;
+                        cat.recommendedBudget > 0
+                          ? cat.currentMonthSpent > cat.recommendedBudget
+                          : cat.currentMonthSpent > 0;
 
                       return (
                         <div
@@ -531,7 +555,7 @@ export function BudgetCard({
                         >
                           <div className="flex justify-between items-start gap-2">
                             <div>
-                              <div className="flex items-center gap-1.5">
+                              <div className="flex items-center gap-1.5 flex-wrap">
                                 <span className="font-label-bold text-sm text-on-surface truncate">
                                   {cat.categoryName}
                                 </span>
@@ -544,6 +568,11 @@ export function BudgetCard({
                                 }`}>
                                   {cat.isFixed ? "Tetap" : cat.isEssential ? "Pokok" : "Sekunder"}
                                 </span>
+                                {isZeroBudget && (
+                                  <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-sm bg-error/15 text-error border border-error/30">
+                                    Anggaran Rp 0
+                                  </span>
+                                )}
                               </div>
                               <p className="text-[10px] text-on-surface-variant font-label-md flex items-center gap-1.5 flex-wrap">
                                 <span>Historis: {formatRupiah(cat.historicalAvg)}/bln</span>
@@ -558,7 +587,9 @@ export function BudgetCard({
                               <span className="text-[10px] uppercase font-label-bold text-on-surface-variant block">
                                 Target Anggaran
                               </span>
-                              <span className="text-sm font-display-lg font-bold text-primary">
+                              <span className={`text-sm font-display-lg font-bold ${
+                                isZeroBudget ? "text-error" : "text-primary"
+                              }`}>
                                 {formatRupiah(cat.recommendedBudget)}
                               </span>
                             </div>
@@ -571,13 +602,13 @@ export function BudgetCard({
                               </span>
                               {isOverCategory && (
                                 <span className="text-error font-bold">
-                                  Melebihi target
+                                  {isZeroBudget ? "Melebihi target (kuota Rp 0)" : "Melebihi target"}
                                 </span>
                               )}
                             </div>
                             <div className="h-2.5 w-full bg-surface-container border border-outline rounded-full overflow-hidden">
                               <div
-                                style={{ width: `${spentRatio}%` }}
+                                style={{ width: `${isZeroBudget && cat.currentMonthSpent > 0 ? 100 : spentRatio}%` }}
                                 className={`h-full transition-all duration-300 ${
                                   isOverCategory
                                     ? "bg-error"

@@ -47,8 +47,13 @@ export interface BudgetCycle {
   isCurrentCycle: boolean;
 }
 
+export type BudgetSource = "eligible_only" | "all_income";
+export type BudgetCalculationMode = "adaptive" | "strict_rollover";
+
 export interface BudgetRecommendationResult {
   budgetCycle: BudgetCycle;
+  budgetSource: BudgetSource;
+  budgetCalculationMode: BudgetCalculationMode;
   paidDebtInCycle: number;
   pastDailyExpensesInCycle: number;
   pastEssentialExpensesInCycle: number;
@@ -273,11 +278,18 @@ export function detectBudgetCycle(params: {
 }): BudgetCycle {
   const { year, month, todayDateStr, allTransactions, categories } = params;
 
+  // Siklus anggaran (Payday Cycle) selalu dijangkarkan pada pemasukan utama (gaji / rutin).
+  // Transaksi insidental tidak boleh memotong atau mengubah batasan tanggal siklus.
   const eligibleCategories = categories.filter(isEligibleIncomeCategory);
   const eligibleCategoryIds = new Set(eligibleCategories.map((c) => c.id));
 
   const eligibleIncomes = allTransactions
-    .filter((t) => t.type === "income" && eligibleCategoryIds.has(t.categoryId) && t.date)
+    .filter(
+      (t) =>
+        t.type === "income" &&
+        eligibleCategoryIds.has(t.categoryId) &&
+        t.date
+    )
     .sort((a, b) => a.date.localeCompare(b.date));
 
   const daysInCurrentMonth = getDaysInMonth(year, month);
@@ -399,6 +411,8 @@ export function calculateBudgetRecommendation(params: {
   activeDebts: Debt[];
   allTransactions?: Transaction[];
   budgetCycle?: BudgetCycle;
+  budgetSource?: BudgetSource;
+  budgetCalculationMode?: BudgetCalculationMode;
 }): BudgetRecommendationResult {
   const {
     year,
@@ -410,11 +424,17 @@ export function calculateBudgetRecommendation(params: {
     categories,
     activeDebts,
     allTransactions = [],
+    budgetSource = "eligible_only",
+    budgetCalculationMode = "adaptive",
   } = params;
 
+  const isAllIncome = budgetSource === "all_income";
+  const isStrictRollover = budgetCalculationMode === "strict_rollover";
   const warnings: BudgetWarning[] = [];
 
-  const eligibleCategories = categories.filter(isEligibleIncomeCategory);
+  const eligibleCategories = isAllIncome
+    ? categories.filter((c) => c.type === "income")
+    : categories.filter(isEligibleIncomeCategory);
   const eligibleCategoryIds = new Set(eligibleCategories.map((c) => c.id));
   const eligibleCategoryNames = eligibleCategories.map((c) => c.name);
 
@@ -442,7 +462,7 @@ export function calculateBudgetRecommendation(params: {
     : currentTransactions;
 
   const currentEligibleIncome = cycleTransactions
-    .filter((t) => t.type === "income" && eligibleCategoryIds.has(t.categoryId))
+    .filter((t) => t.type === "income" && (isAllIncome || eligibleCategoryIds.has(t.categoryId)))
     .reduce((sum, t) => sum + t.amount, 0);
 
   // Cari total pemasukan utama dari riwayat bulan sebelumnya
@@ -452,7 +472,7 @@ export function calculateBudgetRecommendation(params: {
   if (historicalIncomes.length > 0) {
     const incomeByMonth = new Map<string, number>();
     historicalIncomes.forEach((t) => {
-      if (t.type === "income" && eligibleCategoryIds.has(t.categoryId) && t.date) {
+      if (t.type === "income" && (isAllIncome || eligibleCategoryIds.has(t.categoryId)) && t.date) {
         const monthKey = t.date.substring(0, 7);
         const prevTotal = incomeByMonth.get(monthKey) || 0;
         incomeByMonth.set(monthKey, prevTotal + t.amount);
@@ -480,7 +500,7 @@ export function calculateBudgetRecommendation(params: {
     estimatedIncomeMonth = recentHistoricalMonth;
   }
 
-  if (eligibleCategories.length === 0) {
+  if (!isAllIncome && eligibleCategories.length === 0) {
     warnings.push({
       id: "no-eligible-categories",
       title: "Kategori Pemasukan Belum Ditandai",
@@ -491,16 +511,17 @@ export function calculateBudgetRecommendation(params: {
   } else if (isIncomeEstimated) {
     warnings.push({
       id: "estimated-income",
-      title: "Menggunakan Proyeksi Pemasukan Rutin",
+      title: isAllIncome ? "Menggunakan Proyeksi Seluruh Pemasukan" : "Menggunakan Proyeksi Pemasukan Rutin",
       description: `Akumulasi siklus ini (${formatRupiah(currentEligibleIncome)}) masih di bawah acuan ${estimatedIncomeMonth} (${formatRupiah(eligibleIncome)}). Sistem menggunakan proyeksi ${formatRupiah(eligibleIncome)} agar batas harian tetap stabil.`,
       severity: "info",
     });
   } else if (eligibleIncome === 0) {
     warnings.push({
       id: "zero-eligible-income",
-      title: "Belum Ada Pemasukan Utama",
-      description:
-        "Belum ada catatan pemasukan rutin (Gaji, Uang Saku, atau Uang Bulanan) di siklus ini maupun riwayat sebelumnya.",
+      title: isAllIncome ? "Belum Ada Pemasukan" : "Belum Ada Pemasukan Utama",
+      description: isAllIncome
+        ? "Belum ada catatan pemasukan sama sekali di siklus ini maupun riwayat sebelumnya."
+        : "Belum ada catatan pemasukan rutin (Gaji, Uang Saku, atau Uang Bulanan) di siklus ini maupun riwayat sebelumnya.",
       severity: "info",
     });
   }
@@ -957,27 +978,81 @@ export function calculateBudgetRecommendation(params: {
   }
 
   // Sisa dana bebas yang benar-benar masih tersedia untuk hari ini dan sisa hari ke depan
-  const remainingEssentialFunds = cycle.isCurrentCycle
-    ? Math.max(0, finalEssentialTotal - pastEssentialExpensesInCycle)
-    : finalEssentialTotal;
+  // Dilengkapi cross-quota deficit offset: overspending pada sekunder memotong dana pokok riil, dan sebaliknya
+  let remainingEssentialFunds = finalEssentialTotal;
+  let remainingDiscretionaryFunds = finalDiscretionaryTotal;
 
-  const remainingDiscretionaryFunds = cycle.isCurrentCycle
-    ? Math.max(0, finalDiscretionaryTotal - pastDiscretionaryExpensesInCycle)
-    : finalDiscretionaryTotal;
+  if (cycle.isCurrentCycle) {
+    const rawRemainingEssential = finalEssentialTotal - pastEssentialExpensesInCycle;
+    const rawRemainingDiscretionary = finalDiscretionaryTotal - pastDiscretionaryExpensesInCycle;
+
+    if (rawRemainingDiscretionary < 0) {
+      const deficit = -rawRemainingDiscretionary;
+      remainingDiscretionaryFunds = 0;
+      remainingEssentialFunds = Math.max(0, rawRemainingEssential - deficit);
+    } else if (rawRemainingEssential < 0) {
+      const deficit = -rawRemainingEssential;
+      remainingEssentialFunds = 0;
+      remainingDiscretionaryFunds = Math.max(0, rawRemainingDiscretionary - deficit);
+    } else {
+      remainingEssentialFunds = Math.max(0, rawRemainingEssential);
+      remainingDiscretionaryFunds = Math.max(0, rawRemainingDiscretionary);
+    }
+  }
 
   const remainingFundsForDaily = remainingEssentialFunds + remainingDiscretionaryFunds;
 
   const remainingDays = Math.max(1, cycle.remainingDays);
   const daysInCycle = cycle.daysInCycle;
 
-  // Kuota harian adaptif berjalan: sisa dana riil dibagi sisa hari
-  const dailyEssentialBudget = cycle.isCurrentCycle
-    ? Math.floor(remainingEssentialFunds / remainingDays)
-    : Math.floor(finalEssentialTotal / daysInCycle);
+  // Kuota harian berjalan berdasarkan mode kalkulasi yang dipilih pengguna
+  let dailyEssentialBudget = 0;
+  let dailyDiscretionaryBudget = 0;
 
-  const dailyDiscretionaryBudget = cycle.isCurrentCycle
-    ? Math.floor(remainingDiscretionaryFunds / remainingDays)
-    : Math.floor(finalDiscretionaryTotal / daysInCycle);
+  if (!cycle.isCurrentCycle) {
+    dailyEssentialBudget = Math.floor(finalEssentialTotal / daysInCycle);
+    dailyDiscretionaryBudget = Math.floor(finalDiscretionaryTotal / daysInCycle);
+  } else if (isStrictRollover) {
+    // Mode Disiplin Ketat (Strict Daily Rollover / Carry-Forward 1:1)
+    // Hak belanja dasar per hari
+    const baseDailyEssential = Math.floor(finalEssentialTotal / daysInCycle);
+    const baseDailyDiscretionary = Math.floor(finalDiscretionaryTotal / daysInCycle);
+
+    // Hari ke-N dalam siklus (1-indexed sampai hari ini)
+    const daysPassed = Math.max(0, diffDays(cycle.startDate, todayDateStr));
+    const cumulativeDays = Math.min(daysInCycle, daysPassed + 1);
+
+    // Akumulasi hak kuota sampai hari ini dikurangi pengeluaran sebelum hari ini
+    const cumulativeEssentialAllowance = cumulativeDays * baseDailyEssential;
+    const cumulativeDiscretionaryAllowance = cumulativeDays * baseDailyDiscretionary;
+
+    const rawTodayEssential = cumulativeEssentialAllowance - pastEssentialExpensesInCycle;
+    const rawTodayDiscretionary = cumulativeDiscretionaryAllowance - pastDiscretionaryExpensesInCycle;
+
+    let todayEssential = 0;
+    let todayDiscretionary = 0;
+
+    if (rawTodayDiscretionary < 0) {
+      const deficit = -rawTodayDiscretionary;
+      todayDiscretionary = 0;
+      todayEssential = Math.max(0, rawTodayEssential - deficit);
+    } else if (rawTodayEssential < 0) {
+      const deficit = -rawTodayEssential;
+      todayEssential = 0;
+      todayDiscretionary = Math.max(0, rawTodayDiscretionary - deficit);
+    } else {
+      todayEssential = Math.max(0, rawTodayEssential);
+      todayDiscretionary = Math.max(0, rawTodayDiscretionary);
+    }
+
+    // Dibatasi oleh sisa dana bebas yang benar-benar tersisa di siklus
+    dailyEssentialBudget = Math.min(todayEssential, remainingEssentialFunds);
+    dailyDiscretionaryBudget = Math.min(todayDiscretionary, remainingDiscretionaryFunds);
+  } else {
+    // Mode Adaptif (Default Safe-to-Spend): Sisa dana dibagi sisa hari
+    dailyEssentialBudget = Math.floor(remainingEssentialFunds / remainingDays);
+    dailyDiscretionaryBudget = Math.floor(remainingDiscretionaryFunds / remainingDays);
+  }
 
   const dailyBudget = dailyEssentialBudget + dailyDiscretionaryBudget;
 
@@ -987,6 +1062,43 @@ export function calculateBudgetRecommendation(params: {
       title: "Alokasi Harian Siklus Ini Telah Habis",
       description: `Pengeluaran harian yang telah terjadi (${formatRupiah(pastDailyExpensesInCycle)}) telah menyerap seluruh dana harian bebas (${formatRupiah(totalFundsForDaily)}).`,
       severity: "critical",
+    });
+  } else if (cycle.isCurrentCycle && dailyBudget === 0) {
+    if (!warnings.some((w) => w.id === "debt-deficit" || w.id === "budget-deficit-fixed")) {
+      warnings.push({
+        id: "daily-budget-zero",
+        title: "Batas Belanja Harian Rp 0",
+        description: "Tidak ada alokasi belanja harian bebas yang tersedia untuk sisa siklus ini. Setiap pengeluaran harian akan menyebabkan defisit anggaran.",
+        severity: "critical",
+      });
+    }
+  } else if (cycle.isCurrentCycle && dailyDiscretionaryBudget === 0 && dailyEssentialBudget > 0) {
+    if (!warnings.some((w) => w.id === "budget-scaled-emergency" || w.id === "budget-deficit-fixed")) {
+      warnings.push({
+        id: "daily-discretionary-zero",
+        title: "Kuota Sekunder Rp 0 / Hari",
+        description: `Alokasi untuk kebutuhan sekunder (jajan, hiburan, gaya hidup) adalah Rp 0/hari. Seluruh kuota harian (${formatRupiah(dailyEssentialBudget)}/hari) dikhususkan penuh untuk kebutuhan pokok (makan & bbm).`,
+        severity: "warning",
+      });
+    }
+  } else if (cycle.isCurrentCycle && dailyEssentialBudget === 0 && dailyDiscretionaryBudget > 0) {
+    warnings.push({
+      id: "daily-essential-zero",
+      title: "Batas Pokok Harian Rp 0",
+      description: "Alokasi kebutuhan pokok harian telah habis terserap pengeluaran sebelumnya.",
+      severity: "warning",
+    });
+  }
+
+  // Peringatan jika terdapat kategori pengeluaran dengan rekomendasi anggaran bulanan Rp 0
+  const zeroBudgetCats = categoryAllocations.filter((a) => a.recommendedBudget === 0);
+  if (zeroBudgetCats.length > 0 && !warnings.some((w) => w.id === "budget-deficit-fixed" || w.id === "debt-deficit")) {
+    const catNames = zeroBudgetCats.map((c) => c.categoryName).slice(0, 3).join(", ") + (zeroBudgetCats.length > 3 ? `, dan ${zeroBudgetCats.length - 3} lainnya` : "");
+    warnings.push({
+      id: "zero-budget-categories",
+      title: `${zeroBudgetCats.length} Kategori dengan Anggaran Rp 0`,
+      description: `Kategori seperti ${catNames} memiliki rekomendasi anggaran bulanan Rp 0 di siklus ini. Pengeluaran pada pos ini berisiko mengurangi kuota pos lainnya.`,
+      severity: "warning",
     });
   }
 
@@ -1020,6 +1132,8 @@ export function calculateBudgetRecommendation(params: {
     dailyEssentialBudget,
     dailyDiscretionaryBudget,
     dailyBudget,
+    budgetSource,
+    budgetCalculationMode,
     warnings,
   };
 }
@@ -1092,12 +1206,17 @@ export function evaluateDailySpendingLimit(params: {
     eligibleDailySpending += t.amount;
   });
 
-  const isOverBudget = dailyBudget > 0 && eligibleDailySpending > dailyBudget;
+  const isOverBudget =
+    dailyBudget > 0 ? eligibleDailySpending > dailyBudget : eligibleDailySpending > 0;
   const isOverEssentialBudget =
-    dailyEssentialBudget > 0 && essentialDailySpending > dailyEssentialBudget;
+    dailyEssentialBudget > 0
+      ? essentialDailySpending > dailyEssentialBudget
+      : essentialDailySpending > 0;
   const isOverDiscretionaryBudget =
-    dailyDiscretionaryBudget > 0 && discretionaryDailySpending > dailyDiscretionaryBudget;
-  const overAmount = isOverBudget ? eligibleDailySpending - dailyBudget : 0;
+    dailyDiscretionaryBudget > 0
+      ? discretionaryDailySpending > dailyDiscretionaryBudget
+      : discretionaryDailySpending > 0;
+  const overAmount = isOverBudget ? Math.max(0, eligibleDailySpending - dailyBudget) : 0;
 
   return {
     eligibleDailySpending,

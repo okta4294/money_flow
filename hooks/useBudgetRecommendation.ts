@@ -47,7 +47,7 @@ export function useBudgetRecommendation(
   currentTransactions: Transaction[]
 ) {
   const { user } = useAuth();
-  const { categories, debts, categoriesLoading, debtsLoading } = useGlobalData();
+  const { categories, debts, categoriesLoading, debtsLoading, budgetSource, budgetCalculationMode } = useGlobalData();
 
   const [historicalExpenses, setHistoricalExpenses] = useState<Transaction[]>([]);
   const [historicalIncomes, setHistoricalIncomes] = useState<Transaction[]>([]);
@@ -126,6 +126,8 @@ export function useBudgetRecommendation(
       categories,
       activeDebts,
       allTransactions,
+      budgetSource,
+      budgetCalculationMode,
     });
   }, [
     year,
@@ -139,6 +141,8 @@ export function useBudgetRecommendation(
     allTransactions,
     categoriesLoading,
     debtsLoading,
+    budgetSource,
+    budgetCalculationMode,
   ]);
 
   const todayTransactions = useMemo(() => {

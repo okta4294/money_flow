@@ -40,7 +40,11 @@ export function SafeToSpendCard({
 
   const dailyRemainingBalance = Math.max(0, dailyBudget - eligibleDailySpending);
   const dailyProgressPercent =
-    dailyBudget > 0 ? Math.min(100, (eligibleDailySpending / dailyBudget) * 100) : 0;
+    dailyBudget > 0
+      ? Math.min(100, (eligibleDailySpending / dailyBudget) * 100)
+      : eligibleDailySpending > 0
+      ? 100
+      : 0;
 
   return (
     <motion.section
@@ -199,8 +203,11 @@ export function SafeToSpendCard({
                     {formatRupiah(essentialRemaining)}
                   </span>
                   <span className="text-[9px] text-on-surface-variant font-label-bold uppercase block leading-tight">
-                    dari {formatRupiah(dailyEssentialBudget)}/hari
+                    {dailyEssentialBudget > 0 ? `dari ${formatRupiah(dailyEssentialBudget)}/hari` : "Tanpa kuota (Rp 0)"}
                   </span>
+                  {dailyEssentialBudget === 0 && (
+                    <span className="text-[9px] font-bold text-error block">Kuota Rp 0</span>
+                  )}
                 </div>
               </div>
 
@@ -221,8 +228,11 @@ export function SafeToSpendCard({
                     {formatRupiah(discretionaryRemaining)}
                   </span>
                   <span className="text-[9px] text-on-surface-variant font-label-bold uppercase block leading-tight">
-                    dari {formatRupiah(dailyDiscretionaryBudget)}/hari
+                    {dailyDiscretionaryBudget > 0 ? `dari ${formatRupiah(dailyDiscretionaryBudget)}/hari` : "Tanpa kuota (Rp 0)"}
                   </span>
+                  {dailyDiscretionaryBudget === 0 && (
+                    <span className="text-[9px] font-bold text-error block">Kuota Rp 0</span>
+                  )}
                 </div>
               </div>
             </div>

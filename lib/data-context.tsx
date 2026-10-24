@@ -5,6 +5,9 @@ import { useAuth } from "./auth-context";
 import { subscribeToCategories, Category, isDebtCategoryName, ensureDebtCategoryExists } from "./firestore/categories";
 import { subscribeToAccounts, Account } from "./firestore/accounts";
 import { subscribeToDebts, Debt } from "./firestore/debts";
+import { subscribeToUserSettings, updateUserSettings, BudgetSource, BudgetCalculationMode } from "./firestore/user-settings";
+
+export type { BudgetSource, BudgetCalculationMode };
 
 interface DataContextType {
   categories: Category[];
@@ -13,6 +16,10 @@ interface DataContextType {
   accountsLoading: boolean;
   debts: Debt[];
   debtsLoading: boolean;
+  budgetSource: BudgetSource;
+  setBudgetSource: (source: BudgetSource) => Promise<void>;
+  budgetCalculationMode: BudgetCalculationMode;
+  setBudgetCalculationMode: (mode: BudgetCalculationMode) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | null>(null);
@@ -29,6 +36,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [debts, setDebts] = useState<Debt[]>([]);
   const [debtsLoading, setDebtsLoading] = useState(true);
 
+  const [budgetSource, setBudgetSourceState] = useState<BudgetSource>("eligible_only");
+  const [budgetCalculationMode, setBudgetCalculationModeState] = useState<BudgetCalculationMode>("adaptive");
+
   const isAutoCreatingCategoryRef = useRef(false);
 
   useEffect(() => {
@@ -39,6 +49,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setAccountsLoading(false);
       setDebts([]);
       setDebtsLoading(false);
+      setBudgetSourceState("eligible_only");
+      setBudgetCalculationModeState("adaptive");
       return;
     }
 
@@ -61,12 +73,40 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setDebtsLoading(false);
     });
 
+    const unsubSettings = subscribeToUserSettings(user.uid, (settings) => {
+      setBudgetSourceState(settings.budgetSource || "eligible_only");
+      setBudgetCalculationModeState(settings.budgetCalculationMode || "adaptive");
+    });
+
     return () => {
       unsubCat();
       unsubAcc();
       unsubDebt();
+      unsubSettings();
     };
   }, [user?.uid]);
+
+  const setBudgetSource = async (source: BudgetSource) => {
+    setBudgetSourceState(source);
+    if (user) {
+      try {
+        await updateUserSettings(user.uid, { budgetSource: source });
+      } catch (err) {
+        console.error("Gagal menyimpan preferensi budgetSource:", err);
+      }
+    }
+  };
+
+  const setBudgetCalculationMode = async (mode: BudgetCalculationMode) => {
+    setBudgetCalculationModeState(mode);
+    if (user) {
+      try {
+        await updateUserSettings(user.uid, { budgetCalculationMode: mode });
+      } catch (err) {
+        console.error("Gagal menyimpan preferensi budgetCalculationMode:", err);
+      }
+    }
+  };
 
   // Otomatis membuatkan kategori hutang jika user memiliki hutang namun kategori hutang belum ada
   useEffect(() => {
@@ -95,7 +135,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
     categories, categoriesLoading,
     accounts, accountsLoading,
     debts, debtsLoading,
-  }), [categories, categoriesLoading, accounts, accountsLoading, debts, debtsLoading]);
+    budgetSource,
+    setBudgetSource,
+    budgetCalculationMode,
+    setBudgetCalculationMode,
+  }), [categories, categoriesLoading, accounts, accountsLoading, debts, debtsLoading, budgetSource, budgetCalculationMode]);
 
   return (
     <DataContext.Provider value={value}>

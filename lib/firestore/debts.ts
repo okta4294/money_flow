@@ -51,7 +51,6 @@ export function subscribeToDebts(
 }
 
 export async function addDebt(userId: string, data: DebtInput): Promise<string> {
-  // Filter out undefined fields — Firestore will reject them
   const clean = Object.fromEntries(
     Object.entries(data).filter(([, v]) => v !== undefined)
   );

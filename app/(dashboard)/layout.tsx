@@ -63,34 +63,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </header>
 
-      <nav className="fixed bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 max-w-lg mx-auto z-50 flex items-center justify-between p-1.5 bg-surface border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] rounded-2xl md:hidden transition-colors">
-        {navItems.map(({ href, label, icon }) => {
-          const active = pathname === href || pathname.startsWith(href + "/");
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl transition-all active-press-sm ${
-                active
-                  ? "bg-primary-container text-on-primary-container border-2 border-outline shadow-[1.5px_1.5px_0_0_var(--theme-outline)]"
-                  : "text-on-surface-variant hover:text-on-background border-2 border-transparent"
-              }`}
-            >
-              <span className="material-symbols-outlined text-[19px] sm:text-[21px] leading-none shrink-0">
-                {icon}
-              </span>
-              <span
-                className={`font-label-bold text-[9px] sm:text-[10px] mt-1 truncate max-w-full text-center leading-none ${
-                  active ? "font-extrabold opacity-100" : "opacity-75"
-                }`}
-              >
-                {label}
-              </span>
-            </Link>
-          );
-        })}
-      </nav>
-
       <div className="min-h-screen bg-surface flex transition-colors">
         <Sidebar />
 
@@ -102,12 +74,44 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="px-4 py-4 sm:px-6 sm:py-6 md:p-8 flex flex-col gap-6 max-w-6xl mx-auto min-h-full pb-32"
+              className="px-4 py-4 sm:px-6 sm:py-6 md:p-8 flex flex-col gap-6 max-w-6xl mx-auto min-h-full pb-36"
             >
               {children}
             </motion.div>
           </AnimatePresence>
         </main>
+      </div>
+
+      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden pointer-events-none">
+        <div className="w-full max-w-lg mx-auto px-3 sm:px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1">
+          <nav className="pointer-events-auto flex items-center justify-between p-1.5 bg-surface border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] rounded-2xl transition-colors">
+            {navItems.map(({ href, label, icon }) => {
+              const active = pathname === href || pathname.startsWith(href + "/");
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`flex-1 min-w-0 flex flex-col items-center justify-center py-2 px-0.5 rounded-xl transition-all active-press-sm ${
+                    active
+                      ? "bg-primary-container text-on-primary-container border-2 border-outline shadow-[1.5px_1.5px_0_0_var(--theme-outline)]"
+                      : "text-on-surface-variant hover:text-on-background border-2 border-transparent"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[20px] sm:text-[22px] leading-none shrink-0">
+                    {icon}
+                  </span>
+                  <span
+                    className={`font-label-bold text-[9px] sm:text-[10px] mt-1 truncate max-w-full text-center leading-tight ${
+                      active ? "font-extrabold opacity-100" : "opacity-75"
+                    }`}
+                  >
+                    {label}
+                  </span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
       </div>
     </>
   );

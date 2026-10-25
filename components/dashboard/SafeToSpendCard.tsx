@@ -52,7 +52,6 @@ export function SafeToSpendCard({
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className="col-span-12 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] rounded-3xl overflow-hidden flex flex-col"
     >
-      {/* Header */}
       <div className="bg-primary-container border-b-[3px] border-outline px-6 py-3.5 flex flex-wrap justify-between items-center gap-3">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-surface border-2 border-outline flex items-center justify-center">
@@ -92,7 +91,6 @@ export function SafeToSpendCard({
       </div>
 
       <div className="p-5 space-y-4">
-        {/* Peringatan Over-Budget Harian */}
         {isOverBudget ? (
           <div className="bg-error-container border-3 border-outline rounded-2xl p-4 shadow-[3px_3px_0_0_var(--theme-outline)] text-on-error-container space-y-2">
             <div className="flex items-center gap-2">
@@ -180,11 +178,11 @@ export function SafeToSpendCard({
                 </div>
                 <p className="text-[10px] text-right text-on-surface-variant font-label-md">
                   Tersisa {remainingDays} hari (termasuk hari ini) • Sisa dana {formatRupiah(budget.fundsForDaily)}
+                  {(budget.cumulativeSavings ?? 0) > 0 && ` • Tabungan ${formatRupiah(budget.cumulativeSavings || 0)}`}
                 </p>
               </div>
             </div>
 
-            {/* Sub-kuota bertingkat: Pokok & Sekunder */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2.5 border-t border-outline/30">
               <div className="bg-surface-container rounded-xl border-2 border-outline p-2.5 shadow-[1px_1px_0_0_var(--theme-outline)] flex items-center justify-between gap-2">
                 <div className="min-w-0 flex-1 pr-2">

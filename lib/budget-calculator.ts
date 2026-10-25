@@ -25,6 +25,7 @@ export interface CategoryBudgetAllocation {
   weightPercent?: number;
   recommendedBudget: number;
   currentMonthSpent: number;
+  remainingBudget?: number;
 }
 
 export type BudgetWarningSeverity = "info" | "warning" | "critical";
@@ -59,6 +60,10 @@ export interface BudgetRecommendationResult {
   pastEssentialExpensesInCycle: number;
   pastDiscretionaryExpensesInCycle: number;
   remainingFundsForDaily: number;
+  currentBalance?: number;
+  unpaidFixedObligation: number;
+  availableBalanceForDaily?: number;
+  targetAccountNames?: string[];
   remainingEssentialFunds: number;
   remainingDiscretionaryFunds: number;
   eligibleIncome: number;
@@ -84,6 +89,10 @@ export interface BudgetRecommendationResult {
   dailyEssentialBudget: number;
   dailyDiscretionaryBudget: number;
   dailyBudget: number;
+
+  monthlySavingTarget?: number;
+  cumulativeSavings?: number;
+  hasCustomTargetThisMonth?: boolean;
 
   warnings: BudgetWarning[];
 }
@@ -413,6 +422,11 @@ export function calculateBudgetRecommendation(params: {
   budgetCycle?: BudgetCycle;
   budgetSource?: BudgetSource;
   budgetCalculationMode?: BudgetCalculationMode;
+  currentBalance?: number;
+  targetAccountNames?: string[];
+  monthlySavingTarget?: number;
+  cumulativeSavings?: number;
+  hasCustomTargetThisMonth?: boolean;
 }): BudgetRecommendationResult {
   const {
     year,
@@ -424,9 +438,17 @@ export function calculateBudgetRecommendation(params: {
     categories,
     activeDebts,
     allTransactions = [],
-    budgetSource = "eligible_only",
+    budgetSource = "all_income",
     budgetCalculationMode = "adaptive",
+    currentBalance,
+    targetAccountNames,
+    monthlySavingTarget = 0,
+    cumulativeSavings,
+    hasCustomTargetThisMonth = false,
   } = params;
+
+  const savingTarget = Math.max(0, monthlySavingTarget);
+  const cumulativeSavingsLocked = Math.max(0, cumulativeSavings ?? savingTarget);
 
   const isAllIncome = budgetSource === "all_income";
   const isStrictRollover = budgetCalculationMode === "strict_rollover";
@@ -780,7 +802,9 @@ export function calculateBudgetRecommendation(params: {
   const essentialCats = rawAllocations.filter((a) => !a.isFixed && a.isEssential);
   const discretionaryCats = rawAllocations.filter((a) => !a.isFixed && !a.isEssential);
 
-  if (incomeAfterDebt === 0) {
+  const incomeAfterDebtAndSavings = Math.max(0, incomeAfterDebt - savingTarget);
+
+  if (incomeAfterDebtAndSavings === 0) {
     categoryAllocations = rawAllocations.map((a) => ({
       ...a,
       recommendedBudget: 0,
@@ -789,9 +813,9 @@ export function calculateBudgetRecommendation(params: {
     finalEssentialTotal = 0;
     finalDiscretionaryTotal = 0;
     finalVariableTotal = 0;
-  } else if (incomeAfterDebt <= rawFixedTotal) {
+  } else if (incomeAfterDebtAndSavings <= rawFixedTotal) {
     isScaledDown = true;
-    const fixedScale = incomeAfterDebt / (rawFixedTotal || 1);
+    const fixedScale = incomeAfterDebtAndSavings / (rawFixedTotal || 1);
     categoryAllocations = rawAllocations.map((a) => {
       if (a.isFixed) {
         return {
@@ -801,27 +825,25 @@ export function calculateBudgetRecommendation(params: {
       }
       return { ...a, recommendedBudget: 0 };
     });
-    finalFixedTotal = incomeAfterDebt;
+    finalFixedTotal = incomeAfterDebtAndSavings;
     finalEssentialTotal = 0;
     finalDiscretionaryTotal = 0;
     finalVariableTotal = 0;
 
     warnings.push({
       id: "budget-deficit-fixed",
-      title: "Pengetatan Ekstrem Beban Hutang",
+      title: "Pengetatan Ekstrem Beban Hutang & Tabungan",
       description:
-        "Sisa pemasukan setelah dipotong cicilan hutang tidak cukup menutup biaya tetap bulanan. Seluruh pos variabel dinolkan.",
+        "Sisa pemasukan setelah dipotong cicilan hutang dan target tabungan tidak cukup menutup biaya tetap bulanan. Seluruh pos variabel dinolkan.",
       severity: "critical",
     });
   } else {
     // Sisa dana yang tersedia untuk Kebutuhan Pokok & Sekunder/Variabel
     finalFixedTotal = rawFixedTotal;
-    const availableForVariable = incomeAfterDebt - rawFixedTotal;
+    const availableForVariable = incomeAfterDebtAndSavings - rawFixedTotal;
 
-    // Subcase 1: Cold start (belum ada riwayat pengeluaran pokok maupun sekunder)
     if (isColdStart || (rawEssentialVariableTotal === 0 && rawDiscretionaryVariableTotal === 0)) {
       if (essentialCats.length > 0 && discretionaryCats.length > 0) {
-        // Fallback acuan: 75% kebutuhan pokok, 25% kebutuhan sekunder
         const targetEssential = Math.round(availableForVariable * 0.75);
         const targetDiscretionary = availableForVariable - targetEssential;
 
@@ -862,8 +884,6 @@ export function calculateBudgetRecommendation(params: {
       }
       finalVariableTotal = finalEssentialTotal + finalDiscretionaryTotal;
     } else if (availableForVariable >= rawEssentialVariableTotal) {
-      // Subcase 2: Kebutuhan Pokok Terpenuhi 100%!
-      // Sisa dana (availableForVariable - rawEssentialVariableTotal) dialokasikan untuk kebutuhan sekunder.
       const remainingForDiscretionary = availableForVariable - rawEssentialVariableTotal;
 
       if (rawDiscretionaryVariableTotal > 0) {
@@ -909,7 +929,6 @@ export function calculateBudgetRecommendation(params: {
       finalDiscretionaryTotal = discretionaryCats.length > 0 ? remainingForDiscretionary : 0;
       finalVariableTotal = finalEssentialTotal + finalDiscretionaryTotal;
     } else {
-      // Subcase 3: Kondisi darurat - dana bahkan tidak cukup menutup kebutuhan pokok historis.
       isScaledDown = true;
       const essentialScale = availableForVariable / (rawEssentialVariableTotal || 1);
 
@@ -938,7 +957,7 @@ export function calculateBudgetRecommendation(params: {
     }
   }
 
-  const totalFundsForDaily = Math.max(0, incomeAfterDebt - finalFixedTotal);
+  const totalFundsForDaily = Math.max(0, incomeAfterDebtAndSavings - finalFixedTotal);
 
   // Hitung pengeluaran harian siklus yang sudah terjadi sebelum hari ini
   // (mengecualikan cicilan hutang dan tagihan tetap bulanan)
@@ -982,7 +1001,121 @@ export function calculateBudgetRecommendation(params: {
   let remainingEssentialFunds = finalEssentialTotal;
   let remainingDiscretionaryFunds = finalDiscretionaryTotal;
 
-  if (cycle.isCurrentCycle) {
+  // Mode Saldo Riil: dana harian = saldo bersih saat ini - hutang jatuh tempo belum dibayar - tagihan tetap belum dibayar - akumulasi target tabungan.
+  // Pengeluaran lampau sudah tercermin di saldo, sehingga tidak dikurangkan lagi.
+  const useBalance = cycle.isCurrentCycle && typeof currentBalance === "number";
+  let unpaidFixedObligation = 0;
+  let availableBalanceForDaily: number | undefined = undefined;
+
+  if (useBalance) {
+    unpaidFixedObligation = rawAllocations
+      .filter((a) => a.isFixed)
+      .reduce((sum, a) => sum + Math.max(0, a.historicalAvg - a.currentMonthSpent), 0);
+
+    availableBalanceForDaily =
+      (currentBalance as number) - unpaidDebtObligation - unpaidFixedObligation - cumulativeSavingsLocked;
+    const pool = Math.max(0, availableBalanceForDaily);
+
+    if (isColdStart || (rawEssentialVariableTotal === 0 && rawDiscretionaryVariableTotal === 0)) {
+      if (essentialCats.length > 0 && discretionaryCats.length > 0) {
+        remainingEssentialFunds = Math.round(pool * 0.75);
+        remainingDiscretionaryFunds = pool - remainingEssentialFunds;
+      } else if (essentialCats.length > 0) {
+        remainingEssentialFunds = pool;
+        remainingDiscretionaryFunds = 0;
+      } else if (discretionaryCats.length > 0) {
+        remainingEssentialFunds = 0;
+        remainingDiscretionaryFunds = pool;
+      } else {
+        remainingEssentialFunds = 0;
+        remainingDiscretionaryFunds = 0;
+      }
+    } else {
+      const essentialNeed = Math.round(
+        rawEssentialVariableTotal * (Math.max(1, cycle.remainingDays) / Math.max(1, cycle.daysInCycle))
+      );
+      remainingEssentialFunds = Math.min(pool, essentialNeed);
+      remainingDiscretionaryFunds = discretionaryCats.length > 0 ? pool - remainingEssentialFunds : 0;
+    }
+
+    // Selaraskan target anggaran tiap kategori dengan kapasitas Saldo Riil yang tersisa
+    categoryAllocations = rawAllocations.map((a) => {
+      if (a.isFixed) {
+        return {
+          ...a,
+          recommendedBudget: a.historicalAvg,
+          remainingBudget: Math.max(0, a.historicalAvg - a.currentMonthSpent),
+        };
+      }
+
+      if (a.isEssential) {
+        const share =
+          rawEssentialVariableTotal > 0
+            ? a.historicalAvg / rawEssentialVariableTotal
+            : 1 / Math.max(1, essentialCats.length);
+        const remainingForCat = Math.round(remainingEssentialFunds * share);
+        const recommendedBudget = a.currentMonthSpent + remainingForCat;
+
+        return {
+          ...a,
+          recommendedBudget,
+          remainingBudget: remainingForCat,
+        };
+      }
+
+      const share =
+        rawDiscretionaryVariableTotal > 0
+          ? a.historicalAvg / rawDiscretionaryVariableTotal
+          : 1 / Math.max(1, discretionaryCats.length);
+      const remainingForCat = Math.round(remainingDiscretionaryFunds * share);
+      const recommendedBudget = a.currentMonthSpent + remainingForCat;
+
+      return {
+        ...a,
+        recommendedBudget,
+        remainingBudget: remainingForCat,
+      };
+    });
+
+    finalEssentialTotal = categoryAllocations
+      .filter((a) => !a.isFixed && a.isEssential)
+      .reduce((sum, a) => sum + a.recommendedBudget, 0);
+    finalDiscretionaryTotal = categoryAllocations
+      .filter((a) => !a.isFixed && !a.isEssential)
+      .reduce((sum, a) => sum + a.recommendedBudget, 0);
+    finalVariableTotal = finalEssentialTotal + finalDiscretionaryTotal;
+
+    const accountLabel =
+      targetAccountNames && targetAccountNames.length > 0
+        ? ` (${targetAccountNames.join(", ")})`
+        : " (Total Seluruh Akun)";
+
+    if (cumulativeSavingsLocked > 0) {
+      warnings.push({
+        id: "savings-locked",
+        title: "Target Tabungan Terkunci",
+        description: `Dana sebesar ${formatRupiah(cumulativeSavingsLocked)} (akumulasi target tabungan hingga bulan ini) dikunci dari saldo belanja agar sisa uang terjaga di akhir bulan.`,
+        severity: "info",
+      });
+    }
+
+    const savingsNotice = cumulativeSavingsLocked > 0 ? `, tabungan terkunci ${formatRupiah(cumulativeSavingsLocked)}` : "";
+    warnings.push({
+      id: "balance-driven",
+      title: "Dihitung dari Saldo Riil",
+      description: `Saldo ${formatRupiah(currentBalance as number)}${accountLabel} dikurangi hutang jatuh tempo ${formatRupiah(unpaidDebtObligation)}, tagihan tetap belum dibayar ${formatRupiah(unpaidFixedObligation)}${savingsNotice} = ${formatRupiah(pool)} untuk ${Math.max(1, cycle.remainingDays)} hari.`,
+      severity: "info",
+    });
+
+    if (availableBalanceForDaily < 0) {
+      warnings.push({
+        id: "balance-insufficient",
+        title: "Saldo Kurang untuk Menutup Kewajiban & Tabungan",
+        description: `Saldo riil kurang ${formatRupiah(-availableBalanceForDaily)} untuk menutup hutang, tagihan tetap, dan target tabungan yang dikunci.`,
+        severity: "critical",
+      });
+    }
+  } else if (cycle.isCurrentCycle) {
     const rawRemainingEssential = finalEssentialTotal - pastEssentialExpensesInCycle;
     const rawRemainingDiscretionary = finalDiscretionaryTotal - pastDiscretionaryExpensesInCycle;
 
@@ -1056,7 +1189,7 @@ export function calculateBudgetRecommendation(params: {
 
   const dailyBudget = dailyEssentialBudget + dailyDiscretionaryBudget;
 
-  if (cycle.isCurrentCycle && totalFundsForDaily > 0 && remainingFundsForDaily === 0) {
+  if (cycle.isCurrentCycle && !useBalance && totalFundsForDaily > 0 && remainingFundsForDaily === 0) {
     warnings.push({
       id: "daily-funds-exhausted",
       title: "Alokasi Harian Siklus Ini Telah Habis",
@@ -1109,6 +1242,10 @@ export function calculateBudgetRecommendation(params: {
     pastEssentialExpensesInCycle,
     pastDiscretionaryExpensesInCycle,
     remainingFundsForDaily,
+    currentBalance: useBalance ? currentBalance : undefined,
+    targetAccountNames,
+    unpaidFixedObligation,
+    availableBalanceForDaily,
     remainingEssentialFunds,
     remainingDiscretionaryFunds,
     eligibleIncome,
@@ -1132,6 +1269,9 @@ export function calculateBudgetRecommendation(params: {
     dailyEssentialBudget,
     dailyDiscretionaryBudget,
     dailyBudget,
+    monthlySavingTarget: savingTarget,
+    cumulativeSavings: cumulativeSavingsLocked,
+    hasCustomTargetThisMonth,
     budgetSource,
     budgetCalculationMode,
     warnings,
@@ -1167,7 +1307,6 @@ export function evaluateDailySpendingLimit(params: {
   todayTransactions.forEach((t) => {
     if (t.type !== "expense") return;
 
-    // 1. Pengecualian pembayaran hutang / cicilan / paylater
     if (
       t.debtId ||
       (t.category && isDebtCategoryName(t.category)) ||
@@ -1177,20 +1316,17 @@ export function evaluateDailySpendingLimit(params: {
       return;
     }
 
-    // 2. Pengecualian biaya tetap bulanan via kategori terdaftar
     const cat = categoryMap.get(t.categoryId);
     if (isFixedExpenseCategory(cat)) {
       excludedCount += 1;
       return;
     }
 
-    // 3. Pengecualian via teks nama kategori transaksi (misal: "Tagihan", "Kos", "Listrik")
     if (t.category && isFixedExpenseName(t.category)) {
       excludedCount += 1;
       return;
     }
 
-    // 4. Pengecualian via catatan transaksi jika pengguna menuliskan tagihan/kos/listrik
     if (t.note && isFixedExpenseName(t.note)) {
       excludedCount += 1;
       return;

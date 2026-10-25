@@ -77,7 +77,6 @@ export function BudgetCard({
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className="col-span-12 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] rounded-3xl overflow-hidden flex flex-col"
     >
-      {/* Header */}
       <div className="bg-primary-container border-b-[3px] border-outline px-6 py-4 flex flex-wrap justify-between items-center gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-surface border-2 border-outline flex items-center justify-center">
@@ -125,7 +124,6 @@ export function BudgetCard({
       </div>
 
       <div className="p-6 space-y-6">
-        {/* Peringatan Over-Budget Harian */}
         {isOverBudget ? (
           <div className="bg-error-container border-3 border-outline rounded-2xl p-5 shadow-[3px_3px_0_0_var(--theme-outline)] text-on-error-container space-y-3">
             <div className="flex items-center gap-2">
@@ -147,7 +145,6 @@ export function BudgetCard({
               </strong>
               .
             </p>
-            {/* Rincian Status Pokok vs Sekunder */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
               <div className="bg-surface/80 rounded-xl border border-outline p-2.5 text-on-surface text-xs">
                 <span className="font-label-bold block uppercase text-[10px] text-on-surface-variant">
@@ -218,7 +215,6 @@ export function BudgetCard({
               </div>
             </div>
 
-            {/* Sub-kuota bertingkat: Pokok & Sekunder */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-outline/30">
               <div className="bg-surface-container rounded-xl border-2 border-outline p-3 shadow-[1px_1px_0_0_var(--theme-outline)] flex items-center justify-between gap-2">
                 <div className="min-w-0 flex-1 pr-2">
@@ -273,7 +269,6 @@ export function BudgetCard({
           </div>
         )}
 
-        {/* System Warnings (Overdue, Deficit, etc) */}
         {warnings.length > 0 && (
           <div className="space-y-2">
             {warnings.map((w) => {
@@ -307,24 +302,17 @@ export function BudgetCard({
           </div>
         )}
 
-        {/* 3 Pipeline Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Tahap 1: Pemasukan Utama */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-surface rounded-2xl border-2 border-outline p-4 shadow-[2px_2px_0_0_var(--theme-outline)] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="font-label-bold text-xs uppercase text-on-surface-variant">
-                    1. {budget.budgetSource === "all_income" ? "Semua Pemasukan" : "Pemasukan Utama"}
+                    1. Total Pemasukan
                   </span>
                   {budget.isIncomeEstimated && (
                     <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 bg-secondary text-on-secondary rounded-sm">
-                      Proyeksi Historis
-                    </span>
-                  )}
-                  {budget.budgetSource === "all_income" && (
-                    <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 bg-tertiary text-on-tertiary rounded-sm">
-                      Semua Pemasukan
+                      Proyeksi
                     </span>
                   )}
                 </div>
@@ -339,18 +327,15 @@ export function BudgetCard({
             <p className="font-label-md text-[11px] text-on-surface-variant mt-2">
               {budget.isIncomeEstimated
                 ? `Akumulasi siklus ini masih berjalan. Menggunakan proyeksi acuan ${budget.estimatedIncomeMonth || "siklus lalu"}.`
-                : budget.budgetSource === "all_income"
-                ? "Menghitung seluruh pemasukan (gaji, freelance, bonus, dll) yang tersimpan di akun Anda."
-                : "Kategori rutin (Gaji, Uang Saku, atau Uang Bulanan) sebagai dasar budget."}
+                : "Akumulasi pemasukan dari seluruh akun yang tercatat di siklus ini."}
             </p>
           </div>
 
-          {/* Tahap 2: Beban Hutang Tenor */}
           <div className="bg-surface rounded-2xl border-2 border-outline p-4 shadow-[2px_2px_0_0_var(--theme-outline)] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="font-label-bold text-xs uppercase text-on-surface-variant">
-                  2. Cicilan Hutang Siklus Ini
+                  2. Beban Cicilan
                 </span>
                 <span className="material-symbols-outlined text-error text-lg">
                   account_balance
@@ -371,15 +356,40 @@ export function BudgetCard({
             </p>
           </div>
 
-          {/* Tahap 3: Sisa Safe-to-Spend */}
+          <div className="bg-surface rounded-2xl border-2 border-outline p-4 shadow-[2px_2px_0_0_var(--theme-outline)] flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="font-label-bold text-xs uppercase text-on-surface-variant">
+                    3. Tabungan Terkunci
+                  </span>
+                  {(budget.monthlySavingTarget ?? 0) > 0 && (
+                    <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 bg-secondary-container text-on-secondary-container border border-outline rounded-sm">
+                      Bulan ini: {formatRupiah(budget.monthlySavingTarget || 0)}
+                    </span>
+                  )}
+                </div>
+                <span className="material-symbols-outlined text-secondary text-lg">
+                  lock
+                </span>
+              </div>
+              <h4 className="text-xl md:text-2xl font-display-lg text-secondary dark:text-secondary-fixed">
+                {formatRupiah(budget.cumulativeSavings || 0)}
+              </h4>
+            </div>
+            <p className="font-label-md text-[11px] text-on-surface-variant mt-2">
+              Akumulasi tabungan yang dikunci dari saldo agar sisa uang akhir bulan terjamin
+            </p>
+          </div>
+
           <div className="bg-surface rounded-2xl border-2 border-outline p-4 shadow-[2px_2px_0_0_var(--theme-outline)] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="font-label-bold text-xs uppercase text-on-surface-variant">
-                  3. Dana Harian Bebas
+                  4. Dana Harian Bebas
                 </span>
                 <span className="material-symbols-outlined text-primary text-lg">
-                  savings
+                  shopping_bag
                 </span>
               </div>
               <h4 className="text-xl md:text-2xl font-display-lg text-primary">
@@ -389,14 +399,14 @@ export function BudgetCard({
                 <div className="flex justify-between items-center text-on-surface-variant">
                   <span className="flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    Alokasi Pokok:
+                    Pokok:
                   </span>
                   <strong className="text-on-surface">{formatRupiah(budget.remainingEssentialFunds)}</strong>
                 </div>
                 <div className="flex justify-between items-center text-on-surface-variant">
                   <span className="flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-                    Alokasi Sekunder:
+                    Sekunder:
                   </span>
                   <strong className="text-on-surface">{formatRupiah(budget.remainingDiscretionaryFunds)}</strong>
                 </div>
@@ -413,7 +423,6 @@ export function BudgetCard({
           </div>
         </div>
 
-        {/* Collapsible Details */}
         <AnimatePresence>
           {showDetails && (
             <motion.div
@@ -423,7 +432,6 @@ export function BudgetCard({
               transition={{ duration: 0.2 }}
               className="space-y-6 pt-4 border-t-2 border-outline border-dashed overflow-hidden"
             >
-              {/* Detail Hutang Berdasarkan Tenor */}
               <div>
                 <h4 className="font-label-bold text-xs uppercase tracking-widest text-on-surface mb-3 flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-base">
@@ -517,7 +525,6 @@ export function BudgetCard({
                 )}
               </div>
 
-              {/* Rekomendasi Budget per Kategori Pengeluaran */}
               <div>
                 <h4 className="font-label-bold text-xs uppercase tracking-widest text-on-surface mb-3 flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-base">
@@ -600,9 +607,13 @@ export function BudgetCard({
                               <span className="text-on-surface-variant">
                                 Terpakai: {formatRupiah(cat.currentMonthSpent)}
                               </span>
-                              {isOverCategory && (
+                              {isOverCategory ? (
                                 <span className="text-error font-bold">
                                   {isZeroBudget ? "Melebihi target (kuota Rp 0)" : "Melebihi target"}
+                                </span>
+                              ) : (
+                                <span className="text-tertiary font-bold">
+                                  Sisa: {formatRupiah(cat.remainingBudget ?? Math.max(0, cat.recommendedBudget - cat.currentMonthSpent))}
                                 </span>
                               )}
                             </div>

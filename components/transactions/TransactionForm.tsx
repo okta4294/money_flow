@@ -129,7 +129,6 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
       const data: TransactionInput = {
         amount: numericAmount,
         type,
-        // ponytail: transfer tidak pakai category/categoryId, kosongkan saja
         category: type === "transfer" ? "Transfer" : (selectedCategory?.name || ""),
         categoryId: type === "transfer" ? "" : categoryId,
         note,
@@ -373,7 +372,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                       key={acc.id}
                       type="button"
                       onClick={() => setAccountId(acc.id)}
-                      className={`flex items-center gap-2 p-2 border-2 border-black dark:border-white font-label-bold text-[10px] uppercase transition-transform active-press ${
+                      className={`flex items-center gap-1.5 p-2 border-2 border-black dark:border-white font-label-bold text-[10px] uppercase transition-transform active-press ${
                         accountId === acc.id
                           ? "bg-tertiary text-on-tertiary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-[-2px] translate-x-[-2px]"
                           : "bg-surface text-on-surface hover:bg-surface-variant"

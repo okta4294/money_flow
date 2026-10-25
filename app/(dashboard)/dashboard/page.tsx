@@ -5,8 +5,8 @@ import { useAuth } from "@/lib/auth-context";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useCategories } from "@/hooks/useCategories";
 import { useDebts } from "@/hooks/useDebts";
-import { getInitialBalance } from "@/lib/firestore/balances";
-import { InitialBalanceModal } from "@/components/dashboard/InitialBalanceModal";
+import { useAccounts } from "@/hooks/useAccounts";
+import { getTotalAccountBalance } from "@/lib/firestore/accounts";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { MonthSelector } from "@/components/layout/MonthSelector";
 import { AISummaryCard } from "@/components/dashboard/AISummaryCard";
@@ -31,25 +31,39 @@ export default function DashboardPage() {
     loading: budgetLoading,
   } = useBudgetRecommendation(year, month, transactions);
 
-  const [initialBalance, setInitialBalance] = useState(0);
+  const { accounts, loading: accountsLoading } = useAccounts();
+  const [totalAccountBalance, setTotalAccountBalance] = useState<number | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
-  const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showTransactionForm, setShowTransactionForm] = useState(false);
   const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
 
-  const fetchBalance = useCallback(async () => {
+  const fetchTotalBalance = useCallback(async () => {
     if (!user) return;
     setBalanceLoading(true);
-    const bal = await getInitialBalance(user.uid, year, month);
-    setInitialBalance(bal);
-    setBalanceLoading(false);
-  }, [user?.uid, year, month]);
+    if (accounts.length === 0) {
+      setTotalAccountBalance(0);
+      setBalanceLoading(false);
+      return;
+    }
+    try {
+      const total = await getTotalAccountBalance(
+        user.uid,
+        accounts.map((a) => a.id)
+      );
+      setTotalAccountBalance(total);
+    } catch (err) {
+      console.error("Gagal memuat saldo akun:", err);
+    } finally {
+      setBalanceLoading(false);
+    }
+  }, [user?.uid, accounts]);
 
   useEffect(() => {
-    fetchBalance();
-  }, [fetchBalance]);
+    fetchTotalBalance();
+  }, [fetchTotalBalance, transactions]);
 
-  const currentBalance = initialBalance + totalIncome - totalExpense;
+  // Total saldo riil berdasarkan akumulasi saldo seluruh akun
+  const currentBalance = accounts.length > 0 ? (totalAccountBalance ?? 0) : (totalIncome - totalExpense);
   const recentTransactions = transactions.slice(0, 5);
 
   const maxCashflow = Math.max(totalIncome, totalExpense, 1);
@@ -82,13 +96,6 @@ export default function DashboardPage() {
           <div className="bg-surface-container border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] flex items-center justify-center p-1 rounded-xl flex-1 sm:flex-initial">
              <MonthSelector year={year} month={month} onChange={(y, m) => { setYear(y); setMonth(m); }} />
           </div>
-          <button
-            onClick={() => setShowBalanceModal(true)}
-            className="bg-primary-container text-on-primary-container font-label-bold text-label-bold uppercase py-2.5 px-4 border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] active-press rounded-xl transition-all flex items-center justify-center gap-2 flex-1 sm:flex-initial whitespace-nowrap"
-          >
-            <span className="material-symbols-outlined text-black font-bold text-lg">edit</span>
-            Saldo Awal
-          </button>
         </div>
       </header>
 
@@ -98,12 +105,29 @@ export default function DashboardPage() {
             <span className="material-symbols-outlined text-[200px] text-on-primary-container">attach_money</span>
           </div>
           <div className="relative z-10">
-            <div className="inline-block bg-on-background text-surface font-label-bold text-label-bold uppercase px-3 py-1 rounded-full border-2 border-outline mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="inline-block bg-on-background text-surface font-label-bold text-label-bold uppercase px-3 py-1 rounded-full border-2 border-outline">
                 Total Saldo Bersih
+              </div>
+              <Link
+                href="/accounts"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface text-on-surface border-2 border-outline text-xs font-label-bold uppercase shadow-[2px_2px_0_0_var(--theme-outline)] hover:bg-surface-bright active-press"
+              >
+                <span className="material-symbols-outlined text-sm">account_balance_wallet</span>
+                Kelola Akun
+              </Link>
             </div>
             <h3 className="text-[clamp(2.5rem,5vw,4.5rem)] leading-none tracking-tight mt-2 font-display-lg break-words w-full" style={{ color: 'var(--theme-primary)', WebkitTextStroke: '2px var(--theme-outline)' }}>
-                {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(currentBalance)}
+              {balanceLoading && totalAccountBalance === null ? (
+                <span className="animate-pulse opacity-50">Rp ...</span>
+              ) : (
+                new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(currentBalance)
+              )}
             </h3>
+            <p className="font-label-bold text-xs uppercase tracking-wider text-on-primary-container/80 mt-3 flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">verified_user</span>
+              Akumulasi Real-Time Seluruh Akun & Dompet
+            </p>
           </div>
         </motion.div>
 
@@ -116,7 +140,7 @@ export default function DashboardPage() {
               transactions={transactions}
               month={month}
               year={year}
-              initialBalance={initialBalance}
+              initialBalance={currentBalance}
               totalIncome={totalIncome}
               totalExpense={totalExpense}
               activeDebts={activeDebts}
@@ -283,14 +307,6 @@ export default function DashboardPage() {
         <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>add</span>
       </motion.button>
 
-      <InitialBalanceModal
-        open={showBalanceModal}
-        onClose={() => setShowBalanceModal(false)}
-        currentBalance={initialBalance}
-        year={year}
-        month={month}
-        onSaved={fetchBalance}
-      />
       <TransactionForm
         open={showTransactionForm}
         onClose={() => { setShowTransactionForm(false); setEditTransaction(null); }}

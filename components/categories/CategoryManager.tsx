@@ -7,7 +7,6 @@ import { TransactionType } from "@/lib/firestore/transactions";
 import {
   isFixedExpenseCategory,
   isEssentialExpenseCategory,
-  isEligibleIncomeCategory,
 } from "@/lib/budget-calculator";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -17,7 +16,6 @@ interface CategoryManagerProps {
 }
 
 type ExpenseClassification = "auto" | "essential" | "fixed" | "variable";
-type IncomeRole = "auto" | "primary" | "secondary";
 
 const PRESET_ICONS = [
   "restaurant",
@@ -51,7 +49,6 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
   const [icon, setIcon] = useState(PRESET_ICONS[0]);
   const [expenseClassification, setExpenseClassification] =
     useState<ExpenseClassification>("auto");
-  const [incomeRole, setIncomeRole] = useState<IncomeRole>("auto");
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -62,7 +59,6 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
     setName("");
     setIcon(PRESET_ICONS[0]);
     setExpenseClassification("auto");
-    setIncomeRole("auto");
     setError("");
     setShowForm(true);
   };
@@ -82,14 +78,6 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
       setExpenseClassification("auto");
     }
 
-    if (cat.isEligibleForBudget === true) {
-      setIncomeRole("primary");
-    } else if (cat.isEligibleForBudget === false) {
-      setIncomeRole("secondary");
-    } else {
-      setIncomeRole("auto");
-    }
-
     setError("");
     setShowForm(true);
   };
@@ -101,11 +89,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
     try {
       const budgetFlags =
         tab === "income"
-          ? incomeRole === "auto"
-            ? { isEligibleForBudget: null }
-            : incomeRole === "primary"
-            ? { isEligibleForBudget: true }
-            : { isEligibleForBudget: false }
+          ? {}
           : expenseClassification === "auto"
           ? { isFixedExpense: null, isEssentialExpense: null }
           : expenseClassification === "fixed"
@@ -243,20 +227,6 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                         </span>
                       );
                     })()}
-                    {cat.type === "income" && (() => {
-                      const isPrimary = isEligibleIncomeCategory(cat);
-                      const isManual = typeof cat.isEligibleForBudget === "boolean";
-                      return isPrimary ? (
-                        <span className="text-[10px] font-bold uppercase tracking-widest bg-emerald-500 text-white dark:bg-emerald-400 dark:text-slate-950 px-2 py-0.5 rounded-sm inline-flex items-center gap-1">
-                          DASAR ANGGARAN
-                          {isManual && <span className="text-[8px] opacity-75 font-normal">MANUAL</span>}
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-bold uppercase tracking-widest bg-surface-container-high text-on-surface-variant border border-outline/30 px-2 py-0.5 rounded-sm inline-block">
-                          SAMPINGAN
-                        </span>
-                      );
-                    })()}
                   </div>
                   <h3 className="font-headline-md text-lg leading-tight line-clamp-2">
                     {cat.name}
@@ -331,7 +301,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                 </div>
               </div>
 
-              {tab === "expense" ? (
+              {tab === "expense" && (
                 <div className="bg-surface-container border-2 border-outline rounded-2xl p-3.5 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-on-surface-variant font-label-bold block uppercase tracking-widest text-xs">
@@ -401,70 +371,6 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                       "Pengeluaran tetap bulanan dikecualikan dari batas harian agar tidak memicu overbudget palsu."}
                     {expenseClassification === "variable" &&
                       "Pengeluaran sekunder / gaya hidup fleksibel dipangkas jika beban hutang tinggi."}
-                  </p>
-                </div>
-              ) : (
-                <div className="bg-surface-container border-2 border-outline rounded-2xl p-3.5 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-on-surface-variant font-label-bold block uppercase tracking-widest text-xs">
-                      Peran dalam Smart Budget
-                    </label>
-                    <span className="text-[11px] font-medium text-on-surface-variant/80">
-                      {incomeRole === "auto" ? "Deteksi Otomatis" : "Diatur Manual"}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {[
-                      {
-                        id: "auto",
-                        label: "Otomatis",
-                        desc: "Kata kunci nama",
-                        icon: "smart_toy",
-                      },
-                      {
-                        id: "primary",
-                        label: "Utama",
-                        desc: "Dasar budget rutin",
-                        icon: "payments",
-                      },
-                      {
-                        id: "secondary",
-                        label: "Sampingan",
-                        desc: "Di luar budget rutin",
-                        icon: "savings",
-                      },
-                    ].map((opt) => {
-                      const isSelected = incomeRole === opt.id;
-                      return (
-                        <button
-                          key={opt.id}
-                          type="button"
-                          onClick={() => setIncomeRole(opt.id as IncomeRole)}
-                          className={`p-2.5 rounded-xl text-left border-2 transition-all flex flex-col justify-between ${
-                            isSelected
-                              ? "bg-primary-container text-on-primary-container border-outline shadow-[2px_2px_0_0_var(--theme-outline)] font-bold -translate-y-0.5"
-                              : "bg-surface text-on-surface border-outline/40 hover:bg-surface-bright hover:border-outline"
-                          }`}
-                        >
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <span className="material-symbols-outlined text-[16px]">{opt.icon}</span>
-                            <span className="text-xs font-bold leading-none">{opt.label}</span>
-                          </div>
-                          <span className="text-[10px] leading-tight text-on-surface-variant opacity-85">
-                            {opt.desc}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <p className="text-[10px] text-on-surface-variant pt-1 leading-relaxed">
-                    {incomeRole === "auto" &&
-                      "Sistem otomatis mendeteksi kata kunci nama (seperti gaji, salary, uang saku, atau uang bulanan)."}
-                    {incomeRole === "primary" &&
-                      "Pemasukan ini menjadi pondasi siklus gajian untuk menentukan batas belanja harian."}
-                    {incomeRole === "secondary" &&
-                      "Pemasukan sampingan/tambahan tidak dijadikan patokan batas budget bulanan rutin."}
                   </p>
                 </div>
               )}

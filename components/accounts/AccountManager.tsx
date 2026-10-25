@@ -133,7 +133,7 @@ export function AccountManager() {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-28 bg-surface-bright neo-brutalist-border rounded-lg animate-pulse" />
+          <div key={i} className="h-36 bg-surface-bright neo-brutalist-border rounded-3xl animate-pulse" />
         ))}
       </div>
     );
@@ -153,16 +153,16 @@ export function AccountManager() {
           whileHover={{ scale: 1.02, y: -2 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleOpenNew}
-          className="min-h-[160px] sm:aspect-[2/1] rounded-3xl border-4 border-dashed border-outline bg-surface hover:bg-surface-bright flex flex-col items-center justify-center gap-2 transition-all group shadow-[4px_4px_0_0_var(--theme-outline)]"
+          className="min-h-[190px] rounded-3xl border-4 border-dashed border-outline bg-surface hover:bg-surface-bright flex flex-col items-center justify-center gap-2.5 p-6 transition-all group shadow-[5px_5px_0_0_var(--theme-outline)]"
         >
-          <div className="w-12 h-12 rounded-xl bg-surface-container-highest border-2 border-outline flex items-center justify-center transition-colors">
-             <span className="material-symbols-outlined text-on-background text-2xl group-hover:rotate-90 transition-transform">add</span>
+          <div className="w-12 h-12 rounded-2xl bg-surface-container-highest border-2 border-outline flex items-center justify-center shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors">
+            <span className="material-symbols-outlined text-on-background text-2xl group-hover:rotate-90 transition-transform">add</span>
           </div>
-          <span className="font-label-bold text-on-surface-variant font-bold">Tambah Akun</span>
+          <span className="font-label-bold text-sm text-on-surface-variant font-bold uppercase tracking-wider">Tambah Akun</span>
         </motion.button>
 
         {accounts.map((acc, idx) => {
-           const colorClass = bgColors[idx % bgColors.length];
+          const colorClass = bgColors[idx % bgColors.length];
           return (
             <motion.div
               layout
@@ -171,47 +171,55 @@ export function AccountManager() {
               whileHover={{ scale: 1.02, y: -2 }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
               key={acc.id}
-              className={`group relative min-h-[160px] sm:aspect-[2/1] border-4 border-outline rounded-3xl p-5 flex flex-col justify-between items-start text-left shadow-[4px_4px_0_0_var(--theme-outline)] hover:shadow-[6px_6px_0_0_var(--theme-outline)] transition-all ${colorClass}`}
+              className={`group relative min-h-[190px] border-4 border-outline rounded-3xl p-6 flex flex-col justify-between items-start text-left shadow-[5px_5px_0_0_var(--theme-outline)] hover:shadow-[7px_7px_0_0_var(--theme-outline)] transition-all ${colorClass}`}
             >
-              <div className="flex w-full justify-between items-start">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white border-2 border-outline rounded-2xl flex items-center justify-center text-black shadow-sm">
+              <div className="flex w-full justify-between items-start gap-3">
+                <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                  <div className="w-12 h-12 rounded-2xl bg-surface border-2 border-outline flex items-center justify-center text-on-surface shadow-[2px_2px_0_0_var(--theme-outline)] shrink-0">
                     {getIcon(acc.type)}
                   </div>
-                  <div>
-                    <h3 className="font-headline-md text-lg leading-tight line-clamp-1">{acc.name}</h3>
-                    <p className="font-label-bold text-sm opacity-80 uppercase tracking-wider mt-0.5">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-headline-md text-xl font-black leading-tight text-inherit truncate">
+                        {acc.name}
+                      </h3>
+                    </div>
+                    <p className="font-label-bold text-xs uppercase tracking-wider opacity-75 mt-1">
                       {ACCOUNT_TYPES.find((t) => t.value === acc.type)?.label}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1.5 shrink-0 ml-1">
                   <button
+                    type="button"
                     onClick={() => handleOpenEdit(acc)}
-                    className="w-10 h-10 rounded-xl bg-white border-2 border-outline text-black flex items-center justify-center hover:bg-slate-200 active-press-sm"
+                    title="Edit Akun"
+                    className="w-9 h-9 rounded-xl bg-surface border-2 border-outline text-on-surface flex items-center justify-center hover:bg-surface-bright shadow-[1.5px_1.5px_0_0_var(--theme-outline)] active-press-sm transition-transform"
                   >
-                    <span className="material-symbols-outlined text-[20px]">edit</span>
+                    <span className="material-symbols-outlined text-[18px]">edit</span>
                   </button>
                   <button
+                    type="button"
                     onClick={() => handleDelete(acc.id)}
-                    className="w-10 h-10 rounded-xl bg-error text-on-error border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm"
+                    title="Hapus Akun"
+                    className="w-9 h-9 rounded-xl bg-error text-on-error border-2 border-outline flex items-center justify-center hover:opacity-90 shadow-[1.5px_1.5px_0_0_var(--theme-outline)] active-press-sm transition-transform"
                   >
-                    <span className="material-symbols-outlined text-[20px]">delete</span>
+                    <span className="material-symbols-outlined text-[18px]">delete</span>
                   </button>
                 </div>
               </div>
 
               {balances[acc.id] !== undefined && (
-                <div className="mt-4">
-                  <p className="text-xs font-label-bold uppercase tracking-widest opacity-80 mb-1">Saldo</p>
-                  <p className="font-display-lg text-2xl sm:text-3xl tracking-tighter truncate max-w-full" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>
+                <div className="w-full mt-5 pt-3 border-t-2 border-outline/15">
+                  <p className="text-[11px] font-label-bold uppercase tracking-widest opacity-80 mb-0.5">Saldo Saat Ini</p>
+                  <p className="font-display-lg text-2xl sm:text-3xl font-black tracking-tight leading-normal text-inherit truncate">
                     {formatRupiah(balances[acc.id])}
                   </p>
                 </div>
               )}
             </motion.div>
-           );
+          );
         })}
       </div>
 

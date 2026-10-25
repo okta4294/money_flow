@@ -4,9 +4,13 @@ import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useGlobalData } from "@/lib/data-context";
 import { Transaction, getTransactionsByMonth } from "@/lib/firestore/transactions";
+import { getAccountBalances } from "@/lib/firestore/accounts";
+import { useTransactions } from "@/hooks/useTransactions";
+import { calculateSavingsSummary } from "@/lib/firestore/savings";
 import {
   calculateBudgetRecommendation,
   evaluateDailySpendingLimit,
+  isEligibleIncomeCategory,
   BudgetRecommendationResult,
   DailyLimitCheckResult,
 } from "@/lib/budget-calculator";
@@ -47,14 +51,24 @@ export function useBudgetRecommendation(
   currentTransactions: Transaction[]
 ) {
   const { user } = useAuth();
-  const { categories, debts, categoriesLoading, debtsLoading, budgetSource, budgetCalculationMode } = useGlobalData();
+  const {
+    categories,
+    accounts,
+    accountsLoading,
+    debts,
+    categoriesLoading,
+    debtsLoading,
+    monthlySavings,
+    monthlySavingsLoading,
+    saveMonthlySaving,
+    budgetCalculationMode,
+  } = useGlobalData();
 
   const [historicalExpenses, setHistoricalExpenses] = useState<Transaction[]>([]);
   const [historicalIncomes, setHistoricalIncomes] = useState<Transaction[]>([]);
   const [adjacentTransactions, setAdjacentTransactions] = useState<Transaction[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
 
-  // Ambil data transaksi 1-3 bulan sebelumnya dan 1 bulan setelahnya untuk rentang siklus gajian
   useEffect(() => {
     if (!user) {
       setHistoricalExpenses([]);
@@ -109,12 +123,69 @@ export function useBudgetRecommendation(
     return Array.from(map.values());
   }, [adjacentTransactions, currentTransactions]);
 
+  const categoryMap = useMemo(
+    () => new Map(categories.map((c) => [c.id, c])),
+    [categories]
+  );
+
+  const targetAccountIds = useMemo(() => {
+    return accounts.map((a) => a.id);
+  }, [accounts]);
+
+  const targetAccountNames = useMemo(() => {
+    return accounts.map((a) => a.name);
+  }, [accounts]);
+
+  const savingsSummary = useMemo(() => {
+    return calculateSavingsSummary(monthlySavings, year, month);
+  }, [monthlySavings, year, month]);
+
+  const nowDate = new Date();
+  const realYear = nowDate.getFullYear();
+  const realMonth = nowDate.getMonth() + 1;
+  const {
+    transactions: realTransactions,
+    loading: realTxLoading,
+  } = useTransactions(realYear, realMonth);
+
+  const [accountBalances, setAccountBalances] = useState<Record<string, number>>({});
+  const [balanceLoaded, setBalanceLoaded] = useState(false);
+  const accountIdsKey = accounts.map((a) => a.id).join(",");
+
+  useEffect(() => {
+    if (!user) {
+      setAccountBalances({});
+      setBalanceLoaded(true);
+      return;
+    }
+    if (accountsLoading) return;
+    let isMounted = true;
+    getAccountBalances(user.uid, accountIdsKey ? accountIdsKey.split(",") : [])
+      .then((records) => {
+        if (isMounted) setAccountBalances(records);
+      })
+      .catch(() => {
+        if (isMounted) setAccountBalances({});
+      })
+      .finally(() => {
+        if (isMounted) setBalanceLoaded(true);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.uid, accountsLoading, accountIdsKey, realTransactions]);
+
+  const currentBalance = useMemo(() => {
+    if (!balanceLoaded || realTxLoading) return undefined;
+    return targetAccountIds.reduce((sum, id) => sum + (accountBalances[id] || 0), 0);
+  }, [balanceLoaded, realTxLoading, targetAccountIds, accountBalances]);
+
   const activeDebts = useMemo(() => {
     return debts.filter((d) => d.status === "active" && d.remainingAmount > 0);
   }, [debts]);
 
   const budget = useMemo<BudgetRecommendationResult | null>(() => {
-    if (categoriesLoading || debtsLoading) return null;
+    if (categoriesLoading || debtsLoading || monthlySavingsLoading || !balanceLoaded || realTxLoading) return null;
 
     return calculateBudgetRecommendation({
       year,
@@ -126,8 +197,13 @@ export function useBudgetRecommendation(
       categories,
       activeDebts,
       allTransactions,
-      budgetSource,
+      budgetSource: "all_income",
       budgetCalculationMode,
+      currentBalance,
+      targetAccountNames,
+      monthlySavingTarget: savingsSummary.currentTargetAmount,
+      cumulativeSavings: savingsSummary.cumulativeSavings,
+      hasCustomTargetThisMonth: savingsSummary.hasCustomTargetThisMonth,
     });
   }, [
     year,
@@ -141,8 +217,13 @@ export function useBudgetRecommendation(
     allTransactions,
     categoriesLoading,
     debtsLoading,
-    budgetSource,
+    monthlySavingsLoading,
     budgetCalculationMode,
+    currentBalance,
+    targetAccountNames,
+    savingsSummary,
+    balanceLoaded,
+    realTxLoading,
   ]);
 
   const todayTransactions = useMemo(() => {
@@ -161,12 +242,14 @@ export function useBudgetRecommendation(
     });
   }, [budget, todayTransactions, categories]);
 
-  const loading = historyLoading || categoriesLoading || debtsLoading;
+  const loading = historyLoading || categoriesLoading || debtsLoading || monthlySavingsLoading;
 
   return {
     budget,
     dailyCheck,
     loading,
     todayTransactions,
+    savingsSummary,
+    saveMonthlySaving,
   };
 }

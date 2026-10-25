@@ -5,9 +5,10 @@ import { useAuth } from "./auth-context";
 import { subscribeToCategories, Category, isDebtCategoryName, ensureDebtCategoryExists } from "./firestore/categories";
 import { subscribeToAccounts, Account } from "./firestore/accounts";
 import { subscribeToDebts, Debt } from "./firestore/debts";
+import { subscribeToMonthlySavings, setMonthlySaving as firestoreSetMonthlySaving, MonthlySaving } from "./firestore/savings";
 import { subscribeToUserSettings, updateUserSettings, BudgetSource, BudgetCalculationMode } from "./firestore/user-settings";
 
-export type { BudgetSource, BudgetCalculationMode };
+export type { BudgetSource, BudgetCalculationMode, MonthlySaving };
 
 interface DataContextType {
   categories: Category[];
@@ -16,6 +17,9 @@ interface DataContextType {
   accountsLoading: boolean;
   debts: Debt[];
   debtsLoading: boolean;
+  monthlySavings: MonthlySaving[];
+  monthlySavingsLoading: boolean;
+  saveMonthlySaving: (year: number, month: number, target: number) => Promise<void>;
   budgetSource: BudgetSource;
   setBudgetSource: (source: BudgetSource) => Promise<void>;
   budgetCalculationMode: BudgetCalculationMode;
@@ -36,7 +40,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [debts, setDebts] = useState<Debt[]>([]);
   const [debtsLoading, setDebtsLoading] = useState(true);
 
-  const [budgetSource, setBudgetSourceState] = useState<BudgetSource>("eligible_only");
+  const [monthlySavings, setMonthlySavings] = useState<MonthlySaving[]>([]);
+  const [monthlySavingsLoading, setMonthlySavingsLoading] = useState(true);
+
+  const [budgetSource, setBudgetSourceState] = useState<BudgetSource>("all_income");
   const [budgetCalculationMode, setBudgetCalculationModeState] = useState<BudgetCalculationMode>("adaptive");
 
   const isAutoCreatingCategoryRef = useRef(false);
@@ -49,7 +56,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setAccountsLoading(false);
       setDebts([]);
       setDebtsLoading(false);
-      setBudgetSourceState("eligible_only");
+      setMonthlySavings([]);
+      setMonthlySavingsLoading(false);
+      setBudgetSourceState("all_income");
       setBudgetCalculationModeState("adaptive");
       return;
     }
@@ -57,6 +66,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setCategoriesLoading(true);
     setAccountsLoading(true);
     setDebtsLoading(true);
+    setMonthlySavingsLoading(true);
 
     const unsubCat = subscribeToCategories(user.uid, (data) => {
       setCategories(data);
@@ -73,8 +83,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setDebtsLoading(false);
     });
 
+    const unsubSavings = subscribeToMonthlySavings(user.uid, (data) => {
+      setMonthlySavings(data);
+      setMonthlySavingsLoading(false);
+    });
+
     const unsubSettings = subscribeToUserSettings(user.uid, (settings) => {
-      setBudgetSourceState(settings.budgetSource || "eligible_only");
+      setBudgetSourceState(settings.budgetSource || "all_income");
       setBudgetCalculationModeState(settings.budgetCalculationMode || "adaptive");
     });
 
@@ -82,9 +97,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
       unsubCat();
       unsubAcc();
       unsubDebt();
+      unsubSavings();
       unsubSettings();
     };
   }, [user?.uid]);
+
+  const saveMonthlySaving = async (year: number, month: number, target: number) => {
+    if (!user) return;
+    try {
+      await firestoreSetMonthlySaving(user.uid, year, month, target);
+    } catch (err) {
+      console.error("Gagal menyimpan target tabungan:", err);
+      throw err;
+    }
+  };
 
   const setBudgetSource = async (source: BudgetSource) => {
     setBudgetSourceState(source);
@@ -108,7 +134,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Otomatis membuatkan kategori hutang jika user memiliki hutang namun kategori hutang belum ada
   useEffect(() => {
     if (!user || categoriesLoading || debtsLoading) return;
 
@@ -135,11 +160,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
     categories, categoriesLoading,
     accounts, accountsLoading,
     debts, debtsLoading,
+    monthlySavings, monthlySavingsLoading,
+    saveMonthlySaving,
     budgetSource,
     setBudgetSource,
     budgetCalculationMode,
     setBudgetCalculationMode,
-  }), [categories, categoriesLoading, accounts, accountsLoading, debts, debtsLoading, budgetSource, budgetCalculationMode]);
+  }), [categories, categoriesLoading, accounts, accountsLoading, debts, debtsLoading, monthlySavings, monthlySavingsLoading, budgetSource, budgetCalculationMode]);
 
   return (
     <DataContext.Provider value={value}>

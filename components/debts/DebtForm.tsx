@@ -50,7 +50,6 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
     setError("");
     setLoading(true);
     try {
-      // Bangun objek tanpa field undefined: Firestore tidak bisa menyimpan undefined
       const data: DebtInput = {
         name: name.trim(),
         totalAmount: numericAmount,

@@ -92,7 +92,6 @@ export default function BudgetPage() {
                     : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
                 }`}
               >
-                <span className="material-symbols-outlined text-sm">balance</span>
                 <span className="truncate">Adaptif</span>
               </button>
 
@@ -105,7 +104,6 @@ export default function BudgetPage() {
                     : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
                 }`}
               >
-                <span className="material-symbols-outlined text-sm">bolt</span>
                 <span className="truncate">Disiplin (1:1)</span>
               </button>
             </div>

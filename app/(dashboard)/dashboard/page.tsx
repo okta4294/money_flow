@@ -62,8 +62,20 @@ export default function DashboardPage() {
     fetchTotalBalance();
   }, [fetchTotalBalance, transactions]);
 
-  // Total saldo riil berdasarkan akumulasi saldo seluruh akun
-  const currentBalance = accounts.length > 0 ? (totalAccountBalance ?? 0) : (totalIncome - totalExpense);
+  // Total saldo kas riil berdasarkan akumulasi saldo seluruh akun
+  const totalKas = accounts.length > 0 ? (totalAccountBalance ?? 0) : (totalIncome - totalExpense);
+
+  // Saldo dingin: saldo riil setelah dipotong hutang jatuh tempo, kebutuhan tetap, dan target saving
+  const debtDeduction = budget
+    ? (budget.debtObligations ? budget.debtObligations.reduce((sum, d) => sum + d.monthlyObligation, 0) : budget.totalDebtObligation)
+    : totalDebt;
+  const fixedDeduction = budget?.unpaidFixedObligation ?? 0;
+  const savingsDeduction = budget?.cumulativeSavings ?? budget?.monthlySavingTarget ?? 0;
+
+  const coldBalance = budget?.availableBalanceForDaily !== undefined
+    ? budget.availableBalanceForDaily
+    : (totalKas - debtDeduction - fixedDeduction - savingsDeduction);
+
   const recentTransactions = transactions.slice(0, 5);
 
   const maxCashflow = Math.max(totalIncome, totalExpense, 1);
@@ -100,47 +112,48 @@ export default function DashboardPage() {
       </header>
 
       <div className="grid grid-cols-12 gap-6 w-full">
-        <motion.div whileHover={{ scale: 1.02, y: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="col-span-12 lg:col-span-8 bg-primary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group rounded-3xl">
-          <div className="absolute -right-10 -bottom-10 opacity-20 transform rotate-12 pointer-events-none">
-            <span className="material-symbols-outlined text-[200px] text-on-primary-container">attach_money</span>
-          </div>
+        <motion.div whileHover={{ scale: 1.02, y: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="col-span-12 lg:col-span-8 bg-primary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-5 sm:p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group rounded-3xl">
           <div className="relative z-10">
-            <div className="flex items-center justify-between mb-4">
-              <div className="inline-block bg-on-background text-surface font-label-bold text-label-bold uppercase px-3 py-1 rounded-full border-2 border-outline">
+            <div className="flex items-center justify-between gap-2 mb-3 sm:mb-4">
+              <div className="inline-flex items-center gap-1.5 bg-on-background text-surface font-label-bold text-[11px] sm:text-xs uppercase px-2.5 sm:px-3 py-1 rounded-full border-2 border-outline shadow-[1px_1px_0_0_var(--theme-outline)] shrink-0 whitespace-nowrap">
                 Total Saldo Bersih
               </div>
               <Link
                 href="/accounts"
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface text-on-surface border-2 border-outline text-xs font-label-bold uppercase shadow-[2px_2px_0_0_var(--theme-outline)] hover:bg-surface-bright active-press"
+                className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 rounded-xl bg-surface text-on-surface border-2 border-outline text-[11px] sm:text-xs font-label-bold uppercase shadow-[1.5px_1.5px_0_0_var(--theme-outline)] sm:shadow-[2px_2px_0_0_var(--theme-outline)] hover:bg-surface-bright active-press shrink-0 whitespace-nowrap"
               >
-                <span className="material-symbols-outlined text-sm">account_balance_wallet</span>
+                <span className="material-symbols-outlined text-[15px]">account_balance_wallet</span>
                 Kelola Akun
               </Link>
             </div>
-            <h3 className="text-[clamp(2.5rem,5vw,4.5rem)] leading-none tracking-tight mt-2 font-display-lg break-words w-full" style={{ color: 'var(--theme-primary)', WebkitTextStroke: '2px var(--theme-outline)' }}>
-              {balanceLoading && totalAccountBalance === null ? (
+            <h3 className="text-[clamp(2.25rem,5.5vw,4.25rem)] leading-none tracking-tight mt-1 sm:mt-2 font-display-lg break-words w-full" style={{ color: 'var(--theme-primary)', WebkitTextStroke: '2px var(--theme-outline)' }}>
+              {(balanceLoading && totalAccountBalance === null) || (budgetLoading && !budget) ? (
                 <span className="animate-pulse opacity-50">Rp ...</span>
               ) : (
-                new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(currentBalance)
+                new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(coldBalance)
               )}
             </h3>
-            <p className="font-label-bold text-xs uppercase tracking-wider text-on-primary-container/80 mt-3 flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm">verified_user</span>
-              Akumulasi Real-Time Seluruh Akun & Dompet
-            </p>
+            <div className="mt-3 sm:mt-4 pt-2.5 border-t border-outline/20 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] sm:text-xs font-label-bold text-on-primary-container">
+              <span className="flex items-center gap-1">
+                <span className="material-symbols-outlined text-sm">verified_user</span>
+                Saldo Dingin (Setelah Hutang, Pos Tetap & Tabungan)
+              </span>
+              {totalAccountBalance !== null && (
+                <span className="text-[10px] sm:text-[11px] opacity-75 font-label-md">
+                  Total Kas: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalKas)}
+                </span>
+              )}
+            </div>
           </div>
         </motion.div>
 
         <motion.div whileHover={{ scale: 1.02, y: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="col-span-12 lg:col-span-4 h-full min-h-[300px] bg-tertiary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-6 flex flex-col relative rounded-3xl">
-           <div className="absolute -top-4 -right-4 w-12 h-12 bg-background rounded-2xl border-2 border-outline flex items-center justify-center z-20 shadow-[2px_2px_0_0_var(--theme-outline)]">
-              <span className="material-symbols-outlined text-on-background text-2xl">insights</span>
-           </div>
            {(!loading && !balanceLoading) ? (
              <AISummaryCard
               transactions={transactions}
               month={month}
               year={year}
-              initialBalance={currentBalance}
+              initialBalance={totalKas}
               totalIncome={totalIncome}
               totalExpense={totalExpense}
               activeDebts={activeDebts}

@@ -73,14 +73,14 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
   return (
     <AnimatePresence>
     {open && (
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+      <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:p-4">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
         <motion.div 
           initial={{ opacity: 0, y: 50, scale: 0.95 }} 
           animate={{ opacity: 1, y: 0, scale: 1 }} 
           exit={{ opacity: 0, y: 50, scale: 0.95 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          className="relative bg-tertiary-container border-4 border-outline p-6 rounded-3xl shadow-[8px_8px_0_0_var(--theme-outline)] w-full sm:max-w-md max-h-[90vh] overflow-y-auto z-10"
+          className="relative bg-tertiary-container border-4 border-outline p-6 rounded-3xl shadow-[8px_8px_0_0_var(--theme-outline)] w-full sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-y-auto z-10"
         >
           <div className="flex items-center justify-between mb-6 border-b-4 border-outline pb-4">
             <div className="flex items-center gap-3">

@@ -82,7 +82,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden pointer-events-none">
+      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden pointer-events-none">
         <div className="w-full max-w-lg mx-auto px-3 sm:px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1">
           <nav className="pointer-events-auto flex items-center justify-between p-1.5 bg-surface border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] rounded-2xl transition-colors">
             {navItems.map(({ href, label, icon }) => {

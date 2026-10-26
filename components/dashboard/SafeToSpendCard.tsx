@@ -39,12 +39,13 @@ export function SafeToSpendCard({
   const discretionaryRemaining = Math.max(0, dailyDiscretionaryBudget - discretionaryDailySpending);
 
   const dailyRemainingBalance = Math.max(0, dailyBudget - eligibleDailySpending);
-  const dailyProgressPercent =
+  const percentUsed =
     dailyBudget > 0
-      ? Math.min(100, (eligibleDailySpending / dailyBudget) * 100)
+      ? Math.round((eligibleDailySpending / dailyBudget) * 100)
       : eligibleDailySpending > 0
       ? 100
       : 0;
+  const dailyProgressPercent = Math.min(100, percentUsed);
 
   return (
     <motion.section
@@ -93,25 +94,33 @@ export function SafeToSpendCard({
       <div className="p-5 space-y-4">
         {isOverBudget ? (
           <div className="bg-error-container border-3 border-outline rounded-2xl p-4 shadow-[3px_3px_0_0_var(--theme-outline)] text-on-error-container space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-error font-bold text-xl">
-                warning
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-error font-bold text-xl">
+                  warning
+                </span>
+                <h4 className="font-label-bold uppercase text-sm tracking-wide">
+                  Melewati Batas Kuota Hari Ini
+                </h4>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-error text-on-error border-2 border-outline shadow-[1px_1px_0_0_var(--theme-outline)]">
+                {percentUsed}% Terpakai
               </span>
-              <h4 className="font-label-bold uppercase text-sm tracking-wide">
-                Melewati Batas Kuota Hari Ini
-              </h4>
             </div>
             <p className="font-body-md text-xs">
               Pengeluaran harian mencapai{" "}
               <strong className="font-bold underline">
                 {formatRupiah(eligibleDailySpending)}
-              </strong>
-              , melebihi kuota harian sebesar{" "}
+              </strong>{" "}
+              ({percentUsed}% dari kuota {formatRupiah(dailyBudget)}/hari), melebihi kuota harian sebesar{" "}
               <strong className="font-bold text-error">
                 {formatRupiah(overAmount)}
               </strong>
               .
             </p>
+            <div className="h-3 w-full bg-surface/60 border-2 border-outline rounded-full overflow-hidden relative">
+              <div className="h-full bg-error border-r-2 border-outline w-full" />
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px]">
               <div className="bg-surface/80 rounded-xl border border-outline p-2 text-on-surface">
                 <span className="font-label-bold block uppercase text-[9px] text-on-surface-variant">
@@ -164,8 +173,17 @@ export function SafeToSpendCard({
               </div>
 
               <div className="w-full md:w-64 space-y-1.5">
-                <div className="flex justify-between text-xs font-label-bold text-on-surface">
-                  <span>Terpakai Hari Ini</span>
+                <div className="flex justify-between items-center text-xs font-label-bold text-on-surface">
+                  <div className="flex items-center gap-1.5">
+                    <span>Terpakai Hari Ini</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-extrabold uppercase border ${
+                      percentUsed >= 80
+                        ? "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40"
+                        : "bg-primary/10 text-primary border-primary/20"
+                    }`}>
+                      {percentUsed}%
+                    </span>
+                  </div>
                   <span>{formatRupiah(eligibleDailySpending)}</span>
                 </div>
                 <div className="h-3.5 w-full bg-surface-container-high border-2 border-outline rounded-full overflow-hidden relative">
@@ -173,13 +191,25 @@ export function SafeToSpendCard({
                     initial={{ width: 0 }}
                     animate={{ width: `${dailyProgressPercent}%` }}
                     transition={{ duration: 0.6, type: "spring" }}
-                    className="h-full bg-primary border-r-2 border-outline"
+                    className={`h-full border-r-2 border-outline ${
+                      percentUsed >= 80 ? "bg-amber-500" : "bg-primary"
+                    }`}
                   />
                 </div>
-                <p className="text-[10px] text-right text-on-surface-variant font-label-md">
-                  Tersisa {remainingDays} hari (termasuk hari ini) • Sisa dana {formatRupiah(budget.fundsForDaily)}
-                  {(budget.cumulativeSavings ?? 0) > 0 && ` • Tabungan ${formatRupiah(budget.cumulativeSavings || 0)}`}
-                </p>
+                <div className="flex justify-between items-center text-[10px] text-on-surface-variant font-label-md">
+                  {percentUsed >= 80 ? (
+                    <span className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[12px]">warning</span>
+                      Mendekati batas kuota
+                    </span>
+                  ) : (
+                    <span></span>
+                  )}
+                  <span className="text-right">
+                    Tersisa {remainingDays} hari (termasuk hari ini) • Sisa dana {formatRupiah(budget.fundsForDaily)}
+                    {(budget.cumulativeSavings ?? 0) > 0 && ` • Tabungan ${formatRupiah(budget.cumulativeSavings || 0)}`}
+                  </span>
+                </div>
               </div>
             </div>
 

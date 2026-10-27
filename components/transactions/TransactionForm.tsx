@@ -171,7 +171,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           className="relative bg-surface rounded-3xl border-4 border-outline p-6 shadow-[8px_8px_0_0_var(--theme-outline)] w-full sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-y-auto z-10"
         >
         <div className="flex items-center justify-between mb-6 border-b-4 border-black dark:border-white pb-4">
-          <h2 className="font-display-lg text-2xl text-on-surface uppercase tracking-tighter">
+          <h2 className="font-display-lg text-2xl text-on-surface uppercase tracking-normal">
             {editData ? "Edit Transaksi" : "Tambah Transaksi"}
           </h2>
           <button onClick={onClose} className="bg-error text-on-error neo-brutalist-border p-1 w-8 h-8 flex items-center justify-center active-press">

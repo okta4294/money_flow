@@ -10,7 +10,7 @@ export default function CategoriesPage() {
   return (
     <div className="space-y-6 max-w-2xl mx-auto w-full">
       <header className="mb-2">
-        <h2 className="font-headline-lg text-2xl sm:text-3xl text-on-surface tracking-tight uppercase">
+        <h2 className="font-headline-lg text-2xl sm:text-3xl text-on-surface tracking-normal uppercase">
           KATEGORI
         </h2>
         <p className="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">

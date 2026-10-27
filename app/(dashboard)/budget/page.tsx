@@ -27,11 +27,11 @@ export default function BudgetPage() {
     <>
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
         <div>
-          <h2 className="font-headline-lg text-2xl sm:text-3xl text-on-surface tracking-tight uppercase">
+          <h2 className="font-headline-lg text-2xl sm:text-3xl text-on-surface tracking-normal uppercase">
             ANGGARAN
           </h2>
           <p className="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">
-            Rekomendasi alokasi anggaran otomatis dengan proteksi tabungan akhir bulan.
+            Rekomendasi alokasi anggaran otomatis agar anda selamat sampai akhir bulan.
           </p>
         </div>
         <div className="bg-surface-container border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] flex items-center justify-center p-1 rounded-xl w-full sm:w-auto">

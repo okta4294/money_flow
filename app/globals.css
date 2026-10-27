@@ -254,6 +254,15 @@ body {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
+h1, h2, h3, h4 {
+  word-spacing: 0.12em;
+}
+
+h1.uppercase, h2.uppercase, h3.uppercase, h4.uppercase {
+  letter-spacing: 0.02em;
+  word-spacing: 0.22em;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

@@ -246,53 +246,73 @@ export function BudgetCard({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-outline/30">
-              <div className="bg-surface-container rounded-xl border-2 border-outline p-3 shadow-[1px_1px_0_0_var(--theme-outline)] flex items-center justify-between gap-2">
-                <div className="min-w-0 flex-1 pr-2">
-                  <div className="flex items-center gap-1.5">
+              <div className="bg-surface-container rounded-xl border-2 border-outline p-3 shadow-[1px_1px_0_0_var(--theme-outline)] flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 min-w-0">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
                     <span className="font-label-bold text-xs uppercase text-on-surface truncate">
                       Batas Pokok Harian
                     </span>
                   </div>
-                  <p className="text-[11px] text-on-surface-variant mt-0.5 font-label-md truncate">
-                    Makan, transport & kebutuhan pokok
-                  </p>
+                  <span className="text-[10px] text-on-surface-variant font-label-md truncate shrink-0">
+                    {dailyEssentialBudget > 0 ? `Kuota ${formatRupiah(dailyEssentialBudget)}/hari` : "Tanpa kuota (Rp 0)"}
+                  </span>
                 </div>
-                <div className="text-right shrink-0 min-w-[70px]">
-                  <span className="font-display-lg text-sm sm:text-base font-bold text-emerald-600 dark:text-emerald-400 block">
-                    {formatRupiah(essentialRemaining)}
-                  </span>
-                  <span className="text-[10px] text-on-surface-variant font-label-bold uppercase block leading-tight">
-                    {dailyEssentialBudget > 0 ? `dari ${formatRupiah(dailyEssentialBudget)}/hari` : "Tanpa kuota (Rp 0)"}
-                  </span>
-                  {dailyEssentialBudget === 0 && (
-                    <span className="text-[9px] font-bold text-error block">Kuota Rp 0</span>
-                  )}
+
+                <div className="grid grid-cols-2 gap-2 pt-1.5 border-t border-outline/20">
+                  <div>
+                    <span className="text-[10px] font-label-bold uppercase text-on-surface-variant block">
+                      Terpakai
+                    </span>
+                    <span className={`font-display-lg text-sm sm:text-base font-bold block ${
+                      dailyCheck?.isOverEssentialBudget ? "text-error" : "text-on-surface"
+                    }`}>
+                      {formatRupiah(essentialDailySpending)}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] font-label-bold uppercase text-on-surface-variant block">
+                      Sisa Kuota
+                    </span>
+                    <span className="font-display-lg text-sm sm:text-base font-bold text-emerald-600 dark:text-emerald-400 block">
+                      {formatRupiah(essentialRemaining)}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <div className="bg-surface-container rounded-xl border-2 border-outline p-3 shadow-[1px_1px_0_0_var(--theme-outline)] flex items-center justify-between gap-2">
-                <div className="min-w-0 flex-1 pr-2">
-                  <div className="flex items-center gap-1.5">
+              <div className="bg-surface-container rounded-xl border-2 border-outline p-3 shadow-[1px_1px_0_0_var(--theme-outline)] flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 min-w-0">
                     <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
                     <span className="font-label-bold text-xs uppercase text-on-surface truncate">
                       Batas Sekunder Harian
                     </span>
                   </div>
-                  <p className="text-[11px] text-on-surface-variant mt-0.5 font-label-md truncate">
-                    Jajan, hiburan, gaya hidup
-                  </p>
+                  <span className="text-[10px] text-on-surface-variant font-label-md truncate shrink-0">
+                    {dailyDiscretionaryBudget > 0 ? `Kuota ${formatRupiah(dailyDiscretionaryBudget)}/hari` : "Tanpa kuota (Rp 0)"}
+                  </span>
                 </div>
-                <div className="text-right shrink-0 min-w-[70px]">
-                  <span className="font-display-lg text-sm sm:text-base font-bold text-indigo-600 dark:text-indigo-400 block">
-                    {formatRupiah(discretionaryRemaining)}
-                  </span>
-                  <span className="text-[10px] text-on-surface-variant font-label-bold uppercase block leading-tight">
-                    {dailyDiscretionaryBudget > 0 ? `dari ${formatRupiah(dailyDiscretionaryBudget)}/hari` : "Tanpa kuota (Rp 0)"}
-                  </span>
-                  {dailyDiscretionaryBudget === 0 && (
-                    <span className="text-[9px] font-bold text-error block">Kuota Rp 0</span>
-                  )}
+
+                <div className="grid grid-cols-2 gap-2 pt-1.5 border-t border-outline/20">
+                  <div>
+                    <span className="text-[10px] font-label-bold uppercase text-on-surface-variant block">
+                      Terpakai
+                    </span>
+                    <span className={`font-display-lg text-sm sm:text-base font-bold block ${
+                      dailyCheck?.isOverDiscretionaryBudget ? "text-error" : "text-on-surface"
+                    }`}>
+                      {formatRupiah(discretionaryDailySpending)}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] font-label-bold uppercase text-on-surface-variant block">
+                      Sisa Kuota
+                    </span>
+                    <span className="font-display-lg text-sm sm:text-base font-bold text-indigo-600 dark:text-indigo-400 block">
+                      {formatRupiah(discretionaryRemaining)}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

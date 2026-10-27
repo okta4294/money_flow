@@ -112,18 +112,24 @@ export default function DashboardPage() {
       </header>
 
       <div className="grid grid-cols-12 gap-6 w-full">
-        <motion.div whileHover={{ scale: 1.02, y: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="col-span-12 lg:col-span-8 bg-primary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-5 sm:p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group rounded-3xl">
+        <motion.div whileHover={{ scale: 1.02, y: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="col-span-12 lg:col-span-8 bg-primary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-4 sm:p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group rounded-3xl">
           <div className="relative z-10">
-            <div className="flex items-center justify-between gap-2 mb-3 sm:mb-4">
-              <div className="inline-flex items-center gap-1.5 bg-on-background text-surface font-label-bold text-[11px] sm:text-xs uppercase px-2.5 sm:px-3 py-1 rounded-full border-2 border-outline shadow-[1px_1px_0_0_var(--theme-outline)] shrink-0 whitespace-nowrap">
-                Total Saldo Bersih
+            <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4">
+              <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-surface text-on-surface border-2 border-outline shadow-[1.5px_1.5px_0_0_var(--theme-outline)] sm:shadow-[2px_2px_0_0_var(--theme-outline)] flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-sm sm:text-lg">account_balance</span>
+                </div>
+                <h2 className="font-headline-md text-xs sm:text-sm md:text-base font-bold uppercase tracking-normal text-on-primary-container whitespace-nowrap shrink-0" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>
+                  Total Saldo Bersih
+                </h2>
               </div>
               <Link
                 href="/accounts"
-                className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 rounded-xl bg-surface text-on-surface border-2 border-outline text-[11px] sm:text-xs font-label-bold uppercase shadow-[1.5px_1.5px_0_0_var(--theme-outline)] sm:shadow-[2px_2px_0_0_var(--theme-outline)] hover:bg-surface-bright active-press shrink-0 whitespace-nowrap"
+                className="h-7 sm:h-9 inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 rounded-lg sm:rounded-xl bg-surface text-on-surface border-2 border-outline text-[11px] sm:text-xs font-label-bold uppercase shadow-[1.5px_1.5px_0_0_var(--theme-outline)] sm:shadow-[2px_2px_0_0_var(--theme-outline)] hover:bg-surface-bright active-press shrink-0 transition-colors whitespace-nowrap"
               >
-                <span className="material-symbols-outlined text-[15px]">account_balance_wallet</span>
-                Kelola Akun
+                <span className="material-symbols-outlined text-sm sm:text-base">account_balance_wallet</span>
+                <span className="hidden min-[380px]:inline">Kelola Akun</span>
+                <span className="min-[380px]:hidden">Akun</span>
               </Link>
             </div>
             <h3 className="text-[clamp(2.25rem,5.5vw,4.25rem)] leading-none tracking-tight mt-1 sm:mt-2 font-display-lg break-words w-full" style={{ color: 'var(--theme-primary)', WebkitTextStroke: '2px var(--theme-outline)' }}>

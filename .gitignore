@@ -9,6 +9,7 @@
 # next.js
 /.next/
 /out/
+.turbo/
 
 # production
 /build
@@ -16,9 +17,26 @@
 # misc
 .DS_Store
 *.pem
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
 
-# debug
+# debug & logs
+*.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# firebase
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+
+# ocr & review
+.ocr/
+ocr-results*.json
 
 # env files (can opt-in for committing if needed)
 .env*

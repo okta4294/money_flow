@@ -59,6 +59,9 @@ export interface BudgetRecommendationResult {
   pastDailyExpensesInCycle: number;
   pastEssentialExpensesInCycle: number;
   pastDiscretionaryExpensesInCycle: number;
+  todayDailyExpensesInCycle?: number;
+  todayEssentialExpensesInCycle?: number;
+  todayDiscretionaryExpensesInCycle?: number;
   remainingFundsForDaily: number;
   currentBalance?: number;
   unpaidFixedObligation: number;
@@ -180,10 +183,6 @@ export function isFixedExpenseName(name: string | undefined): boolean {
   );
 }
 
-/**
- * Cek apakah kategori pengeluaran merupakan pengeluaran tetap bulanan.
- * Memprioritaskan flag isFixedExpense. Jika belum diset, menggunakan kata kunci standar.
- */
 export function isFixedExpenseCategory(category: Category | undefined): boolean {
   if (!category || category.type !== "expense") return false;
   if (typeof category.isFixedExpense === "boolean") {
@@ -192,11 +191,29 @@ export function isFixedExpenseCategory(category: Category | undefined): boolean 
   return isFixedExpenseName(category.name);
 }
 
-/**
- * Cek apakah kategori pengeluaran merupakan kebutuhan pokok hidup harian (makan, pangan, sembako, bensin, kesehatan, belanja dapur/pasar).
- * Kategori ini diprioritaskan agar tidak terpotong drastis saat terjadi pengetatan budget akibat beban hutang.
- * Memprioritaskan flag isEssentialExpense jika diset manual oleh user.
- */
+export function isEssentialExpenseName(name: string | undefined): boolean {
+  if (!name) return false;
+  const lower = name.toLowerCase().trim();
+  return (
+    lower.includes("makan") ||
+    lower.includes("minum") ||
+    lower.includes("pangan") ||
+    lower.includes("food") ||
+    lower.includes("sembako") ||
+    lower.includes("groceries") ||
+    lower.includes("belanja") ||
+    lower.includes("dapur") ||
+    lower.includes("pasar") ||
+    lower.includes("sayur") ||
+    lower.includes("supermarket") ||
+    lower.includes("bensin") ||
+    lower.includes("bbm") ||
+    lower.includes("transport") ||
+    lower.includes("obat") ||
+    lower.includes("kesehatan")
+  );
+}
+
 export function isEssentialExpenseCategory(category: Category | undefined): boolean {
   if (!category || category.type !== "expense") return false;
   if (category.isFixedExpense === true) return false;
@@ -206,25 +223,7 @@ export function isEssentialExpenseCategory(category: Category | undefined): bool
   if (isFixedExpenseCategory(category)) {
     return false;
   }
-  const name = category.name.toLowerCase().trim();
-  return (
-    name.includes("makan") ||
-    name.includes("minum") ||
-    name.includes("pangan") ||
-    name.includes("food") ||
-    name.includes("sembako") ||
-    name.includes("groceries") ||
-    name.includes("belanja") ||
-    name.includes("dapur") ||
-    name.includes("pasar") ||
-    name.includes("sayur") ||
-    name.includes("supermarket") ||
-    name.includes("bensin") ||
-    name.includes("bbm") ||
-    name.includes("transport") ||
-    name.includes("obat") ||
-    name.includes("kesehatan")
-  );
+  return isEssentialExpenseName(category.name);
 }
 
 export { isDebtCategoryName };
@@ -274,10 +273,6 @@ function getEstimatedNextCycleEnd(startDateStr: string): string {
   return addDays(nextPaydayStr, -1);
 }
 
-/**
- * Deteksi otomatis siklus anggaran berbasis tanggal gajian (Payday Cycle).
- * Mengidentifikasi tanggal transaksi pemasukan utama secara adaptif jika tanggal bergeser karena libur.
- */
 export function detectBudgetCycle(params: {
   year: number;
   month: number;
@@ -287,8 +282,6 @@ export function detectBudgetCycle(params: {
 }): BudgetCycle {
   const { year, month, todayDateStr, allTransactions, categories } = params;
 
-  // Siklus anggaran (Payday Cycle) selalu dijangkarkan pada pemasukan utama (gaji / rutin).
-  // Transaksi insidental tidak boleh memotong atau mengubah batasan tanggal siklus.
   const eligibleCategories = categories.filter(isEligibleIncomeCategory);
   const eligibleCategoryIds = new Set(eligibleCategories.map((c) => c.id));
 
@@ -393,9 +386,6 @@ export function detectBudgetCycle(params: {
   };
 }
 
-/**
- * Hitung selisih bulan kalender antara tanggal jatuh tempo dengan bulan yang sedang dilihat.
- */
 function getRemainingMonths(dueDateStr: string, currentYear: number, currentMonth: number): number {
   const parts = dueDateStr.split("-");
   if (parts.length < 2) return 0;
@@ -406,9 +396,6 @@ function getRemainingMonths(dueDateStr: string, currentYear: number, currentMont
   return (dueYear - currentYear) * 12 + (dueMonth - currentMonth);
 }
 
-/**
- * Engine utama kalkulasi rekomendasi budget bulanan dan harian.
- */
 export function calculateBudgetRecommendation(params: {
   year: number;
   month: number;
@@ -960,39 +947,56 @@ export function calculateBudgetRecommendation(params: {
   const totalFundsForDaily = Math.max(0, incomeAfterDebtAndSavings - finalFixedTotal);
 
   // Hitung pengeluaran harian siklus yang sudah terjadi sebelum hari ini
-  // (mengecualikan cicilan hutang dan tagihan tetap bulanan)
+  // serta pengeluaran harian yang sudah terjadi hari ini (mengecualikan cicilan hutang dan tagihan tetap)
   let pastDailyExpensesInCycle = 0;
   let pastEssentialExpensesInCycle = 0;
   let pastDiscretionaryExpensesInCycle = 0;
+
+  let todayDailyExpensesInCycle = 0;
+  let todayEssentialExpensesInCycle = 0;
+  let todayDiscretionaryExpensesInCycle = 0;
 
   if (cycle.isCurrentCycle) {
     const categoryMap = new Map<string, Category>(categories.map((c) => [c.id, c]));
     cycleTransactions.forEach((t) => {
       if (t.type !== "expense") return;
-      if (!t.date || t.date >= todayDateStr) return; // Hanya transaksi sebelum hari ini
+      if (!t.date) return;
+
+      const cat = t.categoryId ? categoryMap.get(t.categoryId) : undefined;
 
       // Kecualikan hutang / cicilan
-      if (
+      const isDebt = Boolean(
         t.debtId ||
-        (t.category && isDebtCategoryName(t.category)) ||
-        (t.note && isDebtCategoryName(t.note))
-      ) {
-        return;
-      }
+        (cat ? isDebtCategoryName(cat.name) : ((t.category && isDebtCategoryName(t.category)) || (t.note && isDebtCategoryName(t.note))))
+      );
+      if (isDebt) return;
 
       // Kecualikan tagihan tetap bulanan
-      const cat = categoryMap.get(t.categoryId);
-      if (isFixedExpenseCategory(cat)) return;
-      if (t.category && isFixedExpenseName(t.category)) return;
-      if (t.note && isFixedExpenseName(t.note)) return;
+      // Prioritaskan konfigurasi kategori (isFixedExpense). Hanya gunakan deteksi nama teks jika kategori tidak ditemukan.
+      const isFixed = cat
+        ? isFixedExpenseCategory(cat)
+        : Boolean((t.category && isFixedExpenseName(t.category)) || (t.note && isFixedExpenseName(t.note)));
+      if (isFixed) return;
 
-      const isEssential = isEssentialExpenseCategory(cat);
-      if (isEssential) {
-        pastEssentialExpensesInCycle += t.amount;
-      } else {
-        pastDiscretionaryExpensesInCycle += t.amount;
+      const isEssential = cat
+        ? isEssentialExpenseCategory(cat)
+        : Boolean(t.category && isEssentialExpenseName(t.category));
+
+      if (t.date < todayDateStr) {
+        if (isEssential) {
+          pastEssentialExpensesInCycle += t.amount;
+        } else {
+          pastDiscretionaryExpensesInCycle += t.amount;
+        }
+        pastDailyExpensesInCycle += t.amount;
+      } else if (t.date === todayDateStr) {
+        if (isEssential) {
+          todayEssentialExpensesInCycle += t.amount;
+        } else {
+          todayDiscretionaryExpensesInCycle += t.amount;
+        }
+        todayDailyExpensesInCycle += t.amount;
       }
-      pastDailyExpensesInCycle += t.amount;
     });
   }
 
@@ -1014,7 +1018,13 @@ export function calculateBudgetRecommendation(params: {
 
     availableBalanceForDaily =
       (currentBalance as number) - unpaidDebtObligation - unpaidFixedObligation - cumulativeSavingsLocked;
-    const pool = Math.max(0, availableBalanceForDaily);
+
+    // Saldo bersih di awal hari ini (sebelum pengeluaran harian hari ini terjadi).
+    // Digunakan sebagai dasar perhitungan kuota harian hari ini agar batas harian tetap stabil
+    // dan tidak mengalami pengurangan ganda (double-deduction) saat dicatat hari ini.
+    const startOfDayAvailableBalance = availableBalanceForDaily + todayDailyExpensesInCycle;
+    const pool = Math.max(0, startOfDayAvailableBalance);
+    const livePool = Math.max(0, availableBalanceForDaily);
 
     if (isColdStart || (rawEssentialVariableTotal === 0 && rawDiscretionaryVariableTotal === 0)) {
       if (essentialCats.length > 0 && discretionaryCats.length > 0) {
@@ -1038,6 +1048,26 @@ export function calculateBudgetRecommendation(params: {
       remainingDiscretionaryFunds = discretionaryCats.length > 0 ? pool - remainingEssentialFunds : 0;
     }
 
+    // Untuk alokasi per kategori bulanan, gunakan kapasitas sisa saldo riil saat ini (livePool)
+    // agar sisa kuota kategori bulanan mencerminkan pengeluaran riil yang telah berjalan.
+    let currentEssentialFunds = 0;
+    let currentDiscretionaryFunds = 0;
+    if (isColdStart || (rawEssentialVariableTotal === 0 && rawDiscretionaryVariableTotal === 0)) {
+      if (essentialCats.length > 0 && discretionaryCats.length > 0) {
+        currentEssentialFunds = Math.round(livePool * 0.75);
+        currentDiscretionaryFunds = livePool - currentEssentialFunds;
+      } else if (essentialCats.length > 0) {
+        currentEssentialFunds = livePool;
+        currentDiscretionaryFunds = 0;
+      } else if (discretionaryCats.length > 0) {
+        currentEssentialFunds = 0;
+        currentDiscretionaryFunds = livePool;
+      }
+    } else {
+      currentEssentialFunds = Math.max(0, remainingEssentialFunds - todayEssentialExpensesInCycle);
+      currentDiscretionaryFunds = Math.max(0, remainingDiscretionaryFunds - todayDiscretionaryExpensesInCycle);
+    }
+
     // Selaraskan target anggaran tiap kategori dengan kapasitas Saldo Riil yang tersisa
     categoryAllocations = rawAllocations.map((a) => {
       if (a.isFixed) {
@@ -1053,7 +1083,7 @@ export function calculateBudgetRecommendation(params: {
           rawEssentialVariableTotal > 0
             ? a.historicalAvg / rawEssentialVariableTotal
             : 1 / Math.max(1, essentialCats.length);
-        const remainingForCat = Math.round(remainingEssentialFunds * share);
+        const remainingForCat = Math.round(currentEssentialFunds * share);
         const recommendedBudget = a.currentMonthSpent + remainingForCat;
 
         return {
@@ -1067,7 +1097,7 @@ export function calculateBudgetRecommendation(params: {
         rawDiscretionaryVariableTotal > 0
           ? a.historicalAvg / rawDiscretionaryVariableTotal
           : 1 / Math.max(1, discretionaryCats.length);
-      const remainingForCat = Math.round(remainingDiscretionaryFunds * share);
+      const remainingForCat = Math.round(currentDiscretionaryFunds * share);
       const recommendedBudget = a.currentMonthSpent + remainingForCat;
 
       return {
@@ -1241,6 +1271,9 @@ export function calculateBudgetRecommendation(params: {
     pastDailyExpensesInCycle,
     pastEssentialExpensesInCycle,
     pastDiscretionaryExpensesInCycle,
+    todayDailyExpensesInCycle,
+    todayEssentialExpensesInCycle,
+    todayDiscretionaryExpensesInCycle,
     remainingFundsForDaily,
     currentBalance: useBalance ? currentBalance : undefined,
     targetAccountNames,
@@ -1307,32 +1340,31 @@ export function evaluateDailySpendingLimit(params: {
   todayTransactions.forEach((t) => {
     if (t.type !== "expense") return;
 
-    if (
+    const cat = t.categoryId ? categoryMap.get(t.categoryId) : undefined;
+
+    // Kecualikan hutang / cicilan
+    const isDebt = Boolean(
       t.debtId ||
-      (t.category && isDebtCategoryName(t.category)) ||
-      (t.note && isDebtCategoryName(t.note))
-    ) {
+      (cat ? isDebtCategoryName(cat.name) : ((t.category && isDebtCategoryName(t.category)) || (t.note && isDebtCategoryName(t.note))))
+    );
+    if (isDebt) {
       excludedCount += 1;
       return;
     }
 
-    const cat = categoryMap.get(t.categoryId);
-    if (isFixedExpenseCategory(cat)) {
+    // Kecualikan tagihan tetap bulanan
+    // Prioritaskan konfigurasi kategori (isFixedExpense). Hanya gunakan deteksi nama teks jika kategori tidak ditemukan.
+    const isFixed = cat
+      ? isFixedExpenseCategory(cat)
+      : Boolean((t.category && isFixedExpenseName(t.category)) || (t.note && isFixedExpenseName(t.note)));
+    if (isFixed) {
       excludedCount += 1;
       return;
     }
 
-    if (t.category && isFixedExpenseName(t.category)) {
-      excludedCount += 1;
-      return;
-    }
-
-    if (t.note && isFixedExpenseName(t.note)) {
-      excludedCount += 1;
-      return;
-    }
-
-    const isEssential = isEssentialExpenseCategory(cat);
+    const isEssential = cat
+      ? isEssentialExpenseCategory(cat)
+      : Boolean(t.category && isEssentialExpenseName(t.category));
     if (isEssential) {
       essentialDailySpending += t.amount;
     } else {

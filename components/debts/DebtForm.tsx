@@ -87,7 +87,7 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
               <div className="w-12 h-12 border-2 border-outline bg-tertiary flex items-center justify-center rounded-2xl shadow-sm">
                 <i className="fa-solid fa-credit-card text-on-tertiary text-2xl"></i>
               </div>
-              <h2 className="font-display-lg text-2xl text-on-tertiary-container uppercase tracking-tighter" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>
+              <h2 className="font-display-lg text-2xl text-on-tertiary-container uppercase tracking-normal" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>
                 {editData ? "Edit Hutang" : "Tambah Hutang"}
               </h2>
             </div>

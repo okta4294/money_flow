@@ -25,7 +25,7 @@ export default function DebtsPage() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto w-full">
       <header className="mb-2">
-        <h2 className="font-headline-lg text-2xl sm:text-3xl text-on-surface tracking-tight uppercase">
+        <h2 className="font-headline-lg text-2xl sm:text-3xl text-on-surface tracking-normal uppercase">
           Beban Hidupmu
         </h2>
         <p className="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">
@@ -36,7 +36,7 @@ export default function DebtsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <motion.section whileHover={{ scale: 1.02, y: -2 }} className="col-span-1 md:col-span-2 bg-tertiary-container border-4 border-outline rounded-3xl p-6 shadow-[4px_4px_0_0_var(--theme-outline)] relative overflow-hidden">
           <div className="relative z-10">
-            <p className="font-label-bold text-on-tertiary-container uppercase tracking-widest mb-2 font-bold">Total Beban Hutang</p>
+            <p className="font-label-bold text-on-tertiary-container uppercase tracking-widest mb-2 font-bold">Total Beban Hidupmu</p>
             <h2 className="text-4xl md:text-5xl tracking-tighter text-outline font-display-lg" style={{ color: 'var(--theme-on-tertiary-container)', WebkitTextStroke: '2px var(--theme-outline)' }}>
                {loading ? "..." : formatRupiah(totalDebt)}
             </h2>

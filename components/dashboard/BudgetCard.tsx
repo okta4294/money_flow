@@ -24,6 +24,7 @@ export function BudgetCard({
   year,
 }: BudgetCardProps) {
   const [showDetails, setShowDetails] = useState(false);
+  const [showInfoNotes, setShowInfoNotes] = useState(false);
 
   if (loading || !budget) {
     return (
@@ -49,8 +50,13 @@ export function BudgetCard({
     fundsForDaily,
     remainingDays,
     dailyBudget,
-    warnings,
+    warnings = [],
   } = budget;
+
+  const actionAlerts = warnings.filter(
+    (w) => w.severity === "critical" || w.severity === "warning"
+  );
+  const infoNotes = warnings.filter((w) => w.severity === "info");
 
   const isOverBudget = dailyCheck?.isOverBudget ?? false;
   const overAmount = dailyCheck?.overAmount ?? 0;
@@ -319,36 +325,85 @@ export function BudgetCard({
           </div>
         )}
 
-        {warnings.length > 0 && (
-          <div className="space-y-2">
-            {warnings.map((w) => {
-              const isCrit = w.severity === "critical";
-              const isWarn = w.severity === "warning";
-              const bgClass = isCrit
-                ? "bg-error-container text-on-error-container"
-                : isWarn
-                ? "bg-secondary-container text-on-secondary-container"
-                : "bg-surface-container-high text-on-surface";
+        {(actionAlerts.length > 0 || infoNotes.length > 0) && (
+          <div className="space-y-2.5">
+            {actionAlerts.length > 0 && (
+              <div className="space-y-2">
+                {actionAlerts.map((w) => {
+                  const isCrit = w.severity === "critical";
+                  return (
+                    <div
+                      key={w.id}
+                      className={`rounded-2xl border-2 p-3 sm:p-3.5 text-xs flex items-start gap-3 shadow-[2px_2px_0_0_var(--theme-outline)] ${
+                        isCrit
+                          ? "bg-error-container/40 text-on-error-container border-outline"
+                          : "bg-amber-500/10 dark:bg-amber-950/20 text-on-surface border-amber-500/50"
+                      }`}
+                    >
+                      <span
+                        className={`material-symbols-outlined text-base mt-0.5 shrink-0 ${
+                          isCrit ? "text-error" : "text-amber-600 dark:text-amber-400"
+                        }`}
+                      >
+                        {isCrit ? "error" : "warning"}
+                      </span>
+                      <div className="space-y-0.5 min-w-0">
+                        <strong className="font-label-bold block text-xs sm:text-sm tracking-normal">
+                          {w.title}
+                        </strong>
+                        <p className="font-body-sm text-[11px] sm:text-xs opacity-90 leading-relaxed">
+                          {w.description}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
-              return (
-                <div
-                  key={w.id}
-                  className={`border-2 border-outline rounded-xl p-3 text-xs flex items-start gap-2.5 shadow-[2px_2px_0_0_var(--theme-outline)] ${bgClass}`}
+            {infoNotes.length > 0 && (
+              <div className="bg-surface-container/60 border border-outline/30 rounded-xl overflow-hidden transition-all">
+                <button
+                  type="button"
+                  onClick={() => setShowInfoNotes((prev) => !prev)}
+                  className="w-full px-3.5 py-2.5 flex items-center justify-between text-xs font-label-bold text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
                 >
-                  <span className="material-symbols-outlined text-base mt-0.5 shrink-0">
-                    {isCrit ? "error" : isWarn ? "warning" : "info"}
-                  </span>
-                  <div>
-                    <strong className="font-label-bold uppercase block tracking-wider">
-                      {w.title}
-                    </strong>
-                    <span className="font-body-sm opacity-90">
-                      {w.description}
-                    </span>
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px] text-tertiary">tune</span>
+                    <span className="font-semibold text-xs">Catatan Penyesuaian Anggaran ({infoNotes.length})</span>
                   </div>
-                </div>
-              );
-            })}
+                  <span
+                    className={`material-symbols-outlined text-[18px] transition-transform duration-200 ${
+                      showInfoNotes ? "rotate-180" : ""
+                    }`}
+                  >
+                    expand_more
+                  </span>
+                </button>
+
+                <AnimatePresence>
+                  {showInfoNotes && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="px-3.5 pb-3 pt-1 border-t border-outline/20 space-y-2 text-[11px]"
+                    >
+                      {infoNotes.map((note) => (
+                        <div key={note.id} className="flex items-start gap-2 text-on-surface-variant">
+                          <span className="w-1.5 h-1.5 rounded-full bg-outline/60 mt-1.5 shrink-0" />
+                          <div className="leading-relaxed">
+                            <span className="font-bold text-on-surface">{note.title}: </span>
+                            <span className="opacity-90">{note.description}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
           </div>
         )}
 

@@ -26,7 +26,7 @@ function getAdjacentMonths(
   let y = year;
   let m = month;
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 4; i++) {
     m -= 1;
     if (m < 1) {
       m = 12;

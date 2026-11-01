@@ -520,8 +520,8 @@ export function calculateBudgetRecommendation(params: {
   } else if (isIncomeEstimated) {
     warnings.push({
       id: "estimated-income",
-      title: isAllIncome ? "Menggunakan Proyeksi Seluruh Pemasukan" : "Menggunakan Proyeksi Pemasukan Rutin",
-      description: `Akumulasi siklus ini (${formatRupiah(currentEligibleIncome)}) masih di bawah acuan ${estimatedIncomeMonth} (${formatRupiah(eligibleIncome)}). Sistem menggunakan proyeksi ${formatRupiah(eligibleIncome)} agar batas harian tetap stabil.`,
+      title: isAllIncome ? "Proyeksi Seluruh Pemasukan" : "Proyeksi Pemasukan Rutin",
+      description: `Akumulasi berjalan (${formatRupiah(currentEligibleIncome)}) masih di bawah acuan. Menggunakan proyeksi ${formatRupiah(eligibleIncome)} agar kuota belanja tetap stabil.`,
       severity: "info",
     });
   } else if (eligibleIncome === 0) {
@@ -622,8 +622,8 @@ export function calculateBudgetRecommendation(params: {
   if (hasNoDueDateCount > 0) {
     warnings.push({
       id: "debt-no-duedate",
-      title: "Hutang Tanpa Tanggal Tenor",
-      description: `${hasNoDueDateCount} hutang belum memiliki tanggal jatuh tempo sehingga belum dihitung cicilan bulanannya.`,
+      title: "Hutang Tanpa Tenor",
+      description: `${hasNoDueDateCount} hutang belum memiliki tanggal jatuh tempo sehingga belum dihitung cicilannya.`,
       severity: "info",
     });
   }
@@ -631,8 +631,8 @@ export function calculateBudgetRecommendation(params: {
   if (paidDebtInCycle > 0) {
     warnings.push({
       id: "debt-paid-in-cycle",
-      title: "Cicilan Telah Terbayar di Siklus Ini",
-      description: `Pembayaran cicilan sebesar ${formatRupiah(paidDebtInCycle)} telah terealisasi di dalam siklus ini dan langsung memotong dana bebas.`,
+      title: "Cicilan Telah Terbayar",
+      description: `Pembayaran cicilan ${formatRupiah(paidDebtInCycle)} telah terealisasi di siklus ini dan memotong beban berjalan.`,
       severity: "info",
     });
   }
@@ -683,17 +683,17 @@ export function calculateBudgetRecommendation(params: {
   if (sortedHistoricalMonths.length > 1) {
     warnings.push({
       id: "weighted-history",
-      title: "Rekomendasi Berbasis Pembobotan Tren",
-      description: `Rata-rata pengeluaran dihitung dengan pembobotan tren ${sortedHistoricalMonths.length} bulan terakhir, memprioritaskan bulan terdekat agar target anggaran proporsional.`,
+      title: "Rekomendasi Berbasis Tren",
+      description: `Target pengeluaran dihitung dari tren ${sortedHistoricalMonths.length} bulan terakhir dengan bobot bulan terdekat.`,
       severity: "info",
     });
   }
 
-  // Tentukan bobot untuk tiap bulan lampau (recency weighting: 3 untuk bulan terdekat, 2 untuk kedua, 1 untuk ketiga dst)
+  // Tentukan bobot untuk tiap bulan lampau (recency weighting: 4 untuk bulan terdekat, 3 untuk kedua, 2 untuk ketiga, 1 untuk keempat dst)
   const monthWeights = new Map<string, number>();
   let totalMonthWeights = 0;
   sortedHistoricalMonths.forEach((mKey, idx) => {
-    const weight = idx === 0 ? 3 : idx === 1 ? 2 : 1;
+    const weight = idx === 0 ? 4 : idx === 1 ? 3 : idx === 2 ? 2 : 1;
     monthWeights.set(mKey, weight);
     totalMonthWeights += weight;
   });
@@ -936,9 +936,9 @@ export function calculateBudgetRecommendation(params: {
 
       warnings.push({
         id: "budget-scaled-emergency",
-        title: "Fokus Anggaran Pokok (Darurat)",
+        title: "Fokus Anggaran Pokok",
         description:
-          "Dana tersisa sangat ketat akibat cicilan hutang. Seluruh pos sekunder dan hiburan dinolkan agar dana difokuskan untuk makan.",
+          "Dana belanja difokuskan penuh untuk kebutuhan pokok (makan & operasional) karena beban cicilan hutang.",
         severity: "warning",
       });
     }
@@ -1124,7 +1124,7 @@ export function calculateBudgetRecommendation(params: {
       warnings.push({
         id: "savings-locked",
         title: "Target Tabungan Terkunci",
-        description: `Dana sebesar ${formatRupiah(cumulativeSavingsLocked)} (akumulasi target tabungan hingga bulan ini) dikunci dari saldo belanja agar sisa uang terjaga di akhir bulan.`,
+        description: `Dana tabungan sebesar ${formatRupiah(cumulativeSavingsLocked)} telah disisihkan dari saldo belanja agar aman hingga akhir bulan.`,
         severity: "info",
       });
     }
@@ -1133,7 +1133,7 @@ export function calculateBudgetRecommendation(params: {
     warnings.push({
       id: "balance-driven",
       title: "Dihitung dari Saldo Riil",
-      description: `Saldo ${formatRupiah(currentBalance as number)}${accountLabel} dikurangi hutang jatuh tempo ${formatRupiah(unpaidDebtObligation)}, tagihan tetap belum dibayar ${formatRupiah(unpaidFixedObligation)}${savingsNotice} = ${formatRupiah(pool)} untuk ${Math.max(1, cycle.remainingDays)} hari.`,
+      description: `Saldo ${formatRupiah(currentBalance as number)}${accountLabel} dikurangi kewajiban${savingsNotice} menghasilkan sisa dana harian ${formatRupiah(pool)} untuk ${Math.max(1, cycle.remainingDays)} hari.`,
       severity: "info",
     });
 
@@ -1259,8 +1259,8 @@ export function calculateBudgetRecommendation(params: {
     const catNames = zeroBudgetCats.map((c) => c.categoryName).slice(0, 3).join(", ") + (zeroBudgetCats.length > 3 ? `, dan ${zeroBudgetCats.length - 3} lainnya` : "");
     warnings.push({
       id: "zero-budget-categories",
-      title: `${zeroBudgetCats.length} Kategori dengan Anggaran Rp 0`,
-      description: `Kategori seperti ${catNames} memiliki rekomendasi anggaran bulanan Rp 0 di siklus ini. Pengeluaran pada pos ini berisiko mengurangi kuota pos lainnya.`,
+      title: `${zeroBudgetCats.length} Kategori Tanpa Alokasi`,
+      description: `Pos seperti ${catNames} sementara dialokasikan Rp 0 agar kebutuhan pokok terlindungi.`,
       severity: "warning",
     });
   }

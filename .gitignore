@@ -1,5 +1,3 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
 
@@ -28,17 +26,14 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# firebase
 .firebase/
 firebase-debug.log*
 firestore-debug.log*
 ui-debug.log*
 
-# ocr & review
 .ocr/
 ocr-results*.json
 
-# env files (can opt-in for committing if needed)
 .env*
 
 # vercel

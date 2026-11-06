@@ -20,6 +20,8 @@ export default function BudgetPage() {
     loading: budgetLoading,
     savingsSummary,
     saveMonthlySaving,
+    addSavingsWithdrawal,
+    deleteSavingsWithdrawal,
   } = useBudgetRecommendation(year, month, transactions);
   const { budgetCalculationMode, setBudgetCalculationMode } = useGlobalData();
 
@@ -56,11 +58,22 @@ export default function BudgetPage() {
                 currentTargetAmount: 0,
                 hasCustomTargetThisMonth: false,
                 cumulativeSavings: 0,
+                grossSavings: 0,
+                totalWithdrawn: 0,
                 previousMonthTarget: 0,
+                breakdown: [],
+                withdrawals: [],
               }
             }
+            savingsRecommendation={budget?.savingsRecommendation}
             onSaveTarget={async (target) => {
               await saveMonthlySaving(year, month, target);
+            }}
+            onWithdraw={async (data) => {
+              await addSavingsWithdrawal(data);
+            }}
+            onDeleteWithdrawal={async (id) => {
+              await deleteSavingsWithdrawal(id);
             }}
             loading={budgetLoading || txLoading}
           />

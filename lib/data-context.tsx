@@ -5,10 +5,10 @@ import { useAuth } from "./auth-context";
 import { subscribeToCategories, Category, isDebtCategoryName, ensureDebtCategoryExists } from "./firestore/categories";
 import { subscribeToAccounts, Account } from "./firestore/accounts";
 import { subscribeToDebts, Debt } from "./firestore/debts";
-import { subscribeToMonthlySavings, setMonthlySaving as firestoreSetMonthlySaving, MonthlySaving } from "./firestore/savings";
+import { subscribeToMonthlySavings, setMonthlySaving as firestoreSetMonthlySaving, addSavingsWithdrawal as firestoreAddSavingsWithdrawal, deleteSavingsWithdrawal as firestoreDeleteSavingsWithdrawal, MonthlySaving, SavingsWithdrawal } from "./firestore/savings";
 import { subscribeToUserSettings, updateUserSettings, BudgetSource, BudgetCalculationMode } from "./firestore/user-settings";
 
-export type { BudgetSource, BudgetCalculationMode, MonthlySaving };
+export type { BudgetSource, BudgetCalculationMode, MonthlySaving, SavingsWithdrawal };
 
 interface DataContextType {
   categories: Category[];
@@ -18,8 +18,11 @@ interface DataContextType {
   debts: Debt[];
   debtsLoading: boolean;
   monthlySavings: MonthlySaving[];
+  savingsWithdrawals: SavingsWithdrawal[];
   monthlySavingsLoading: boolean;
   saveMonthlySaving: (year: number, month: number, target: number) => Promise<void>;
+  addSavingsWithdrawal: (data: { amount: number; date?: string; note?: string }) => Promise<void>;
+  deleteSavingsWithdrawal: (id: string) => Promise<void>;
   budgetSource: BudgetSource;
   setBudgetSource: (source: BudgetSource) => Promise<void>;
   budgetCalculationMode: BudgetCalculationMode;
@@ -41,6 +44,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [debtsLoading, setDebtsLoading] = useState(true);
 
   const [monthlySavings, setMonthlySavings] = useState<MonthlySaving[]>([]);
+  const [savingsWithdrawals, setSavingsWithdrawals] = useState<SavingsWithdrawal[]>([]);
   const [monthlySavingsLoading, setMonthlySavingsLoading] = useState(true);
 
   const [budgetSource, setBudgetSourceState] = useState<BudgetSource>("all_income");
@@ -57,6 +61,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setDebts([]);
       setDebtsLoading(false);
       setMonthlySavings([]);
+      setSavingsWithdrawals([]);
       setMonthlySavingsLoading(false);
       setBudgetSourceState("all_income");
       setBudgetCalculationModeState("adaptive");
@@ -83,8 +88,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setDebtsLoading(false);
     });
 
-    const unsubSavings = subscribeToMonthlySavings(user.uid, (data) => {
+    const unsubSavings = subscribeToMonthlySavings(user.uid, (data, withdrawals) => {
       setMonthlySavings(data);
+      setSavingsWithdrawals(withdrawals || []);
       setMonthlySavingsLoading(false);
     });
 
@@ -108,6 +114,26 @@ export function DataProvider({ children }: { children: ReactNode }) {
       await firestoreSetMonthlySaving(user.uid, year, month, target);
     } catch (err) {
       console.error("Gagal menyimpan target tabungan:", err);
+      throw err;
+    }
+  };
+
+  const addSavingsWithdrawal = async (data: { amount: number; date?: string; note?: string }) => {
+    if (!user) return;
+    try {
+      await firestoreAddSavingsWithdrawal(user.uid, data);
+    } catch (err) {
+      console.error("Gagal mencatat penarikan tabungan:", err);
+      throw err;
+    }
+  };
+
+  const deleteSavingsWithdrawal = async (id: string) => {
+    if (!user) return;
+    try {
+      await firestoreDeleteSavingsWithdrawal(user.uid, id);
+    } catch (err) {
+      console.error("Gagal menghapus catatan penarikan tabungan:", err);
       throw err;
     }
   };
@@ -160,13 +186,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
     categories, categoriesLoading,
     accounts, accountsLoading,
     debts, debtsLoading,
-    monthlySavings, monthlySavingsLoading,
+    monthlySavings, savingsWithdrawals, monthlySavingsLoading,
     saveMonthlySaving,
+    addSavingsWithdrawal,
+    deleteSavingsWithdrawal,
     budgetSource,
     setBudgetSource,
     budgetCalculationMode,
     setBudgetCalculationMode,
-  }), [categories, categoriesLoading, accounts, accountsLoading, debts, debtsLoading, monthlySavings, monthlySavingsLoading, budgetSource, budgetCalculationMode]);
+  }), [categories, categoriesLoading, accounts, accountsLoading, debts, debtsLoading, monthlySavings, savingsWithdrawals, monthlySavingsLoading, budgetSource, budgetCalculationMode]);
 
   return (
     <DataContext.Provider value={value}>

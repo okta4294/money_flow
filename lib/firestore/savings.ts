@@ -1,6 +1,7 @@
 import {
   doc,
   setDoc,
+  getDoc,
   onSnapshot,
   Timestamp,
 } from "firebase/firestore";
@@ -15,6 +16,14 @@ export interface MonthlySaving {
   updatedAt?: Timestamp;
 }
 
+export interface SavingsWithdrawal {
+  id: string;
+  amount: number;
+  date: string; // "YYYY-MM-DD"
+  note?: string;
+  createdAt: string;
+}
+
 const userDocRef = (userId: string) => doc(db, "users", userId);
 
 export const getMonthKey = (year: number, month: number): string =>
@@ -26,18 +35,19 @@ export const getMonthKey = (year: number, month: number): string =>
  */
 export function subscribeToMonthlySavings(
   userId: string,
-  callback: (savings: MonthlySaving[]) => void
+  callback: (savings: MonthlySaving[], withdrawals: SavingsWithdrawal[]) => void
 ) {
   const ref = userDocRef(userId);
   return onSnapshot(
     ref,
     (snapshot) => {
       if (!snapshot.exists()) {
-        callback([]);
+        callback([], []);
         return;
       }
       const data = snapshot.data();
       const rawSavings = data.monthlySavings || {};
+      const rawWithdrawals = (data.savingsWithdrawals || []) as SavingsWithdrawal[];
       const items: MonthlySaving[] = Object.entries(rawSavings).map(([key, val]) => {
         const parts = key.split("-");
         const y = parseInt(parts[0], 10) || 0;
@@ -56,11 +66,18 @@ export function subscribeToMonthlySavings(
         };
       });
       items.sort((a, b) => a.id.localeCompare(b.id));
-      callback(items);
+
+      const withdrawals = [...rawWithdrawals].sort((a, b) => {
+        const dateCompare = (b.date || "").localeCompare(a.date || "");
+        if (dateCompare !== 0) return dateCompare;
+        return (b.createdAt || "").localeCompare(a.createdAt || "");
+      });
+
+      callback(items, withdrawals);
     },
     (err) => {
       console.error("Gagal berlangganan data savings:", err);
-      callback([]);
+      callback([], []);
     }
   );
 }
@@ -88,6 +105,59 @@ export async function setMonthlySaving(
   );
 }
 
+/**
+ * Mencatat penarikan dari dana tabungan pengguna
+ */
+export async function addSavingsWithdrawal(
+  userId: string,
+  withdrawal: { amount: number; date?: string; note?: string }
+): Promise<string> {
+  const ref = userDocRef(userId);
+  const snap = await getDoc(ref);
+  const data = snap.exists() ? snap.data() : {};
+  const existing: SavingsWithdrawal[] = data.savingsWithdrawals || [];
+
+  const id = `w_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const nowStr = new Date().toISOString();
+  const newRecord: SavingsWithdrawal = {
+    id,
+    amount: Math.max(0, withdrawal.amount),
+    date: withdrawal.date || nowStr.split("T")[0],
+    ...(withdrawal.note?.trim() ? { note: withdrawal.note.trim() } : {}),
+    createdAt: nowStr,
+  };
+
+  await setDoc(
+    ref,
+    {
+      savingsWithdrawals: [newRecord, ...existing],
+    },
+    { merge: true }
+  );
+  return id;
+}
+
+/**
+ * Menghapus catatan penarikan tabungan
+ */
+export async function deleteSavingsWithdrawal(
+  userId: string,
+  withdrawalId: string
+): Promise<void> {
+  const ref = userDocRef(userId);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return;
+  const existing: SavingsWithdrawal[] = snap.data().savingsWithdrawals || [];
+  const updated = existing.filter((w) => w.id !== withdrawalId);
+  await setDoc(
+    ref,
+    {
+      savingsWithdrawals: updated,
+    },
+    { merge: true }
+  );
+}
+
 export interface SavingBreakdownItem {
   id: string; // "YYYY-MM"
   year: number;
@@ -102,9 +172,12 @@ export interface SavingBreakdownItem {
 export interface SavingsSummaryResult {
   currentTargetAmount: number;
   hasCustomTargetThisMonth: boolean;
-  cumulativeSavings: number;
+  cumulativeSavings: number; // Saldo bersih tabungan (gross - total penarikan)
+  grossSavings: number; // Total akumulasi target kotor
+  totalWithdrawn: number; // Total nominal yang sudah ditarik
   previousMonthTarget: number;
   breakdown: SavingBreakdownItem[];
+  withdrawals: SavingsWithdrawal[];
 }
 
 const INDONESIAN_MONTHS = [
@@ -119,7 +192,8 @@ const INDONESIAN_MONTHS = [
 export function calculateSavingsSummary(
   allSavings: MonthlySaving[],
   year: number,
-  month: number
+  month: number,
+  withdrawals: SavingsWithdrawal[] = []
 ): SavingsSummaryResult {
   const targetKey = getMonthKey(year, month);
   const sorted = [...allSavings].sort((a, b) => a.id.localeCompare(b.id));
@@ -135,7 +209,10 @@ export function calculateSavingsSummary(
   const hasCustomTargetThisMonth = Boolean(foundCurrent);
 
   const pastCumulative = pastSavings.reduce((sum, s) => sum + s.targetAmount, 0);
-  const cumulativeSavings = pastCumulative + currentTargetAmount;
+  const grossSavings = pastCumulative + currentTargetAmount;
+
+  const totalWithdrawn = withdrawals.reduce((sum, w) => sum + (w.amount || 0), 0);
+  const cumulativeSavings = Math.max(0, grossSavings - totalWithdrawn);
 
   const breakdown: SavingBreakdownItem[] = [];
   let running = 0;
@@ -173,7 +250,7 @@ export function calculateSavingsSummary(
       id: s.id,
       year: s.year,
       month: s.month,
-      monthLabel: `${INDONESIAN_MONTHS[s.month - 1] || `Bulan ${s.month}`} ${s.year}`,
+      monthLabel: `${INDONESIAN_MONTHS[s.month - 1] || `Bulan ${s.month}`} ${year}`,
       targetAmount: s.targetAmount,
       runningCumulative: running,
       isCurrentMonth: false,
@@ -185,7 +262,10 @@ export function calculateSavingsSummary(
     currentTargetAmount,
     hasCustomTargetThisMonth,
     cumulativeSavings,
+    grossSavings,
+    totalWithdrawn,
     previousMonthTarget,
     breakdown,
+    withdrawals,
   };
 }

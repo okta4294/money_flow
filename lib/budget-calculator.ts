@@ -97,7 +97,18 @@ export interface BudgetRecommendationResult {
   cumulativeSavings?: number;
   hasCustomTargetThisMonth?: boolean;
 
+  savingsRecommendation?: SavingsRecommendation;
+
   warnings: BudgetWarning[];
+}
+
+export interface SavingsRecommendation {
+  monthlyRecommended: number;
+  weeklyRecommended: number;
+  hasFixedIncome: boolean;
+  fixedIncomeAmount: number;
+  obligationsAmount: number;
+  reason: string;
 }
 
 export interface DailyLimitCheckResult {
@@ -1305,6 +1316,19 @@ export function calculateBudgetRecommendation(params: {
     monthlySavingTarget: savingTarget,
     cumulativeSavings: cumulativeSavingsLocked,
     hasCustomTargetThisMonth,
+    savingsRecommendation: {
+      monthlyRecommended: Math.max(0, eligibleIncome - (totalDebtObligation + rawFixedTotal + rawEssentialVariableTotal)),
+      weeklyRecommended: Math.round(Math.max(0, eligibleIncome - (totalDebtObligation + rawFixedTotal + rawEssentialVariableTotal)) / 4),
+      hasFixedIncome: eligibleIncome > 0,
+      fixedIncomeAmount: eligibleIncome,
+      obligationsAmount: totalDebtObligation + rawFixedTotal + rawEssentialVariableTotal,
+      reason:
+        eligibleIncome <= 0
+          ? "Belum ada pemasukan tetap (gaji) yang terdeteksi bulan ini. Tandai kategori pemasukan di menu Kategori agar rekomendasi otomatis aktif."
+          : eligibleIncome - (totalDebtObligation + rawFixedTotal + rawEssentialVariableTotal) <= 0
+          ? "Penghasilan tetap telah habis untuk cicilan hutang, tagihan tetap, dan kebutuhan pokok. Tidak disarankan menabung bulan ini agar kebutuhan utama tercukupi."
+          : "Dihitung dari sisa penghasilan tetap setelah dikurangi cicilan hutang, tagihan tetap bulanan, dan kebutuhan pokok.",
+    },
     budgetSource,
     budgetCalculationMode,
     warnings,

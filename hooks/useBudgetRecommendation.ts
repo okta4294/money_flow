@@ -59,8 +59,11 @@ export function useBudgetRecommendation(
     categoriesLoading,
     debtsLoading,
     monthlySavings,
+    savingsWithdrawals,
     monthlySavingsLoading,
     saveMonthlySaving,
+    addSavingsWithdrawal,
+    deleteSavingsWithdrawal,
     budgetCalculationMode,
   } = useGlobalData();
 
@@ -137,8 +140,8 @@ export function useBudgetRecommendation(
   }, [accounts]);
 
   const savingsSummary = useMemo(() => {
-    return calculateSavingsSummary(monthlySavings, year, month);
-  }, [monthlySavings, year, month]);
+    return calculateSavingsSummary(monthlySavings, year, month, savingsWithdrawals);
+  }, [monthlySavings, year, month, savingsWithdrawals]);
 
   const nowDate = new Date();
   const realYear = nowDate.getFullYear();
@@ -251,5 +254,7 @@ export function useBudgetRecommendation(
     todayTransactions,
     savingsSummary,
     saveMonthlySaving,
+    addSavingsWithdrawal,
+    deleteSavingsWithdrawal,
   };
 }

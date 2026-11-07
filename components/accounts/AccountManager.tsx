@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { useAccounts } from "@/hooks/useAccounts";
+import { useGlobalData } from "@/lib/data-context";
 import { addAccount, updateAccount, deleteAccount, AccountInput, AccountType } from "@/lib/firestore/accounts";
-import { collection, query, where, getAggregateFromServer, sum, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { motion, AnimatePresence } from "framer-motion";
 
 const COLORS = [
@@ -22,7 +20,7 @@ const ACCOUNT_TYPES: { value: AccountType; label: string; icon: string }[] = [
 
 export function AccountManager() {
   const { user } = useAuth();
-  const { accounts, loading } = useAccounts();
+  const { accounts, accountsLoading: loading, accountBalances: balances } = useGlobalData();
   
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -30,51 +28,6 @@ export function AccountManager() {
   const [type, setType] = useState<AccountType>("bank");
   const [color, setColor] = useState(COLORS[0]);
   const [submitting, setSubmitting] = useState(false);
-
-  const [balances, setBalances] = useState<Record<string, number>>({});
-
-  useEffect(() => {
-    if (!user || accounts.length === 0) return;
-
-    const fetchBalances = async () => {
-      const newBalances: Record<string, number> = {};
-      const transactionsRef = collection(db, "users", user.uid, "transactions");
-
-      // Batch query: Ambil seluruh transaksi transfer pengguna sekaligus dalam 1 request
-      const qAllTransfers = query(transactionsRef, where("type", "==", "transfer"));
-      const snapAllTransfers = await getDocs(qAllTransfers);
-      const transferOutMap: Record<string, number> = {};
-      const transferInMap: Record<string, number> = {};
-
-      snapAllTransfers.docs.forEach((doc) => {
-        const d = doc.data();
-        const amt = d.amount || 0;
-        if (d.accountId) transferOutMap[d.accountId] = (transferOutMap[d.accountId] || 0) + amt;
-        if (d.destinationAccountId) transferInMap[d.destinationAccountId] = (transferInMap[d.destinationAccountId] || 0) + amt;
-      });
-
-      await Promise.all(accounts.map(async (acc) => {
-        const qIncome = query(transactionsRef, where("accountId", "==", acc.id), where("type", "==", "income"));
-        const qExpense = query(transactionsRef, where("accountId", "==", acc.id), where("type", "==", "expense"));
-
-        const [snapIncome, snapExpense] = await Promise.all([
-          getAggregateFromServer(qIncome, { total: sum("amount") }),
-          getAggregateFromServer(qExpense, { total: sum("amount") }),
-        ]);
-
-        const income = snapIncome.data().total || 0;
-        const expense = snapExpense.data().total || 0;
-        const transferOut = transferOutMap[acc.id] || 0;
-        const transferIn = transferInMap[acc.id] || 0;
-
-        newBalances[acc.id] = income - expense - transferOut + transferIn;
-      }));
-
-      setBalances(newBalances);
-    };
-
-    fetchBalances();
-  }, [user, accounts]);
 
   const handleOpenNew = () => {
     setEditingId(null);

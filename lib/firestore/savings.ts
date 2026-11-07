@@ -6,6 +6,7 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { db } from "../firebase";
+import type { UserSettings } from "./user-settings";
 
 export interface MonthlySaving {
   id: string; // "YYYY-MM"
@@ -35,17 +36,25 @@ export const getMonthKey = (year: number, month: number): string =>
  */
 export function subscribeToMonthlySavings(
   userId: string,
-  callback: (savings: MonthlySaving[], withdrawals: SavingsWithdrawal[]) => void
+  callback: (
+    savings: MonthlySaving[],
+    withdrawals: SavingsWithdrawal[],
+    settings: UserSettings
+  ) => void
 ) {
   const ref = userDocRef(userId);
   return onSnapshot(
     ref,
     (snapshot) => {
       if (!snapshot.exists()) {
-        callback([], []);
+        callback([], [], { budgetSource: "all_income", budgetCalculationMode: "adaptive" });
         return;
       }
       const data = snapshot.data();
+      const settings: UserSettings = {
+        budgetSource: data.budgetSource || "all_income",
+        budgetCalculationMode: data.budgetCalculationMode || "adaptive",
+      };
       const rawSavings = data.monthlySavings || {};
       const rawWithdrawals = (data.savingsWithdrawals || []) as SavingsWithdrawal[];
       const items: MonthlySaving[] = Object.entries(rawSavings).map(([key, val]) => {
@@ -73,11 +82,11 @@ export function subscribeToMonthlySavings(
         return (b.createdAt || "").localeCompare(a.createdAt || "");
       });
 
-      callback(items, withdrawals);
+      callback(items, withdrawals, settings);
     },
     (err) => {
       console.error("Gagal berlangganan data savings:", err);
-      callback([], []);
+      callback([], [], { budgetSource: "all_income", budgetCalculationMode: "adaptive" });
     }
   );
 }

@@ -1,12 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useMemo, useRef, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useMemo, useRef, useCallback, ReactNode } from "react";
 import { useAuth } from "./auth-context";
 import { subscribeToCategories, Category, isDebtCategoryName, ensureDebtCategoryExists } from "./firestore/categories";
-import { subscribeToAccounts, Account } from "./firestore/accounts";
+import { subscribeToAccounts, Account, getAccountBalances } from "./firestore/accounts";
 import { subscribeToDebts, Debt } from "./firestore/debts";
 import { subscribeToMonthlySavings, setMonthlySaving as firestoreSetMonthlySaving, addSavingsWithdrawal as firestoreAddSavingsWithdrawal, deleteSavingsWithdrawal as firestoreDeleteSavingsWithdrawal, MonthlySaving, SavingsWithdrawal } from "./firestore/savings";
-import { subscribeToUserSettings, updateUserSettings, BudgetSource, BudgetCalculationMode } from "./firestore/user-settings";
+import { updateUserSettings, BudgetSource, BudgetCalculationMode } from "./firestore/user-settings";
+import { subscribeToTransactionMutations } from "./firestore/transactions";
 
 export type { BudgetSource, BudgetCalculationMode, MonthlySaving, SavingsWithdrawal };
 
@@ -15,6 +16,10 @@ interface DataContextType {
   categoriesLoading: boolean;
   accounts: Account[];
   accountsLoading: boolean;
+  accountBalances: Record<string, number>;
+  totalAccountBalance: number;
+  accountBalancesLoading: boolean;
+  refreshAccountBalances: () => Promise<void>;
   debts: Debt[];
   debtsLoading: boolean;
   monthlySavings: MonthlySaving[];
@@ -39,6 +44,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
   
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [accountsLoading, setAccountsLoading] = useState(true);
+  const [accountBalances, setAccountBalances] = useState<Record<string, number>>({});
+  const [accountBalancesLoading, setAccountBalancesLoading] = useState(true);
   
   const [debts, setDebts] = useState<Debt[]>([]);
   const [debtsLoading, setDebtsLoading] = useState(true);
@@ -58,6 +65,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setCategoriesLoading(false);
       setAccounts([]);
       setAccountsLoading(false);
+      setAccountBalances({});
+      setAccountBalancesLoading(false);
       setDebts([]);
       setDebtsLoading(false);
       setMonthlySavings([]);
@@ -88,25 +97,69 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setDebtsLoading(false);
     });
 
-    const unsubSavings = subscribeToMonthlySavings(user.uid, (data, withdrawals) => {
-      setMonthlySavings(data);
-      setSavingsWithdrawals(withdrawals || []);
-      setMonthlySavingsLoading(false);
-    });
-
-    const unsubSettings = subscribeToUserSettings(user.uid, (settings) => {
-      setBudgetSourceState(settings.budgetSource || "all_income");
-      setBudgetCalculationModeState(settings.budgetCalculationMode || "adaptive");
-    });
+    // Satu listener tunggal untuk dokumen users/{userId} (tabungan + pengaturan anggaran)
+    const unsubSavingsAndSettings = subscribeToMonthlySavings(
+      user.uid,
+      (data, withdrawals, settings) => {
+        setMonthlySavings(data);
+        setSavingsWithdrawals(withdrawals || []);
+        setMonthlySavingsLoading(false);
+        if (settings) {
+          setBudgetSourceState(settings.budgetSource || "all_income");
+          setBudgetCalculationModeState(settings.budgetCalculationMode || "adaptive");
+        }
+      }
+    );
 
     return () => {
       unsubCat();
       unsubAcc();
       unsubDebt();
-      unsubSavings();
-      unsubSettings();
+      unsubSavingsAndSettings();
     };
   }, [user?.uid]);
+
+  const accountIdsKey = useMemo(() => accounts.map((a) => a.id).join(","), [accounts]);
+
+  const refreshAccountBalances = useCallback(async () => {
+    if (!user) {
+      setAccountBalances({});
+      setAccountBalancesLoading(false);
+      return;
+    }
+    if (accountsLoading) return;
+    const ids = accountIdsKey ? accountIdsKey.split(",") : [];
+    if (ids.length === 0) {
+      setAccountBalances({});
+      setAccountBalancesLoading(false);
+      return;
+    }
+    setAccountBalancesLoading(true);
+    try {
+      const records = await getAccountBalances(user.uid, ids);
+      setAccountBalances(records);
+    } catch (err) {
+      console.error("Gagal memuat saldo akun terpusat:", err);
+    } finally {
+      setAccountBalancesLoading(false);
+    }
+  }, [user?.uid, accountsLoading, accountIdsKey]);
+
+  useEffect(() => {
+    refreshAccountBalances();
+  }, [refreshAccountBalances]);
+
+  useEffect(() => {
+    if (!user) return;
+    return subscribeToTransactionMutations(user.uid, () => {
+      refreshAccountBalances();
+    });
+  }, [user?.uid, refreshAccountBalances]);
+
+  const totalAccountBalance = useMemo(
+    () => Object.values(accountBalances).reduce((sum, val) => sum + val, 0),
+    [accountBalances]
+  );
 
   const saveMonthlySaving = async (year: number, month: number, target: number) => {
     if (!user) return;
@@ -185,6 +238,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const value = useMemo(() => ({
     categories, categoriesLoading,
     accounts, accountsLoading,
+    accountBalances, totalAccountBalance, accountBalancesLoading, refreshAccountBalances,
     debts, debtsLoading,
     monthlySavings, savingsWithdrawals, monthlySavingsLoading,
     saveMonthlySaving,
@@ -194,7 +248,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setBudgetSource,
     budgetCalculationMode,
     setBudgetCalculationMode,
-  }), [categories, categoriesLoading, accounts, accountsLoading, debts, debtsLoading, monthlySavings, savingsWithdrawals, monthlySavingsLoading, budgetSource, budgetCalculationMode]);
+  }), [categories, categoriesLoading, accounts, accountsLoading, accountBalances, totalAccountBalance, accountBalancesLoading, refreshAccountBalances, debts, debtsLoading, monthlySavings, savingsWithdrawals, monthlySavingsLoading, budgetSource, budgetCalculationMode]);
 
   return (
     <DataContext.Provider value={value}>

@@ -42,13 +42,14 @@ export function Sidebar() {
 
       <div className="flex flex-col gap-4 mt-auto w-full items-center">
         {user?.isAnonymous && (
-          <a
-            href="/login"
+          <button
+            type="button"
+            onClick={signOut}
             className="p-3 rounded-lg flex items-center justify-center text-primary-fixed hover:bg-surface-container-high transition-colors"
-            title="Masuk"
+            title="Daftar / Masuk Akun Tetap"
           >
             <span className="material-symbols-outlined text-2xl">person_add</span>
-          </a>
+          </button>
         )}
         <div className="p-3">
           <ThemeToggle />

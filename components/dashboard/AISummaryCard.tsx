@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { Transaction, getTransactionsByMonth } from "@/lib/firestore/transactions";
 import { useAuth } from "@/lib/auth-context";
-import { checkAiLimit, markAiUsage, getTodayDateString } from "@/lib/firestore/ai-usage";
+import { checkAiLimit } from "@/lib/firestore/ai-usage";
 
 interface AISummaryCardProps {
   transactions: Transaction[];
@@ -145,7 +145,6 @@ export function AISummaryCard({
           "Authorization": `Bearer ${idToken}`,
         },
         body: JSON.stringify({
-          clientDate: getTodayDateString(),
           month,
           year,
           initialBalance,
@@ -173,12 +172,9 @@ export function AISummaryCard({
           sessionStorage.setItem(sessionKey, JSON.stringify({ isSuper: true, limitReached: false }));
         }
       } else {
-        await markAiUsage(user.uid);
-        const canStillUse = await checkAiLimit(user.uid);
-        const reached = !canStillUse;
-        setLimitReached(reached);
+        setLimitReached(true);
         if (typeof window !== "undefined") {
-          sessionStorage.setItem(sessionKey, JSON.stringify({ isSuper: false, limitReached: reached }));
+          sessionStorage.setItem(sessionKey, JSON.stringify({ isSuper: false, limitReached: true }));
         }
       }
     } catch (err: any) {

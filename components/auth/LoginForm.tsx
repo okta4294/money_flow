@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 type Mode = "login" | "register";
 
 export function LoginForm() {
-  const { user, loading: authLoading, signInWithGoogle, signInWithEmail, signUpWithEmail, signInAsGuest } = useAuth();
+  const { user, loading: authLoading, signInWithGoogle, signInWithEmail, signUpWithEmail, signInAsGuest, resetPassword } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -23,7 +23,26 @@ export function LoginForm() {
   const [name, setName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [infoMessage, setInfoMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const handleForgotPassword = async () => {
+    setError("");
+    setInfoMessage("");
+    if (!email.trim()) {
+      setError("Masukkan alamat email Anda terlebih dahulu untuk mereset kata sandi.");
+      return;
+    }
+    setLoading(true);
+    try {
+      await resetPassword(email.trim());
+      setInfoMessage("Tautan reset kata sandi telah dikirim ke email Anda.");
+    } catch {
+      setError("Gagal mengirim email reset kata sandi. Pastikan email sudah benar.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,7 +157,13 @@ export function LoginForm() {
           <div className="flex justify-between items-center ml-1">
             <label className="font-label-bold text-xs uppercase tracking-widest text-on-surface-variant" htmlFor="password">Kata Sandi</label>
             {mode === "login" && (
-              <a href="#" className="font-label-bold text-xs text-primary-fixed-dim hover:text-primary-fixed transition-colors">Lupa sandi?</a>
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                className="font-label-bold text-xs text-primary-fixed-dim hover:text-primary-fixed transition-colors"
+              >
+                Lupa sandi?
+              </button>
             )}
           </div>
           <div className="relative group">
@@ -166,6 +191,13 @@ export function LoginForm() {
           <div className="bg-error-container text-on-error-container border-2 border-outline rounded-xl px-4 py-3 font-label-bold text-xs mt-2 flex items-center gap-2">
             <i className="fa-solid fa-triangle-exclamation"></i>
             {error}
+          </div>
+        )}
+
+        {infoMessage && (
+          <div className="bg-tertiary-container text-on-tertiary-container border-2 border-outline rounded-xl px-4 py-3 font-label-bold text-xs mt-2 flex items-center gap-2">
+            <i className="fa-solid fa-circle-check"></i>
+            {infoMessage}
           </div>
         )}
 

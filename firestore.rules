@@ -7,25 +7,59 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read, delete: if isOwner(userId);
+      allow create, update: if isOwner(userId)
+        && request.resource.data.keys().size() <= 15;
 
       match /transactions/{document=**} {
-        allow read, write: if isOwner(userId);
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId)
+          && request.resource.data.keys().size() <= 20
+          && request.resource.data.amount is number
+          && request.resource.data.amount >= 0
+          && request.resource.data.type in ['income', 'expense', 'transfer']
+          && request.resource.data.date is string
+          && request.resource.data.date.size() <= 20;
       }
       match /categories/{document=**} {
-        allow read, write: if isOwner(userId);
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId)
+          && request.resource.data.keys().size() <= 15
+          && request.resource.data.name is string
+          && request.resource.data.name.size() > 0
+          && request.resource.data.name.size() <= 100
+          && request.resource.data.type in ['income', 'expense'];
       }
       match /debts/{document=**} {
-        allow read, write: if isOwner(userId);
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId)
+          && request.resource.data.keys().size() <= 20
+          && request.resource.data.name is string
+          && request.resource.data.name.size() <= 100
+          && request.resource.data.totalAmount is number
+          && request.resource.data.totalAmount >= 0
+          && request.resource.data.remainingAmount is number
+          && request.resource.data.remainingAmount >= 0;
       }
       match /accounts/{document=**} {
-        allow read, write: if isOwner(userId);
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId)
+          && request.resource.data.keys().size() <= 10
+          && request.resource.data.name is string
+          && request.resource.data.name.size() > 0
+          && request.resource.data.name.size() <= 100
+          && request.resource.data.type in ['bank', 'cash', 'ewallet', 'other'];
       }
       match /balances/{document=**} {
-        allow read, write: if isOwner(userId);
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId)
+          && request.resource.data.keys().size() <= 10
+          && request.resource.data.initialBalance is number;
       }
       match /monthly_savings/{document=**} {
-        allow read, write: if isOwner(userId);
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId)
+          && request.resource.data.keys().size() <= 10;
       }
       match /ai-usage/{dateDoc} {
         allow read: if isOwner(userId);

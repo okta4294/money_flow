@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useRef,
   ReactNode,
 } from "react";
 import {
@@ -17,8 +18,11 @@ import {
   GoogleAuthProvider,
   signOut as firebaseSignOut,
   updateProfile,
+  sendPasswordResetEmail,
+  deleteUser,
 } from "firebase/auth";
-import { auth } from "./firebase";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "./firebase";
 
 interface AuthContextType {
   user: User | null;
@@ -28,6 +32,7 @@ interface AuthContextType {
   signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
   signInAsGuest: () => Promise<void>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -40,14 +45,75 @@ googleProvider.setCustomParameters({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const guestTokenRef = useRef<string | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       setLoading(false);
+
+      if (firebaseUser?.isAnonymous) {
+        try {
+          const token = await firebaseUser.getIdToken();
+          guestTokenRef.current = token;
+          await setDoc(
+            doc(db, "users", firebaseUser.uid),
+            { lastActiveAt: Date.now() },
+            { merge: true }
+          );
+        } catch {
+          // Abaikan jika gagal menulis detak sesi awal
+        }
+      } else {
+        guestTokenRef.current = null;
+      }
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!user?.isAnonymous) return;
+
+    let active = true;
+    const refreshTokenAndHeartbeat = async () => {
+      if (!active || !auth.currentUser?.isAnonymous) return;
+      try {
+        const token = await auth.currentUser.getIdToken();
+        guestTokenRef.current = token;
+      } catch {}
+    };
+
+    const intervalId = setInterval(refreshTokenAndHeartbeat, 10 * 60 * 1000);
+
+    const handlePageHide = () => {
+      const token = guestTokenRef.current;
+      if (!token) return;
+      const payload = JSON.stringify({
+        idToken: token,
+        unloadTime: Date.now(),
+        immediate: false,
+      });
+
+      if (typeof navigator !== "undefined" && navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: "application/json" });
+        navigator.sendBeacon("/api/guest-cleanup", blob);
+      } else {
+        fetch("/api/guest-cleanup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: payload,
+          keepalive: true,
+        }).catch(() => {});
+      }
+    };
+
+    window.addEventListener("pagehide", handlePageHide);
+    return () => {
+      active = false;
+      clearInterval(intervalId);
+      window.removeEventListener("pagehide", handlePageHide);
+    };
+  }, [user?.uid, user?.isAnonymous]);
 
   const signInWithGoogle = async () => {
     await signInWithPopup(auth, googleProvider);
@@ -67,12 +133,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser?.isAnonymous) {
+      try {
+        const token = await currentUser.getIdToken();
+        guestTokenRef.current = null;
+        await fetch("/api/guest-cleanup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken: token, immediate: true }),
+        });
+        await deleteUser(currentUser).catch(() => {});
+      } catch {
+        // Lanjutkan signOut jika sudah terhapus di server
+      }
+    }
     await firebaseSignOut(auth);
+  };
+
+  const resetPassword = async (email: string) => {
+    await sendPasswordResetEmail(auth, email);
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signInAsGuest, signOut }}
+      value={{
+        user,
+        loading,
+        signInWithGoogle,
+        signInWithEmail,
+        signUpWithEmail,
+        signInAsGuest,
+        signOut,
+        resetPassword,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useAuth } from "@/lib/auth-context";
+import { useState, useMemo } from "react";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useCategories } from "@/hooks/useCategories";
 import { useDebts } from "@/hooks/useDebts";
-import { useAccounts } from "@/hooks/useAccounts";
-import { getTotalAccountBalance } from "@/lib/firestore/accounts";
+import { useGlobalData } from "@/lib/data-context";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { MonthSelector } from "@/components/layout/MonthSelector";
 import { AISummaryCard } from "@/components/dashboard/AISummaryCard";
@@ -17,7 +15,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function DashboardPage() {
-  const { user } = useAuth();
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -31,39 +28,18 @@ export default function DashboardPage() {
     loading: budgetLoading,
   } = useBudgetRecommendation(year, month, transactions);
 
-  const { accounts, loading: accountsLoading } = useAccounts();
-  const [totalAccountBalance, setTotalAccountBalance] = useState<number | null>(null);
-  const [balanceLoading, setBalanceLoading] = useState(true);
+  const {
+    accounts,
+    accountsLoading,
+    totalAccountBalance,
+    accountBalancesLoading,
+  } = useGlobalData();
+  const balanceLoading = accountsLoading || accountBalancesLoading;
   const [showTransactionForm, setShowTransactionForm] = useState(false);
   const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
 
-  const fetchTotalBalance = useCallback(async () => {
-    if (!user) return;
-    setBalanceLoading(true);
-    if (accounts.length === 0) {
-      setTotalAccountBalance(0);
-      setBalanceLoading(false);
-      return;
-    }
-    try {
-      const total = await getTotalAccountBalance(
-        user.uid,
-        accounts.map((a) => a.id)
-      );
-      setTotalAccountBalance(total);
-    } catch (err) {
-      console.error("Gagal memuat saldo akun:", err);
-    } finally {
-      setBalanceLoading(false);
-    }
-  }, [user?.uid, accounts]);
-
-  useEffect(() => {
-    fetchTotalBalance();
-  }, [fetchTotalBalance, transactions]);
-
   // Total saldo kas riil berdasarkan akumulasi saldo seluruh akun
-  const totalKas = accounts.length > 0 ? (totalAccountBalance ?? 0) : (totalIncome - totalExpense);
+  const totalKas = accounts.length > 0 ? totalAccountBalance : (totalIncome - totalExpense);
 
   // Saldo dingin: saldo riil setelah dipotong hutang jatuh tempo, kebutuhan tetap, dan target saving
   const debtDeduction = budget
@@ -133,7 +109,7 @@ export default function DashboardPage() {
               </Link>
             </div>
             <h3 className="text-[clamp(2.25rem,5.5vw,4.25rem)] leading-none tracking-tight mt-1 sm:mt-2 font-display-lg break-words w-full" style={{ color: 'var(--theme-primary)', WebkitTextStroke: '2px var(--theme-outline)' }}>
-              {(balanceLoading && totalAccountBalance === null) || (budgetLoading && !budget) ? (
+              {balanceLoading || (budgetLoading && !budget) ? (
                 <span className="animate-pulse opacity-50">Rp ...</span>
               ) : (
                 new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(coldBalance)
@@ -144,7 +120,7 @@ export default function DashboardPage() {
                 <span className="material-symbols-outlined text-sm">verified_user</span>
                 Saldo Dingin (Setelah Hutang, Pos Tetap & Tabungan)
               </span>
-              {totalAccountBalance !== null && (
+              {!balanceLoading && (
                 <span className="text-[10px] sm:text-[11px] opacity-75 font-label-md">
                   Total Kas: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalKas)}
                 </span>

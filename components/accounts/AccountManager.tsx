@@ -20,7 +20,12 @@ const ACCOUNT_TYPES: { value: AccountType; label: string; icon: string }[] = [
 
 export function AccountManager() {
   const { user } = useAuth();
-  const { accounts, accountsLoading: loading, accountBalances: balances } = useGlobalData();
+  const {
+    accounts,
+    accountsLoading: loading,
+    accountBalances: balances,
+    totalAccountBalance,
+  } = useGlobalData();
   
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -100,80 +105,135 @@ export function AccountManager() {
   ];
 
   return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <motion.button
-          whileHover={{ scale: 1.02, y: -2 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleOpenNew}
-          className="min-h-[190px] rounded-3xl border-4 border-dashed border-outline bg-surface hover:bg-surface-bright flex flex-col items-center justify-center gap-2.5 p-6 transition-all group shadow-[5px_5px_0_0_var(--theme-outline)]"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-surface-container-highest border-2 border-outline flex items-center justify-center shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors">
-            <span className="material-symbols-outlined text-on-background text-2xl group-hover:rotate-90 transition-transform">add</span>
-          </div>
-          <span className="font-label-bold text-sm text-on-surface-variant font-bold uppercase tracking-wider">Tambah Akun</span>
-        </motion.button>
+    <div className="space-y-6">
+      {/* Kartu Hero Kuning: Total Saldo Kas Seluruh Dompet sesuai FigCraft Frame 06 */}
+      <motion.div
+        whileHover={{ y: -2 }}
+        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        className="bg-primary-container text-on-primary-container border-4 border-outline rounded-3xl p-5 sm:p-6 shadow-[4px_4px_0_0_var(--theme-outline)] flex flex-col justify-between gap-3"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <span className="font-label-bold text-xs sm:text-sm uppercase font-extrabold tracking-wide">
+            Total Saldo Kas Seluruh Dompet ({accounts.length} Akun Aktif)
+          </span>
 
-        {accounts.map((acc, idx) => {
-          const colorClass = bgColors[idx % bgColors.length];
-          return (
-            <motion.div
-              layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              whileHover={{ scale: 1.02, y: -2 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              key={acc.id}
-              className={`group relative min-h-[190px] border-4 border-outline rounded-3xl p-6 flex flex-col justify-between items-start text-left shadow-[5px_5px_0_0_var(--theme-outline)] hover:shadow-[7px_7px_0_0_var(--theme-outline)] transition-all ${colorClass}`}
+          <button
+            type="button"
+            onClick={handleOpenNew}
+            className="px-4 py-2 rounded-xl bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline font-label-bold text-xs uppercase shadow-[2px_2px_0_0_var(--theme-outline)] active-press-sm flex items-center gap-1.5 cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-base">add</span>
+            <span>Tambah Dompet Baru</span>
+          </button>
+        </div>
+
+        <h3 className="font-display-lg text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-on-primary-container">
+          {formatRupiah(totalAccountBalance)}
+        </h3>
+      </motion.div>
+
+      {/* Kartu Daftar Saldo Real-Time per Akun Dompet sesuai FigCraft Frame 06 */}
+      <div className="bg-surface border-4 border-outline rounded-3xl p-5 sm:p-6 shadow-[4px_4px_0_0_var(--theme-outline)] space-y-4">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="font-headline-md text-sm sm:text-base uppercase font-extrabold text-on-surface">
+            Saldo Real-Time Per Akun Dompet
+          </h3>
+          <span className="text-xs font-label-bold text-on-surface-variant">
+            {accounts.length} Rekening / Dompet
+          </span>
+        </div>
+
+        {accounts.length === 0 ? (
+          <div className="bg-background border-2 border-dashed border-outline rounded-2xl p-8 text-center space-y-2">
+            <span className="material-symbols-outlined text-3xl text-on-surface-variant">
+              account_balance_wallet
+            </span>
+            <p className="font-label-bold text-sm text-on-surface uppercase">
+              Belum ada dompet atau rekening terdaftar
+            </p>
+            <button
+              type="button"
+              onClick={handleOpenNew}
+              className="mt-1 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container border-2 border-outline font-label-bold text-xs uppercase shadow-[2px_2px_0_0_var(--theme-outline)] cursor-pointer"
             >
-              <div className="flex w-full justify-between items-start gap-3">
-                <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                  <div className="w-12 h-12 rounded-2xl bg-surface border-2 border-outline flex items-center justify-center text-on-surface shadow-[2px_2px_0_0_var(--theme-outline)] shrink-0">
-                    {getIcon(acc.type)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-headline-md text-xl font-black leading-tight text-inherit truncate">
-                        {acc.name}
-                      </h3>
+              + Tambah Dompet Pertama
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            {accounts.map((acc, idx) => {
+              const colorClass = bgColors[idx % bgColors.length];
+              const bal = balances[acc.id] ?? 0;
+
+              return (
+                <motion.div
+                  layout
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -2 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  key={acc.id}
+                  onClick={() => handleOpenEdit(acc)}
+                  className="bg-background hover:bg-surface-bright border-2 border-outline rounded-2xl p-4 flex items-center justify-between gap-3 shadow-[2px_2px_0_0_var(--theme-outline)] transition-all cursor-pointer"
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div
+                      className={`w-12 h-12 rounded-xl border-2 border-outline flex items-center justify-center shrink-0 shadow-[1.5px_1.5px_0_0_var(--theme-outline)] ${colorClass}`}
+                    >
+                      {getIcon(acc.type)}
                     </div>
-                    <p className="font-label-bold text-xs uppercase tracking-wider opacity-75 mt-1">
-                      {ACCOUNT_TYPES.find((t) => t.value === acc.type)?.label}
-                    </p>
+                    <div className="min-w-0">
+                      <h4 className="font-label-bold text-sm sm:text-base font-extrabold text-on-surface truncate">
+                        {acc.name}
+                      </h4>
+                      <p className="text-xs font-body-sm text-on-surface-variant truncate">
+                        {
+                          ACCOUNT_TYPES.find((t) => t.value === acc.type)
+                            ?.label
+                        }
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-1.5 shrink-0 ml-1">
-                  <button
-                    type="button"
-                    onClick={() => handleOpenEdit(acc)}
-                    title="Edit Akun"
-                    className="w-9 h-9 rounded-xl bg-surface border-2 border-outline text-on-surface flex items-center justify-center hover:bg-surface-bright shadow-[1.5px_1.5px_0_0_var(--theme-outline)] active-press-sm transition-transform"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">edit</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(acc.id)}
-                    title="Hapus Akun"
-                    className="w-9 h-9 rounded-xl bg-error text-on-error border-2 border-outline flex items-center justify-center hover:opacity-90 shadow-[1.5px_1.5px_0_0_var(--theme-outline)] active-press-sm transition-transform"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">delete</span>
-                  </button>
-                </div>
-              </div>
+                  <div className="flex items-center gap-2.5 shrink-0">
+                    <span className="font-display-lg text-base sm:text-lg font-black text-on-surface whitespace-nowrap">
+                      {formatRupiah(bal)}
+                    </span>
 
-              {balances[acc.id] !== undefined && (
-                <div className="w-full mt-5 pt-3 border-t-2 border-outline/15">
-                  <p className="text-[11px] font-label-bold uppercase tracking-widest opacity-80 mb-0.5">Saldo Saat Ini</p>
-                  <p className="font-display-lg text-2xl sm:text-3xl font-black tracking-tight leading-normal text-inherit truncate">
-                    {formatRupiah(balances[acc.id])}
-                  </p>
-                </div>
-              )}
-            </motion.div>
-          );
-        })}
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenEdit(acc);
+                        }}
+                        title="Edit Akun"
+                        className="w-8 h-8 rounded-lg bg-surface hover:bg-surface-bright border-2 border-outline text-on-surface flex items-center justify-center active-press-sm cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-base">
+                          edit
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(acc.id);
+                        }}
+                        title="Hapus Akun"
+                        className="w-8 h-8 rounded-lg bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-base">
+                          delete
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <AnimatePresence>

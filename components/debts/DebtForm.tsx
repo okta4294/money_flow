@@ -84,15 +84,22 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
         >
           <div className="flex items-center justify-between mb-6 border-b-4 border-outline pb-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 border-2 border-outline bg-tertiary flex items-center justify-center rounded-2xl shadow-sm">
-                <i className="fa-solid fa-credit-card text-on-tertiary text-2xl"></i>
+              <div className="w-12 h-12 border-2 border-outline bg-surface text-on-surface flex items-center justify-center rounded-2xl shadow-sm">
+                <span className="material-symbols-outlined text-2xl">
+                  credit_card
+                </span>
               </div>
-              <h2 className="font-display-lg text-2xl text-on-tertiary-container uppercase tracking-normal" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>
+              <h2 className="font-display-lg text-2xl text-on-tertiary-container uppercase tracking-normal">
                 {editData ? "Edit Hutang" : "Tambah Hutang"}
               </h2>
             </div>
-            <button onClick={onClose} className="bg-error text-on-error border-2 border-outline rounded-xl p-1 w-10 h-10 flex items-center justify-center active-press hover:opacity-90">
-              <i className="fa-solid fa-xmark"></i>
+            <button
+              type="button"
+              onClick={onClose}
+              className="bg-error-container text-on-error-container border-2 border-outline rounded-xl p-1 w-10 h-10 flex items-center justify-center active-press-sm hover:opacity-90 cursor-pointer"
+              aria-label="Tutup modal"
+            >
+              <span className="material-symbols-outlined text-lg">close</span>
             </button>
           </div>
 
@@ -130,9 +137,11 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
           </div>
 
           <div>
-            <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2 flex items-center gap-2">
-              <i className="fa-solid fa-calendar"></i>
-              Jatuh Tempo (opsional)
+            <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2 flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-base">
+                calendar_month
+              </span>
+              <span>Jatuh Tempo (opsional)</span>
             </label>
             <input
               id="debt-due-date"
@@ -156,8 +165,11 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
           </div>
 
           {error && (
-            <div className="bg-error text-on-error border-2 border-outline rounded-xl px-4 py-3 font-label-bold uppercase text-xs flex items-center gap-2">
-              <i className="fa-solid fa-triangle-exclamation"></i> {error}
+            <div className="bg-error-container text-on-error-container border-2 border-outline rounded-xl px-4 py-3 font-label-bold uppercase text-xs flex items-center gap-2">
+              <span className="material-symbols-outlined text-base">
+                warning
+              </span>
+              <span>{error}</span>
             </div>
           )}
 

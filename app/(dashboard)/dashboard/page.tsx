@@ -6,7 +6,8 @@ import { useCategories } from "@/hooks/useCategories";
 import { useDebts } from "@/hooks/useDebts";
 import { useGlobalData } from "@/lib/data-context";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
-import { MonthSelector } from "@/components/layout/MonthSelector";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { FloatingActionButton } from "@/components/layout/FloatingActionButton";
 import { AISummaryCard } from "@/components/dashboard/AISummaryCard";
 import { SafeToSpendCard } from "@/components/dashboard/SafeToSpendCard";
 import { useBudgetRecommendation } from "@/hooks/useBudgetRecommendation";
@@ -72,66 +73,93 @@ export default function DashboardPage() {
   }, [categories, transactions]);
 
   const maxSpent = withSpending[0]?.spent || 1;
+  const expenseToIncomeRatio =
+    totalIncome > 0
+      ? Math.round((totalExpense / totalIncome) * 100)
+      : totalExpense > 0
+      ? 100
+      : 0;
+
+  const formatIDR = (val: number) =>
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(val);
 
   return (
     <>
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
-        <div>
-          <h2 className="font-display-lg text-3xl sm:text-4xl md:text-5xl text-on-surface tracking-tighter uppercase">Dasbor</h2>
-          <p className="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">Hai miskin gimana kabarnya</p>
-        </div>
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto">
-          <div className="bg-surface-container border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] flex items-center justify-center p-1 rounded-xl flex-1 sm:flex-initial">
-             <MonthSelector year={year} month={month} onChange={(y, m) => { setYear(y); setMonth(m); }} />
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        title="Dasbor"
+        subtitle="Hai miskin gimana kabarnya"
+        year={year}
+        month={month}
+        onMonthChange={(y, m) => {
+          setYear(y);
+          setMonth(m);
+        }}
+      />
 
-      <div className="grid grid-cols-12 gap-6 w-full">
-        <motion.div whileHover={{ scale: 1.02, y: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="col-span-12 lg:col-span-8 bg-primary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-4 sm:p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group rounded-3xl">
-          <div className="relative z-10">
-            <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4">
-              <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-surface text-on-surface border-2 border-outline shadow-[1.5px_1.5px_0_0_var(--theme-outline)] sm:shadow-[2px_2px_0_0_var(--theme-outline)] flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-sm sm:text-lg">account_balance</span>
-                </div>
-                <h2 className="font-headline-md text-xs sm:text-sm md:text-base font-bold uppercase tracking-normal text-on-primary-container whitespace-nowrap shrink-0" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>
-                  Total Saldo Bersih
-                </h2>
-              </div>
-              <Link
-                href="/accounts"
-                className="h-7 sm:h-9 inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 rounded-lg sm:rounded-xl bg-surface text-on-surface border-2 border-outline text-[11px] sm:text-xs font-label-bold uppercase shadow-[1.5px_1.5px_0_0_var(--theme-outline)] sm:shadow-[2px_2px_0_0_var(--theme-outline)] hover:bg-surface-bright active-press shrink-0 transition-colors whitespace-nowrap"
-              >
-                <span className="material-symbols-outlined text-sm sm:text-base">account_balance_wallet</span>
-                <span className="hidden min-[380px]:inline">Kelola Akun</span>
-                <span className="min-[380px]:hidden">Akun</span>
-              </Link>
+      <div className="grid grid-cols-12 gap-5 sm:gap-6 w-full">
+        {/* Kartu 1: Total Saldo Bersih (Saldo Dingin) */}
+        <motion.div
+          whileHover={{ y: -2 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          className="col-span-12 lg:col-span-8 bg-primary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-5 sm:p-6 md:p-7 flex flex-col justify-between gap-4 relative overflow-hidden rounded-3xl"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2.5">
+            <div className="h-9 inline-flex items-center gap-2 px-3.5 rounded-xl bg-surface text-on-surface border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)]">
+              <span className="material-symbols-outlined text-base">
+                account_balance_wallet
+              </span>
+              <h2 className="font-label-bold text-[11px] sm:text-xs font-extrabold uppercase tracking-wide">
+                Total Saldo Bersih
+              </h2>
             </div>
-            <h3 className="text-[clamp(2.25rem,5.5vw,4.25rem)] leading-none tracking-tight mt-1 sm:mt-2 font-display-lg break-words w-full" style={{ color: 'var(--theme-primary)', WebkitTextStroke: '2px var(--theme-outline)' }}>
+
+            <Link
+              href="/accounts"
+              className="h-9 inline-flex items-center gap-1.5 px-3.5 rounded-xl bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline text-[11px] sm:text-xs font-label-bold uppercase shadow-[2px_2px_0_0_var(--theme-outline)] active-press-sm transition-colors"
+            >
+              <span>Kelola Dompet</span>
+            </Link>
+          </div>
+
+          <div className="my-1 sm:my-2">
+            <h3 className="text-[clamp(2.25rem,5vw,3.75rem)] leading-none tracking-tight font-display-lg font-black text-on-primary-container break-words w-full">
               {balanceLoading || (budgetLoading && !budget) ? (
                 <span className="animate-pulse opacity-50">Rp ...</span>
               ) : (
-                new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(coldBalance)
+                formatIDR(coldBalance)
               )}
             </h3>
-            <div className="mt-3 sm:mt-4 pt-2.5 border-t border-outline/20 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] sm:text-xs font-label-bold text-on-primary-container">
-              <span className="flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm">verified_user</span>
-                Saldo Dingin (Setelah Hutang, Pos Tetap & Tabungan)
+          </div>
+
+          <div className="bg-surface/95 dark:bg-surface border-2 border-outline rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 text-xs font-label-bold text-on-surface shadow-[2px_2px_0_0_var(--theme-outline)]">
+            <span className="flex items-center gap-1.5 text-on-surface-variant">
+              <span className="material-symbols-outlined text-base text-tertiary">
+                verified_user
               </span>
-              {!balanceLoading && (
-                <span className="text-[10px] sm:text-[11px] opacity-75 font-label-md">
-                  Total Kas: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalKas)}
-                </span>
-              )}
-            </div>
+              <span>
+                Aman dipakai (Sudah potong Hutang Jatuh Tempo, Pos Tetap & Tabungan)
+              </span>
+            </span>
+            {!balanceLoading && (
+              <span className="font-extrabold text-on-surface whitespace-nowrap">
+                Total Kas Riil: {formatIDR(totalKas)}
+              </span>
+            )}
           </div>
         </motion.div>
 
-        <motion.div whileHover={{ scale: 1.02, y: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="col-span-12 lg:col-span-4 h-full min-h-[300px] bg-tertiary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-6 flex flex-col relative rounded-3xl">
-           {(!loading && !balanceLoading) ? (
-             <AISummaryCard
+        {/* Kartu 2: Roasting Keuangan AI */}
+        <motion.div
+          whileHover={{ y: -2 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          className="col-span-12 lg:col-span-4 h-full min-h-[260px] bg-tertiary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-5 sm:p-6 flex flex-col relative rounded-3xl"
+        >
+          {!loading && !balanceLoading ? (
+            <AISummaryCard
               transactions={transactions}
               month={month}
               year={year}
@@ -141,166 +169,271 @@ export default function DashboardPage() {
               activeDebts={activeDebts}
               totalDebt={totalDebt}
             />
-           ) : (
-              <div className="animate-pulse flex flex-col h-full space-y-4 pt-4">
-                  <div className="h-4 w-full bg-surface-bright rounded"></div>
-                  <div className="h-4 w-full bg-surface-bright rounded"></div>
-                  <div className="h-4 w-3/4 bg-surface-bright rounded"></div>
-              </div>
-           )}
+          ) : (
+            <div className="animate-pulse flex flex-col h-full space-y-4 pt-4">
+              <div className="h-4 w-full bg-surface-bright rounded"></div>
+              <div className="h-4 w-full bg-surface-bright rounded"></div>
+              <div className="h-4 w-3/4 bg-surface-bright rounded"></div>
+            </div>
+          )}
         </motion.div>
 
+        {/* Kartu 3: Batas Belanja Hari Ini (Dual Quota Safe-To-Spend) */}
         <SafeToSpendCard
           budget={budget}
           dailyCheck={dailyCheck}
           loading={budgetLoading || loading}
         />
 
-        <motion.div whileHover={{ scale: 1.02 }} className="col-span-12 lg:col-span-6 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] flex flex-col rounded-3xl overflow-hidden">
-          <div className="bg-secondary-container border-b-[3px] border-outline px-6 py-4 flex justify-between items-center">
-            <h4 className="font-headline-md text-xl text-on-secondary-container uppercase font-bold" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>Arus Kas</h4>
-            <span className="font-label-bold text-label-bold text-on-secondary-container opacity-90 px-3 py-1 bg-surface-container/20 rounded-full border-2 border-outline">Bulan Ini</span>
+        {/* Kartu 4 (Kiri Bawah - 5 Kolom): Arus Kas & Pos Pengeluaran */}
+        <motion.div
+          whileHover={{ y: -2 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          className="col-span-12 lg:col-span-5 bg-surface border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] rounded-3xl p-5 sm:p-6 flex flex-col justify-between gap-4"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <h4 className="font-headline-md text-base sm:text-lg text-on-surface uppercase font-extrabold">
+              Arus Kas & Pos Pengeluaran
+            </h4>
+            <span className="px-3 py-1 rounded-xl bg-secondary-container text-on-secondary-container border-2 border-outline font-label-bold text-[11px] uppercase shadow-[1.5px_1.5px_0_0_var(--theme-outline)] shrink-0">
+              Bulan Ini
+            </span>
           </div>
-          <div className="p-6 flex-1 flex flex-col justify-center gap-8">
-            <div>
-              <div className="flex justify-between items-end mb-2">
-                <span className="font-label-bold text-label-bold text-on-surface uppercase flex items-center gap-1">
-                  <span className="material-symbols-outlined text-tertiary dark:text-tertiary-fixed">arrow_upward</span> Pemasukan
+
+          <div className="flex flex-col gap-3.5 flex-1">
+            {/* Kotak Pemasukan Bulan Ini */}
+            <div className="bg-background border-2 border-outline rounded-2xl p-3.5 space-y-2 shadow-[2px_2px_0_0_var(--theme-outline)]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-label-bold text-xs text-on-surface uppercase flex items-center gap-1">
+                  <span className="material-symbols-outlined text-base text-tertiary">
+                    arrow_upward
+                  </span>
+                  <span>Pemasukan Bulan Ini</span>
                 </span>
-                <span className="text-2xl font-display-lg text-tertiary dark:text-tertiary-fixed" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>
-                   {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalIncome)}
+                <span className="font-display-lg text-base sm:text-lg font-extrabold text-tertiary dark:text-tertiary-fixed">
+                  +{formatIDR(totalIncome)}
                 </span>
               </div>
-              <div className="h-8 w-full bg-on-background border-2 border-outline rounded-full relative overflow-hidden">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${incomePercent}%` }} transition={{ duration: 1, type: "spring" }} className="absolute top-0 left-0 h-full bg-tertiary-container border-r-[3px] border-outline"></motion.div>
+              <div className="h-3.5 w-full bg-surface-container-high border-2 border-outline rounded-full overflow-hidden relative">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${incomePercent}%` }}
+                  transition={{ duration: 0.8, type: "spring" }}
+                  className="h-full bg-tertiary-container border-r-2 border-outline"
+                />
               </div>
             </div>
-            <div>
-              <div className="flex justify-between items-end mb-2">
-                <span className="font-label-bold text-label-bold text-on-surface uppercase flex items-center gap-1">
-                  <span className="material-symbols-outlined text-error">arrow_downward</span> Pengeluaran
+
+            {/* Kotak Total Pengeluaran */}
+            <div className="bg-background border-2 border-outline rounded-2xl p-3.5 space-y-2 shadow-[2px_2px_0_0_var(--theme-outline)]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-label-bold text-xs text-on-surface uppercase flex items-center gap-1">
+                  <span className="material-symbols-outlined text-base text-error">
+                    arrow_downward
+                  </span>
+                  <span>Total Pengeluaran ({expenseToIncomeRatio}%)</span>
                 </span>
-                <span className="text-2xl font-display-lg text-error" style={{ WebkitTextStroke: '1px var(--theme-outline)' }}>
-                   {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalExpense)}
+                <span className="font-display-lg text-base sm:text-lg font-extrabold text-error">
+                  -{formatIDR(totalExpense)}
                 </span>
               </div>
-              <div className="h-8 w-full bg-on-background border-2 border-outline rounded-full relative overflow-hidden">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${expensePercent}%` }} transition={{ duration: 1, type: "spring", delay: 0.2 }} className="absolute top-0 left-0 h-full bg-error-container border-r-[3px] border-outline"></motion.div>
+              <div className="h-3.5 w-full bg-surface-container-high border-2 border-outline rounded-full overflow-hidden relative">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${expensePercent}%` }}
+                  transition={{ duration: 0.8, type: "spring", delay: 0.1 }}
+                  className="h-full bg-error-container border-r-2 border-outline"
+                />
               </div>
+            </div>
+
+            {/* Kotak Pos Terbesar */}
+            <div className="bg-surface-container border-2 border-outline rounded-2xl p-3.5 space-y-2.5 flex-1 flex flex-col justify-center">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-label-bold text-[11px] uppercase text-on-surface font-extrabold">
+                  Pos Pengeluaran Terbesar:
+                </span>
+                <Link
+                  href="/categories"
+                  className="text-[10px] font-label-bold uppercase text-secondary hover:underline"
+                >
+                  Atur Pos &rarr;
+                </Link>
+              </div>
+
+              {withSpending.length === 0 ? (
+                <p className="text-xs text-on-surface-variant italic">
+                  Belum ada pengeluaran yang tercatat di bulan ini.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-xs font-body-md text-on-surface-variant leading-relaxed">
+                    {withSpending
+                      .slice(0, 4)
+                      .map(
+                        ({ cat, spent }, idx) =>
+                          `${idx + 1}. ${cat.name} (${formatIDR(spent)})`
+                      )
+                      .join(" • ")}
+                  </p>
+                  <div className="space-y-1.5 pt-1">
+                    {withSpending.slice(0, 3).map(({ cat, spent }, idx) => {
+                      const barColors = [
+                        "bg-primary-container",
+                        "bg-secondary-container",
+                        "bg-tertiary-container",
+                      ];
+                      return (
+                        <div key={cat.id} className="space-y-1">
+                          <div className="flex justify-between text-[11px] font-label-bold">
+                            <span className="truncate text-on-surface">
+                              {cat.name}
+                            </span>
+                            <span className="text-on-surface shrink-0">
+                              {formatIDR(spent)}
+                            </span>
+                          </div>
+                          <div className="h-2.5 w-full bg-surface border border-outline rounded-full overflow-hidden">
+                            <div
+                              className={`h-full ${barColors[idx % 3]} border-r border-outline`}
+                              style={{ width: `${(spent / maxSpent) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </motion.div>
 
-        <div className="col-span-12 lg:col-span-6 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] flex flex-col rounded-3xl overflow-hidden">
-          <div className="bg-primary-container border-2 border-outline border-l-0 border-r-0 border-t-0 px-6 py-3.5 flex justify-between items-center">
-            <h4 className="font-headline-md text-xl text-on-primary-container uppercase font-bold">Pengeluaran</h4>
-          </div>
-          <div className="p-6 flex flex-col gap-6 flex-1 justify-start max-h-[300px] overflow-y-auto no-scrollbar">
-             {withSpending.length === 0 ? (
-               <p className="text-on-surface-variant text-center text-sm">Belum ada pengeluaran bulan ini.</p>
-             ) : (
-               withSpending.map(({ cat, spent }, idx) => {
-                 const colors = ['bg-tertiary-container', 'bg-secondary-container', 'bg-primary-container'];
-                 return (
-                   <div key={cat.id} className="flex items-center gap-4">
-                     <div className={`w-12 h-12 ${colors[idx % 3]} border-2 border-outline rounded-xl flex items-center justify-center shrink-0`}>
-                       {cat.icon?.includes("fa-") ? (
-                         <i className={`fa-solid ${cat.icon} text-black text-xl`}></i>
-                       ) : (
-                         <span className="material-symbols-outlined text-black">{cat.icon || 'category'}</span>
-                       )}
-                     </div>
-                     <div className="flex-1 min-w-0">
-                       <div className="flex justify-between items-baseline mb-1 gap-2">
-                         <span className="font-label-bold text-label-bold text-on-surface uppercase truncate">{cat.name}</span>
-                         <span className="font-body-md text-sm text-on-surface font-bold whitespace-nowrap shrink-0">
-                           {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(spent)}
-                         </span>
-                       </div>
-                       <div className="h-4 w-full bg-on-background border-2 border-outline relative rounded-full overflow-hidden">
-                         <div className={`absolute top-0 left-0 h-full ${colors[idx % 3]} border-r-2 border-outline transition-all duration-500`} style={{ width: `${(spent / maxSpent) * 100}%` }}></div>
-                       </div>
-                     </div>
-                   </div>
-                 );
-               })
-             )}
-             {categories.length === 0 && <p className="text-on-surface-variant text-center">Kategori tidak ditemukan.</p>}
-          </div>
-        </div>
-
-        <div className="col-span-12 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] rounded-3xl overflow-hidden mb-12">
-          <div className="border-2 border-outline border-t-0 border-l-0 border-r-0 px-6 py-4 flex justify-between items-center bg-surface-variant">
-            <h4 className="font-headline-md text-xl text-on-surface uppercase font-bold">Transaksi Terbaru</h4>
-            <Link className="font-label-bold text-label-bold text-primary-fixed hover:underline flex items-center gap-1" href="/transactions">
-               <span>Lihat Semua</span>
-               <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+        {/* Kartu 5 (Kanan Bawah - 7 Kolom): Transaksi Terbaru */}
+        <motion.div
+          whileHover={{ y: -2 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          className="col-span-12 lg:col-span-7 bg-surface border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] rounded-3xl p-5 sm:p-6 flex flex-col gap-4"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <h4 className="font-headline-md text-base sm:text-lg text-on-surface uppercase font-extrabold">
+              Transaksi Terbaru
+            </h4>
+            <Link
+              className="font-label-bold text-xs uppercase text-secondary hover:underline inline-flex items-center gap-1"
+              href="/transactions"
+            >
+              <span>Lihat Semua Riwayat</span>
+              <span className="material-symbols-outlined text-sm leading-none">
+                arrow_forward
+              </span>
             </Link>
           </div>
-          <div className="flex flex-col">
-            {recentTransactions.length > 0 ? recentTransactions.map((t) => {
-               const cat = categories.find(c => c.id === t.categoryId);
-               const isTransfer = t.type === "transfer";
-               const isIncome = t.type === "income";
 
-               return (
-                <div key={t.id} onClick={() => { setEditTransaction(t); setShowTransactionForm(true); }} className="flex items-center justify-between p-4 md:p-6 border-b-2 border-outline hover:bg-surface-bright transition-colors group cursor-pointer last:border-b-0">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 bg-on-background border-2 border-outline rounded-xl flex items-center justify-center transition-colors ${
-                      isIncome
-                        ? "group-hover:bg-tertiary-container"
-                        : isTransfer
-                        ? "group-hover:bg-secondary-container"
-                        : "group-hover:bg-error-container"
-                    }`}>
-                      {isTransfer ? (
-                        <span className="material-symbols-outlined text-surface group-hover:text-on-background transition-colors">swap_horiz</span>
-                      ) : cat?.icon?.includes("fa-") ? (
-                        <i className={`fa-solid ${cat.icon} text-surface group-hover:text-on-background text-xl transition-colors`}></i>
-                      ) : (
-                        <span className="material-symbols-outlined text-surface group-hover:text-on-background transition-colors">{cat?.icon || 'receipt'}</span>
-                      )}
+          <div className="flex flex-col gap-3 flex-1 justify-start">
+            {recentTransactions.length > 0 ? (
+              recentTransactions.map((t) => {
+                const cat = categories.find((c) => c.id === t.categoryId);
+                const isTransfer = t.type === "transfer";
+                const isIncome = t.type === "income";
+
+                return (
+                  <div
+                    key={t.id}
+                    onClick={() => {
+                      setEditTransaction(t);
+                      setShowTransactionForm(true);
+                    }}
+                    className="flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl border-2 border-outline bg-background hover:bg-surface-bright shadow-[2px_2px_0_0_var(--theme-outline)] transition-all group cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div
+                        className={`w-11 h-11 rounded-xl border-2 border-outline flex items-center justify-center shrink-0 text-black ${
+                          isIncome
+                            ? "bg-tertiary-container"
+                            : isTransfer
+                            ? "bg-secondary-container text-white"
+                            : "bg-primary-container"
+                        }`}
+                      >
+                        {isTransfer ? (
+                          <span className="material-symbols-outlined text-xl">
+                            swap_horiz
+                          </span>
+                        ) : cat?.icon?.includes("fa-") ? (
+                          <i className={`fa-solid ${cat.icon} text-lg`}></i>
+                        ) : (
+                          <span className="material-symbols-outlined text-xl">
+                            {cat?.icon || (isIncome ? "payments" : "receipt_long")}
+                          </span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <h5 className="font-label-bold text-xs sm:text-sm text-on-surface font-extrabold truncate">
+                          {t.note ||
+                            (isTransfer
+                              ? "Transfer Antar Akun"
+                              : cat?.name || t.category || "Transaksi")}
+                        </h5>
+                        <p className="font-body-sm text-[11px] sm:text-xs text-on-surface-variant truncate mt-0.5">
+                          {isTransfer
+                            ? `${t.accountName || "?"} -> ${t.destinationAccountName || "?"}`
+                            : `${cat?.name || t.category || "Tanpa Kategori"}${
+                                t.accountName ? ` • ${t.accountName}` : ""
+                              }`}{" "}
+                          •{" "}
+                          {new Date(t.date + "T00:00:00").toLocaleDateString(
+                            "id-ID",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            }
+                          )}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h5 className="font-label-bold text-label-bold text-on-background line-clamp-1">
-                        {t.note || (isTransfer ? "Transfer" : cat?.name || t.category || "Transaksi")}
-                      </h5>
-                      <span className="font-body-md text-sm text-on-background/70">
-                        {isTransfer
-                          ? `${t.accountName || "?"} → ${t.destinationAccountName || "?"}`
-                          : (cat?.name || "Tanpa Kategori")
-                        } • {new Date(t.date + "T00:00:00").toLocaleDateString('id-ID')}
-                      </span>
-                    </div>
+
+                    <span
+                      className={`font-display-lg text-sm sm:text-base md:text-lg font-extrabold whitespace-nowrap shrink-0 ${
+                        isIncome
+                          ? "text-tertiary dark:text-tertiary-fixed"
+                          : isTransfer
+                          ? "text-secondary"
+                          : "text-error"
+                      }`}
+                    >
+                      {isIncome ? "+" : isTransfer ? "" : "-"}
+                      {formatIDR(t.amount)}
+                    </span>
                   </div>
-                  <span className={`font-headline-md text-lg md:text-xl font-bold whitespace-nowrap ${
-                    isIncome
-                      ? 'text-tertiary dark:text-tertiary-fixed'
-                      : isTransfer
-                      ? 'text-secondary-fixed-dim'
-                      : 'text-error dark:text-error-fixed'
-                  }`}>
-                    {isIncome ? '+' : isTransfer ? '' : '-'}{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(t.amount)}
-                  </span>
-                </div>
-               );
-            }) : (
-              <div className="p-8 text-center text-on-surface-variant font-body-md">Belum ada transaksi di bulan ini.</div>
+                );
+              })
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-background border-2 border-dashed border-outline rounded-2xl text-on-surface-variant">
+                <span className="material-symbols-outlined text-3xl mb-1.5">
+                  receipt_long
+                </span>
+                <p className="font-label-bold text-xs uppercase">
+                  Belum ada transaksi di bulan ini
+                </p>
+                <p className="text-[11px] mt-0.5">
+                  Ketuk tombol + biru di kanan bawah untuk mencatat transaksi.
+                </p>
+              </div>
             )}
           </div>
-        </div>
-
+        </motion.div>
       </div>
 
-      <motion.button
+      <FloatingActionButton
         id="add-transaction-fab"
-        whileHover={{ scale: 1.1, rotate: 90 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => { setEditTransaction(null); setShowTransactionForm(true); }}
-        className="fixed bottom-24 right-6 md:bottom-12 md:right-12 w-16 h-16 bg-secondary-container text-on-secondary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] flex items-center justify-center z-40 rounded-full"
-      >
-        <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>add</span>
-      </motion.button>
+        label="Tambah Transaksi"
+        onClick={() => {
+          setEditTransaction(null);
+          setShowTransactionForm(true);
+        }}
+      />
 
       <TransactionForm
         open={showTransactionForm}

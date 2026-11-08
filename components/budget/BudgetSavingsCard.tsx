@@ -156,154 +156,143 @@ export function BudgetSavingsCard({
   };
 
   return (
-    <div className="bg-surface-container border-3 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-4">
-      {/* 1. Header Judul & Keterangan */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl bg-secondary-container border-2 border-outline flex items-center justify-center shrink-0 shadow-[2px_2px_0_0_var(--theme-outline)]">
-            <span className="material-symbols-outlined text-white text-xl">savings</span>
-          </div>
+    <div className="bg-surface border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] rounded-3xl p-5 sm:p-6 flex flex-col gap-5">
+      {/* Grid 3 Kolom Utama sesuai FigCraft Frame 02 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+        {/* Kolom 1: Sisa Saldo Tabungan Terkumpul */}
+        <div className="bg-background border-2 border-outline rounded-2xl p-4 sm:p-5 shadow-[2px_2px_0_0_var(--theme-outline)] flex flex-col justify-between gap-3">
           <div>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <h3 className="font-label-bold text-sm sm:text-base uppercase text-on-surface tracking-wide">
-                Target Tabungan / Saving
-              </h3>
-              {hasCustomTargetThisMonth ? (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-label-bold uppercase bg-primary-container text-on-primary-container border border-outline">
-                  Kustom Bulan Ini
-                </span>
-              ) : previousMonthTarget > 0 ? (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-label-bold uppercase bg-tertiary-container text-on-tertiary-container border border-outline">
-                  Auto Acuan
-                </span>
-              ) : null}
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <span className="text-[11px] uppercase font-label-bold text-on-surface-variant font-extrabold tracking-wide">
+                Sisa Saldo Tabungan Terkumpul
+              </span>
+              <span className="material-symbols-outlined text-tertiary text-lg">
+                savings
+              </span>
             </div>
-            <p className="font-body-sm text-[11px] text-on-surface-variant mt-0.5">
-              Tentukan nominal tabungan {currentMonthLabel} yang ingin disisihkan.
+            <p className="text-2xl sm:text-3xl font-display-lg font-black text-tertiary dark:text-tertiary-fixed tracking-tight">
+              {formatRupiah(cumulativeSavings)}
+            </p>
+            <p className="text-[11px] font-body-sm text-on-surface-variant mt-1">
+              Total Terkumpul {formatRupiah(grossSavings)} &bull; Sudah Ditarik{" "}
+              {formatRupiah(totalWithdrawn)}
             </p>
           </div>
-        </div>
-      </div>
 
-      {/* 2. Kartu Status Saldo & Tombol Aksi (Tata Letak Mobile-Friendly) */}
-      <div className="bg-surface border-2 border-outline rounded-xl p-3.5 sm:p-4 shadow-[2px_2px_0_0_var(--theme-outline)]">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <span className="text-[10px] sm:text-xs uppercase font-label-bold text-on-surface-variant block tracking-wider">
-              Sisa Saldo Tabungan
-            </span>
-            <div className="flex items-baseline gap-2 flex-wrap mt-0.5">
-              <span className="text-2xl sm:text-3xl font-display-lg font-bold text-secondary dark:text-secondary-fixed">
-                {formatRupiah(cumulativeSavings)}
-              </span>
-              {totalWithdrawn > 0 && (
-                <span className="text-[10px] sm:text-xs font-label-md text-error bg-error/10 border border-error/30 px-2 py-0.5 rounded-md">
-                  Ditarik: {formatRupiah(totalWithdrawn)}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Tombol Aksi Seimbang: 2 Kolom di Mobile, Sejajar di Desktop */}
-          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-outline/15">
+          <div className="grid grid-cols-2 gap-2.5 pt-2">
             <button
               type="button"
               onClick={handleOpenWithdraw}
               disabled={loading || cumulativeSavings <= 0}
-              className="h-10 sm:h-9 px-3.5 rounded-xl text-xs font-label-bold uppercase flex items-center justify-center gap-1.5 bg-surface-container hover:bg-error/15 text-error border-2 border-outline shadow-[1px_1px_0_0_var(--theme-outline)] active-press-sm transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+              className="h-10 px-3 rounded-xl text-xs font-label-bold uppercase flex items-center justify-center gap-1.5 bg-primary-container text-on-primary-container border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] active-press-sm transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
               title="Tarik dana dari akumulasi tabungan"
             >
-              <span className="material-symbols-outlined text-base">payments</span>
-              <span>Tarik</span>
+              <span className="material-symbols-outlined text-base">
+                payments
+              </span>
+              <span className="truncate">Tarik Tabungan</span>
             </button>
 
             <button
               type="button"
               onClick={() => setShowBreakdown((prev) => !prev)}
-              className="h-10 sm:h-9 px-3.5 rounded-xl text-xs font-label-bold uppercase flex items-center justify-center gap-1.5 bg-surface-container hover:bg-surface-bright text-on-surface border-2 border-outline shadow-[1px_1px_0_0_var(--theme-outline)] active-press-sm transition-all cursor-pointer"
+              className="h-10 px-3 rounded-xl text-xs font-label-bold uppercase flex items-center justify-center gap-1.5 bg-surface-container hover:bg-surface-bright text-on-surface border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] active-press-sm transition-all cursor-pointer"
               title="Lihat riwayat target dan mutasi penarikan"
             >
               <span className="material-symbols-outlined text-base">
                 {showBreakdown ? "expand_less" : "history"}
               </span>
-              <span>{showBreakdown ? "Tutup" : "Riwayat"}</span>
+              <span className="truncate">
+                {showBreakdown ? "Tutup" : `Riwayat (${withdrawals.length})`}
+              </span>
             </button>
           </div>
         </div>
-      </div>
 
-      {/* 3. Banner Rekomendasi Tabungan Aman */}
-      {savingsRecommendation && (
-        <div className="bg-secondary/10 dark:bg-secondary/15 border-2 border-outline rounded-xl p-3 sm:p-3.5 space-y-2 shadow-[1px_1px_0_0_var(--theme-outline)]">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-secondary text-lg">
-                tips_and_updates
-              </span>
-              <h5 className="font-label-bold text-xs uppercase text-on-surface">
-                Rekomendasi Tabungan Aman
-              </h5>
-            </div>
-            {savingsRecommendation.hasFixedIncome && (
-              <span className="px-2 py-0.5 rounded-full text-[9px] font-label-bold uppercase bg-surface border border-outline text-secondary shrink-0">
-                Gaji Terdeteksi
-              </span>
-            )}
+        {/* Kolom 2: Rekomendasi Tabungan Otomatis (20%) */}
+        <div className="bg-background border-2 border-outline rounded-2xl p-4 sm:p-5 shadow-[2px_2px_0_0_var(--theme-outline)] flex flex-col justify-between gap-3">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] uppercase font-label-bold text-on-surface-variant font-extrabold tracking-wide">
+              Rekomendasi Tabungan
+            </span>
           </div>
 
-          <p className="font-body-sm text-[11px] text-on-surface-variant leading-relaxed">
-            {savingsRecommendation.reason}
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-            <div className="bg-surface border-2 border-outline rounded-lg p-2.5 flex items-center justify-between gap-2 shadow-[1px_1px_0_0_var(--theme-outline)]">
-              <div>
+          <div className="space-y-2.5 flex-1 flex flex-col justify-center">
+            {/* Kotak Mingguan */}
+            <div className="bg-surface border-2 border-outline rounded-xl p-3 flex items-center justify-between gap-2 shadow-[1.5px_1.5px_0_0_var(--theme-outline)]">
+              <div className="min-w-0">
                 <span className="text-[10px] uppercase font-label-bold text-on-surface-variant block">
-                  Saran Bulanan
+                  Target Mingguan Ideal
                 </span>
-                <span className="text-sm sm:text-base font-display-lg font-bold text-secondary dark:text-secondary-fixed">
-                  {formatRupiah(savingsRecommendation.monthlyRecommended)}
+                <span className="text-sm sm:text-base font-display-lg font-extrabold text-on-surface">
+                  {formatRupiah(savingsRecommendation?.weeklyRecommended || 0)}{" "}
+                  <span className="text-xs font-label-bold text-on-surface-variant">
+                    / mgg
+                  </span>
                 </span>
               </div>
-              {savingsRecommendation.monthlyRecommended > 0 && (
+              {(savingsRecommendation?.weeklyRecommended ?? 0) > 0 && (
                 <button
                   type="button"
-                  onClick={() => handleApplyRecommendation(savingsRecommendation.monthlyRecommended)}
-                  className="px-2.5 py-1.5 rounded-md text-[10px] font-label-bold uppercase bg-secondary text-white hover:bg-secondary/90 border border-outline active-press-sm transition-all"
+                  onClick={() =>
+                    handleApplyRecommendation(
+                      savingsRecommendation!.weeklyRecommended
+                    )
+                  }
+                  className="h-8 px-3 rounded-lg text-[11px] font-label-bold uppercase bg-surface-container hover:bg-surface-bright text-on-surface border-2 border-outline active-press-sm transition-all shrink-0 cursor-pointer"
                 >
-                  Pakai Bulanan
+                  Pakai
                 </button>
               )}
             </div>
 
-            <div className="bg-surface border-2 border-outline rounded-lg p-2.5 flex items-center justify-between gap-2 shadow-[1px_1px_0_0_var(--theme-outline)]">
-              <div>
+            {/* Kotak Bulanan */}
+            <div className="bg-surface border-2 border-outline rounded-xl p-3 flex items-center justify-between gap-2 shadow-[1.5px_1.5px_0_0_var(--theme-outline)]">
+              <div className="min-w-0">
                 <span className="text-[10px] uppercase font-label-bold text-on-surface-variant block">
-                  Saran Mingguan
+                  Target Bulanan Ideal (20%)
                 </span>
-                <span className="text-sm sm:text-base font-display-lg font-bold text-secondary dark:text-secondary-fixed">
-                  {formatRupiah(savingsRecommendation.weeklyRecommended)}
+                <span className="text-sm sm:text-base font-display-lg font-extrabold text-tertiary dark:text-tertiary-fixed">
+                  {formatRupiah(savingsRecommendation?.monthlyRecommended || 0)}{" "}
+                  <span className="text-xs font-label-bold">/ bln</span>
                 </span>
               </div>
-              {savingsRecommendation.weeklyRecommended > 0 && (
+              {(savingsRecommendation?.monthlyRecommended ?? 0) > 0 && (
                 <button
                   type="button"
-                  onClick={() => handleApplyRecommendation(savingsRecommendation.weeklyRecommended)}
-                  className="px-2.5 py-1.5 rounded-md text-[10px] font-label-bold uppercase bg-surface-container hover:bg-surface-bright text-on-surface border border-outline active-press-sm transition-all"
+                  onClick={() =>
+                    handleApplyRecommendation(
+                      savingsRecommendation!.monthlyRecommended
+                    )
+                  }
+                  className="h-8 px-3 rounded-lg text-[11px] font-label-bold uppercase bg-tertiary-container text-on-tertiary-container border-2 border-outline active-press-sm transition-all shrink-0 cursor-pointer"
                 >
-                  Pakai Mingguan
+                  Pakai
                 </button>
               )}
             </div>
           </div>
         </div>
-      )}
 
-      {/* 4. Form Input Target Tabungan */}
-      <div className="bg-surface border-2 border-outline rounded-xl p-3 sm:p-3.5 space-y-3 shadow-[1px_1px_0_0_var(--theme-outline)]">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-          <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 font-display-lg font-bold text-sm text-on-surface-variant">
+        {/* Kolom 3: Atur Target Tabungan Bulan Ini */}
+        <div className="bg-background border-2 border-outline rounded-2xl p-4 sm:p-5 shadow-[2px_2px_0_0_var(--theme-outline)] flex flex-col justify-between gap-3">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] uppercase font-label-bold text-on-surface-variant font-extrabold tracking-wide truncate">
+              Target {currentMonthLabel}
+            </span>
+            {hasCustomTargetThisMonth ? (
+              <span className="px-2 py-0.5 rounded-md text-[9px] font-label-bold uppercase bg-primary-container text-on-primary-container border border-outline shrink-0">
+                Kustom
+              </span>
+            ) : previousMonthTarget > 0 ? (
+              <span className="px-2 py-0.5 rounded-md text-[9px] font-label-bold uppercase bg-tertiary-container text-on-tertiary-container border border-outline shrink-0">
+                Auto
+              </span>
+            ) : null}
+          </div>
+
+          <div className="relative">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-display-lg font-bold text-sm text-on-surface">
               Rp
             </span>
             <input
@@ -313,62 +302,51 @@ export function BudgetSavingsCard({
               onChange={(e) => setInputVal(e.target.value.replace(/\D/g, ""))}
               placeholder="0"
               disabled={loading || isSaving}
-              className="w-full bg-surface-container border-2 border-outline rounded-xl pl-10 pr-3 py-2 text-sm sm:text-base font-display-lg font-bold text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
+              className="w-full h-10 bg-surface border-2 border-primary-container rounded-xl pl-10 pr-3 text-base sm:text-lg font-display-lg font-black text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container transition-all shadow-[1.5px_1.5px_0_0_var(--theme-outline)]"
             />
           </div>
 
-          <div className="flex items-center gap-2">
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              type="button"
-              onClick={() => handleSave()}
-              disabled={loading || isSaving}
-              className={`flex-1 sm:flex-initial h-10 px-4 py-2 rounded-xl text-xs sm:text-sm font-label-bold uppercase flex items-center justify-center gap-1.5 border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] transition-all ${
-                savedSuccess
-                  ? "bg-emerald-500 text-white"
-                  : "bg-secondary text-on-secondary hover:bg-secondary/90 active-press"
-              }`}
-            >
-              <span className="material-symbols-outlined text-sm">
-                {savedSuccess ? "check_circle" : isSaving ? "hourglass_top" : "save"}
-              </span>
-              <span>{savedSuccess ? "Tersimpan!" : isSaving ? "Menyimpan..." : "Simpan Target"}</span>
-            </motion.button>
-
-            {parseInt(inputVal || "0", 10) > 0 && (
+          <div className="grid grid-cols-4 gap-1.5">
+            {[100000, 250000, 500000].map((amt) => (
               <button
+                key={amt}
                 type="button"
-                onClick={handleReset}
-                title="Reset target bulan ini jadi Rp 0"
-                className="h-10 px-3 py-2 rounded-xl text-xs font-label-bold bg-surface-container hover:bg-error-container hover:text-on-error-container border-2 border-outline text-on-surface-variant transition-colors"
+                onClick={() => handleAddPreset(amt)}
+                className="h-8 rounded-lg text-[11px] font-label-bold uppercase bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline transition-colors active-press-sm cursor-pointer"
               >
-                Reset
+                +{amt / 1000}rb
               </button>
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-outline/20">
-          <span className="text-[10px] font-label-bold uppercase text-on-surface-variant mr-1">
-            Tambah Cepat:
-          </span>
-          {[100000, 250000, 500000, 1000000].map((amt) => (
+            ))}
             <button
-              key={amt}
               type="button"
-              onClick={() => handleAddPreset(amt)}
-              className="px-2.5 py-1 rounded-lg text-[10px] font-label-bold uppercase bg-surface-container hover:bg-surface-bright text-on-surface border border-outline transition-colors active-press-sm"
+              onClick={handleReset}
+              disabled={parseInt(inputVal || "0", 10) <= 0}
+              className="h-8 rounded-lg text-[11px] font-label-bold uppercase bg-error-container text-on-error-container border-2 border-outline transition-colors active-press-sm cursor-pointer disabled:opacity-40 disabled:pointer-events-none"
             >
-              +{amt >= 1000000 ? `${amt / 1000000} Jt` : `${amt / 1000}k`}
+              Reset
             </button>
-          ))}
+          </div>
+
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            type="button"
+            onClick={() => handleSave()}
+            disabled={loading || isSaving}
+            className="w-full h-10 px-4 rounded-xl text-xs font-label-bold uppercase flex items-center justify-center gap-1.5 border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] bg-tertiary-container text-on-tertiary-container hover:opacity-95 active-press-sm transition-all cursor-pointer disabled:opacity-50"
+          >
+            <span className="material-symbols-outlined text-base">
+              {savedSuccess ? "check_circle" : isSaving ? "hourglass_top" : "save"}
+            </span>
+            <span>
+              {savedSuccess
+                ? "Tersimpan"
+                : isSaving
+                ? "Menyimpan..."
+                : "Simpan Target"}
+            </span>
+          </motion.button>
         </div>
       </div>
-
-      {/* 5. Catatan Kunci Saldo */}
-      <p className="font-label-md text-[11px] text-on-surface-variant leading-relaxed">
-        <strong className="text-secondary dark:text-secondary-fixed">Kunci Saldo:</strong> Sisa saldo tabungan ({formatRupiah(cumulativeSavings)}) disisihkan dari batas belanja harian agar dana tersisa di akhir bulan.
-      </p>
 
       {/* 6. Panel Riwayat & Mutasi (Expandable) */}
       <AnimatePresence>

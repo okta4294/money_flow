@@ -54,8 +54,36 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
   const [incomeRole, setIncomeRole] = useState<IncomeRole>("auto");
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
+  const [posFilter, setPosFilter] = useState<string>("all");
 
-  const filtered = categories.filter((c) => c.type === tab);
+  const posOptions =
+    tab === "expense"
+      ? [
+          { id: "auto", label: "Otomatis", color: "bg-background" },
+          { id: "fixed", label: "Pos Tetap", color: "bg-primary-container/40" },
+          { id: "essential", label: "Pos Pokok", color: "bg-tertiary-container/40" },
+          { id: "variable", label: "Pos Variabel", color: "bg-secondary-container/30" },
+        ]
+      : [
+          { id: "auto", label: "Otomatis", color: "bg-background" },
+          { id: "primary", label: "Pemasukan Utama", color: "bg-tertiary-container/40" },
+          { id: "secondary", label: "Pemasukan Sampingan", color: "bg-surface-container-high" },
+        ];
+
+  const filtered = categories.filter((c) => {
+    if (c.type !== tab) return false;
+    if (posFilter === "all") return true;
+    if (tab === "expense") {
+      if (posFilter === "auto") return c.isFixedExpense == null && c.isEssentialExpense == null;
+      const fixed = isFixedExpenseCategory(c);
+      const essential = !fixed && isEssentialExpenseCategory(c);
+      if (posFilter === "fixed") return fixed;
+      if (posFilter === "essential") return essential;
+      return !fixed && !essential;
+    }
+    if (posFilter === "auto") return c.isEligibleForBudget == null;
+    return posFilter === "primary" ? isEligibleIncomeCategory(c) : !isEligibleIncomeCategory(c);
+  });
 
   const openAdd = () => {
     setEditData(null);
@@ -151,139 +179,222 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
     "bg-surface text-on-background",
   ];
 
-  return (
-    <div>
-      <div className="flex gap-4 mb-8 overflow-x-auto pb-2 no-scrollbar">
-        <button
-          onClick={() => setTab("expense")}
-          className={`px-6 py-3 font-label-bold rounded-full transition-all whitespace-nowrap neo-brutalist-border ${
-            tab === "expense"
-              ? "bg-primary-container text-on-primary-container neo-brutalist-shadow-sm active-press"
-              : "bg-surface text-on-background hover:bg-surface-bright active-press"
-          }`}
-        >
-          Pengeluaran
-        </button>
-        <button
-          onClick={() => setTab("income")}
-          className={`px-6 py-3 font-label-bold rounded-full transition-all whitespace-nowrap neo-brutalist-border ${
-            tab === "income"
-              ? "bg-primary-container text-on-primary-container neo-brutalist-shadow-sm active-press"
-              : "bg-surface text-on-background hover:bg-surface-bright active-press"
-          }`}
-        >
-          Pemasukan
-        </button>
-      </div>
+  const expenseCount = categories.filter((c) => c.type === "expense").length;
+  const incomeCount = categories.filter((c) => c.type === "income").length;
 
-      {loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="aspect-square rounded-lg bg-surface-bright neo-brutalist-border animate-pulse" />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+  return (
+    <div className="space-y-6">
+      {/* Bagian Atas: Tambah Kategori Baru + Klasifikasi Pos Anggaran sesuai FigCraft Frame 06 */}
+      <div className="bg-surface border-4 border-outline rounded-3xl p-5 sm:p-6 shadow-[4px_4px_0_0_var(--theme-outline)] space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="font-headline-md text-sm sm:text-base uppercase font-extrabold text-on-surface">
+              Tambah Kategori Baru + Klasifikasi Pos Anggaran
+            </h3>
+            <p className="text-xs font-body-sm text-on-surface-variant mt-0.5">
+              Pilih tab Pengeluaran atau Pemasukan, lalu tambahkan atau ubah klasifikasi pos anggaran.
+            </p>
+          </div>
+
           <button
             id="add-category-btn"
+            type="button"
             onClick={openAdd}
-            className="aspect-square rounded-lg border-[3px] border-dashed border-on-background bg-surface hover:bg-surface-bright flex flex-col justify-center items-center text-center transition-all duration-200 active-press"
+            className="px-4 py-2.5 rounded-xl bg-primary-container text-on-primary-container border-2 border-outline font-label-bold text-xs uppercase shadow-[2px_2px_0_0_var(--theme-outline)] hover:opacity-95 active-press-sm flex items-center gap-1.5 cursor-pointer shrink-0"
           >
-            <span className="material-symbols-outlined text-4xl text-on-surface-variant mb-2">add</span>
-            <span className="font-label-bold text-on-surface-variant">Tambah</span>
+            <span className="material-symbols-outlined text-base">add</span>
+            <span>Tambah Kategori Baru</span>
           </button>
-
-          {filtered.map((cat, idx) => {
-            const colorClass = colors[idx % colors.length];
-            const isFa = cat.icon && cat.icon.includes("fa-");
-            
-            return (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileHover={{ scale: 1.03, rotate: -1 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                key={cat.id}
-                onClick={() => openEdit(cat)}
-                className={`group relative aspect-square rounded-2xl border-4 border-outline p-4 md:p-6 flex flex-col justify-between items-start text-left shadow-[4px_4px_0_0_var(--theme-outline)] hover:shadow-[6px_6px_0_0_var(--theme-outline)] transition-all cursor-pointer ${colorClass}`}
-              >
-                <div className="w-12 h-12 bg-white neo-brutalist-border rounded-xl flex items-center justify-center">
-                  {isFa ? (
-                    <i className={`${cat.icon} text-black text-xl`}></i>
-                  ) : (
-                    <span className="material-symbols-outlined text-black">{cat.icon || "category"}</span>
-                  )}
-                </div>
-                
-                <div className="w-full">
-                  <div className="flex flex-wrap gap-1 mb-1">
-                    {cat.isDefault && (
-                      <span className="text-[10px] font-bold uppercase tracking-widest bg-on-background text-background px-2 py-0.5 rounded-sm inline-block">
-                        BAWAAN
-                      </span>
-                    )}
-                    {cat.type === "expense" && (() => {
-                      const isFixed = isFixedExpenseCategory(cat);
-                      const isEssential = !isFixed && isEssentialExpenseCategory(cat);
-                      const classification = isFixed ? "TETAP" : isEssential ? "POKOK" : "SEKUNDER";
-                      const isManual = typeof cat.isFixedExpense === "boolean" || typeof cat.isEssentialExpense === "boolean";
-                      return (
-                        <span
-                          className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-sm inline-flex items-center gap-1 ${
-                            classification === "TETAP"
-                              ? "bg-amber-400 text-slate-950 dark:bg-amber-300 dark:text-slate-950"
-                              : classification === "POKOK"
-                              ? "bg-emerald-500 text-white dark:bg-emerald-400 dark:text-slate-950"
-                              : "bg-surface-container-high text-on-surface-variant border border-outline/30"
-                          }`}
-                        >
-                          {classification}
-                          {isManual && <span className="text-[8px] opacity-75 font-normal">MANUAL</span>}
-                        </span>
-                      );
-                    })()}
-                    {cat.type === "income" && (() => {
-                      const isPrimary = isEligibleIncomeCategory(cat);
-                      const isManual = typeof cat.isEligibleForBudget === "boolean";
-                      return (
-                        <span
-                          className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-sm inline-flex items-center gap-1 ${
-                            isPrimary
-                              ? "bg-emerald-500 text-white dark:bg-emerald-400 dark:text-slate-950"
-                              : "bg-surface-container-high text-on-surface-variant border border-outline/30"
-                          }`}
-                        >
-                          {isPrimary ? "UTAMA" : "SAMPINGAN"}
-                          {isManual && <span className="text-[8px] opacity-75 font-normal">MANUAL</span>}
-                        </span>
-                      );
-                    })()}
-                  </div>
-                  <h3 className="font-headline-md text-lg leading-tight line-clamp-2">
-                    {cat.name}
-                  </h3>
-                </div>
-
-                <div className="absolute top-2 right-2 flex gap-1">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); openEdit(cat); }}
-                    className="w-8 h-8 rounded-lg bg-white neo-brutalist-border text-black flex items-center justify-center hover:bg-slate-200 active-press"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">edit</span>
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleDelete(cat); }}
-                    className="w-8 h-8 rounded-lg bg-error text-on-error neo-brutalist-border flex items-center justify-center hover:opacity-90 active-press"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">delete</span>
-                  </button>
-                </div>
-              </motion.div>
-            );
-          })}
         </div>
-      )}
+
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t-2 border-outline/15">
+          <div className="flex gap-2.5">
+            <button
+              type="button"
+              onClick={() => { setTab("expense"); setPosFilter("all"); }}
+              className={`px-4 py-2 font-label-bold text-xs uppercase rounded-xl transition-all whitespace-nowrap border-2 border-outline cursor-pointer ${
+                tab === "expense"
+                  ? "bg-primary-container text-on-primary-container shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold"
+                  : "bg-background text-on-surface hover:bg-surface-bright"
+              }`}
+            >
+              Pengeluaran ({expenseCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => { setTab("income"); setPosFilter("all"); }}
+              className={`px-4 py-2 font-label-bold text-xs uppercase rounded-xl transition-all whitespace-nowrap border-2 border-outline cursor-pointer ${
+                tab === "income"
+                  ? "bg-tertiary-container text-on-tertiary-container shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold"
+                  : "bg-background text-on-surface hover:bg-surface-bright"
+              }`}
+            >
+              Pemasukan ({incomeCount})
+            </button>
+          </div>
+
+          <div className="text-[11px] font-label-bold text-on-surface-variant flex flex-wrap items-center gap-1.5">
+            <span>Jenis Pos:</span>
+            {posOptions.map((opt) => {
+              const active = posFilter === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setPosFilter(active ? "all" : opt.id)}
+                  className={`px-2.5 py-1 rounded-lg border-2 border-outline text-on-surface transition-all cursor-pointer ${opt.color} ${
+                    active ? "shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold -translate-y-0.5" : "opacity-80 hover:opacity-100"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Bagian Bawah: Daftar Kategori Aktif sesuai FigCraft Frame 06 */}
+      <div className="bg-surface border-4 border-outline rounded-3xl p-5 sm:p-6 shadow-[4px_4px_0_0_var(--theme-outline)] space-y-4">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="font-headline-md text-sm sm:text-base uppercase font-extrabold text-on-surface">
+            Daftar Kategori Aktif ({tab === "expense" ? "Pengeluaran" : "Pemasukan"})
+          </h3>
+          <span className="text-xs font-label-bold text-on-surface-variant">
+            {filtered.length} Kategori
+          </span>
+        </div>
+
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            {[...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className="h-16 rounded-2xl bg-surface-bright border-2 border-outline animate-pulse"
+              />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="bg-background border-2 border-dashed border-outline rounded-2xl p-8 text-center space-y-2">
+            <span className="material-symbols-outlined text-3xl text-on-surface-variant">
+              grid_view
+            </span>
+            <p className="font-label-bold text-sm text-on-surface uppercase">
+              Belum ada kategori {tab === "expense" ? "pengeluaran" : "pemasukan"}
+            </p>
+            <button
+              type="button"
+              onClick={openAdd}
+              className="mt-1 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container border-2 border-outline font-label-bold text-xs uppercase shadow-[2px_2px_0_0_var(--theme-outline)] cursor-pointer"
+            >
+              + Buat Kategori Sekarang
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            {filtered.map((cat, idx) => {
+              const colorClass = colors[idx % colors.length];
+              const isFa = cat.icon && cat.icon.includes("fa-");
+
+              const isFixed =
+                cat.type === "expense" && isFixedExpenseCategory(cat);
+              const isEssential =
+                cat.type === "expense" &&
+                !isFixed &&
+                isEssentialExpenseCategory(cat);
+              const isPrimaryIncome =
+                cat.type === "income" && isEligibleIncomeCategory(cat);
+
+              const badgeLabel =
+                cat.type === "expense"
+                  ? isFixed
+                    ? "POS TETAP BULANAN"
+                    : isEssential
+                    ? "POS POKOK (100% PRIORITAS)"
+                    : "POS SEKUNDER / VARIABEL"
+                  : isPrimaryIncome
+                  ? "PEMASUKAN UTAMA (SIKLUS GAJIAN)"
+                  : "PEMASUKAN SAMPINGAN";
+
+              const badgeStyle =
+                cat.type === "expense"
+                  ? isFixed
+                    ? "bg-primary-container text-on-primary-container"
+                    : isEssential
+                    ? "bg-tertiary-container text-on-tertiary-container"
+                    : "bg-secondary-container text-on-secondary-container"
+                  : isPrimaryIncome
+                  ? "bg-tertiary-container text-on-tertiary-container"
+                  : "bg-surface-container-high text-on-surface";
+
+              return (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -2 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  key={cat.id}
+                  onClick={() => openEdit(cat)}
+                  className="bg-background hover:bg-surface-bright rounded-2xl border-2 border-outline p-3.5 sm:p-4 flex items-center justify-between gap-3 shadow-[2px_2px_0_0_var(--theme-outline)] transition-all cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className={`w-11 h-11 rounded-xl border-2 border-outline flex items-center justify-center shrink-0 ${colorClass}`}
+                    >
+                      {isFa ? (
+                        <i className={`${cat.icon} text-lg`}></i>
+                      ) : (
+                        <span className="material-symbols-outlined text-xl">
+                          {cat.icon || "category"}
+                        </span>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="font-label-bold text-sm sm:text-base text-on-surface font-extrabold truncate">
+                        {cat.name}
+                      </h4>
+                      <span
+                        className={`mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-outline text-[10px] font-label-bold uppercase ${badgeStyle}`}
+                      >
+                        {badgeLabel}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openEdit(cat);
+                      }}
+                      title="Edit Kategori"
+                      className="w-8 h-8 rounded-lg bg-surface hover:bg-surface-bright border-2 border-outline text-on-surface flex items-center justify-center active-press-sm cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-base">
+                        edit
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(cat);
+                      }}
+                      title="Hapus Kategori"
+                      className="w-8 h-8 rounded-lg bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-base">
+                        delete
+                      </span>
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       <AnimatePresence>
       {showForm && (

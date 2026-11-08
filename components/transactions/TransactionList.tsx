@@ -97,7 +97,7 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
   const sortedDates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
 
   return (
-    <div className="space-y-8">
+    <div className="bg-surface border-4 border-outline rounded-3xl p-4 sm:p-6 shadow-[4px_4px_0_0_var(--theme-outline)] space-y-6">
       {sortedDates.map((dateStr) => {
         const dayTxs = [...grouped[dateStr]].sort((a, b) => {
           const aTime = a.createdAt?.seconds || 0;
@@ -105,22 +105,30 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
           return bTime - aTime;
         });
 
-        const dayIncome = dayTxs.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0);
-        const dayExpense = dayTxs.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0);
+        const dayIncome = dayTxs
+          .filter((t) => t.type === "income")
+          .reduce((s, t) => s + t.amount, 0);
+        const dayExpense = dayTxs
+          .filter((t) => t.type === "expense")
+          .reduce((s, t) => s + t.amount, 0);
 
         return (
-          <div key={dateStr} className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-outline pb-2 px-2">
-              <h3 className="font-headline-md text-on-surface text-lg">
+          <div key={dateStr} className="space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b-2 border-outline/20 pb-2 px-1">
+              <h3 className="font-label-bold text-secondary uppercase tracking-wider text-xs sm:text-sm font-extrabold">
                 {getDayLabel(dateStr)}
               </h3>
-              <div className="flex gap-4">
-                <span className="font-label-bold text-xs uppercase text-tertiary">
-                  Masuk: {formatRupiah(dayIncome)}
-                </span>
-                <span className="font-label-bold text-xs uppercase text-error">
-                  Keluar: {formatRupiah(dayExpense)}
-                </span>
+              <div className="flex gap-3 text-xs font-label-bold uppercase">
+                {dayIncome > 0 && (
+                  <span className="text-tertiary dark:text-tertiary-fixed">
+                    Masuk: +{formatRupiah(dayIncome)}
+                  </span>
+                )}
+                {dayExpense > 0 && (
+                  <span className="text-error">
+                    Keluar: -{formatRupiah(dayExpense)}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -131,45 +139,86 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  whileHover={{ scale: 1.01, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.99 }}
                   onClick={() => onEdit(t)}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className="bg-surface border-2 border-outline rounded-2xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4 shadow-[3px_3px_0_0_var(--theme-outline)] hover:shadow-[5px_5px_0_0_var(--theme-outline)] cursor-pointer group relative overflow-hidden transition-all"
+                  className="bg-background hover:bg-surface-bright border-2 border-outline rounded-2xl p-3.5 sm:p-4 flex items-center gap-3.5 shadow-[2px_2px_0_0_var(--theme-outline)] cursor-pointer group relative overflow-hidden transition-all"
                 >
-                  <div className={`w-11 h-11 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center rounded-xl border-2 border-outline ${getCategoryColor(t)} z-10 relative text-black`}>
+                  <div
+                    className={`w-11 h-11 sm:w-12 sm:h-12 shrink-0 flex items-center justify-center rounded-xl border-2 border-outline ${getCategoryColor(
+                      t
+                    )} z-10 relative text-black`}
+                  >
                     {(() => {
-                      const cat = [...incomeCategories, ...expenseCategories].find((c) => c.id === t.categoryId || c.name === t.category);
-                      if (cat?.icon?.includes("fa-")) return <i className={`fa-solid ${cat.icon} text-lg sm:text-2xl`}></i>;
+                      const cat = [
+                        ...incomeCategories,
+                        ...expenseCategories,
+                      ].find((c) => c.id === t.categoryId || c.name === t.category);
+                      if (cat?.icon?.includes("fa-"))
+                        return (
+                          <i
+                            className={`fa-solid ${cat.icon} text-lg sm:text-xl`}
+                          ></i>
+                        );
                       return (
-                        <span className="material-symbols-outlined text-2xl sm:text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                        <span
+                          className="material-symbols-outlined text-xl sm:text-2xl"
+                          style={{ fontVariationSettings: "'FILL' 1" }}
+                        >
                           {getCategoryIcon(t)}
                         </span>
                       );
                     })()}
                   </div>
+
                   <div className="flex-1 min-w-0 z-10 relative">
-                    <p className="font-headline-md text-sm sm:text-base text-on-background leading-tight truncate">{t.note || t.category}</p>
-                    <p className="font-body-md text-on-surface-variant text-xs sm:text-sm truncate mt-0.5">
-                      {t.type === "transfer" ? `${t.accountName || "?"} → ${t.destinationAccountName || "?"}` : (t.category || "Tanpa Kategori")}
+                    <p className="font-label-bold text-sm sm:text-base text-on-surface font-extrabold leading-tight truncate">
+                      {t.note || t.category || "Transaksi"}
+                    </p>
+                    <p className="font-body-sm text-on-surface-variant text-xs truncate mt-0.5">
+                      {t.type === "transfer"
+                        ? `Transfer Antar Akun (${t.accountName || "?"} -> ${
+                            t.destinationAccountName || "?"
+                          })`
+                        : `${t.category || "Tanpa Kategori"}${
+                            t.accountName ? ` (${t.accountName})` : ""
+                          }`}
                     </p>
                   </div>
-                  <div className="text-right z-10 relative flex flex-col items-end shrink-0 pl-2">
-                    <p className={`font-headline-md text-sm sm:text-lg md:text-xl font-bold whitespace-nowrap ${
-                      t.type === "income" ? "text-tertiary" : 
-                      t.type === "transfer" ? "text-secondary-fixed-dim" : 
-                      "text-error"
-                    }`}>
-                      {t.type === "income" ? "+" : t.type === "transfer" ? "" : "-"}{formatRupiah(t.amount)}
+
+                  <div className="text-right z-10 relative flex items-center gap-2 shrink-0 pl-2">
+                    <p
+                      className={`font-display-lg text-sm sm:text-base md:text-lg font-extrabold whitespace-nowrap ${
+                        t.type === "income"
+                          ? "text-tertiary dark:text-tertiary-fixed"
+                          : t.type === "transfer"
+                          ? "text-secondary"
+                          : "text-error"
+                      }`}
+                    >
+                      {t.type === "income"
+                        ? "+"
+                        : t.type === "transfer"
+                        ? ""
+                        : "-"}
+                      {formatRupiah(t.amount)}
                     </p>
-                    
+
                     <button
-                        onClick={(e) => { e.stopPropagation(); handleDelete(t.id); }}
-                        disabled={deletingId === t.id}
-                        className="mt-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 text-error hover:text-error-container transition-opacity p-1"
-                        aria-label="Hapus transaksi"
-                      >
-                        <span className="material-symbols-outlined text-sm">delete</span>
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(t.id);
+                      }}
+                      disabled={deletingId === t.id}
+                      className="w-8 h-8 rounded-lg border border-outline/40 hover:border-outline bg-surface hover:bg-error-container text-error hover:text-on-error-container flex items-center justify-center transition-colors cursor-pointer"
+                      aria-label="Hapus transaksi"
+                      title="Hapus transaksi"
+                    >
+                      <span className="material-symbols-outlined text-base">
+                        delete
+                      </span>
                     </button>
                   </div>
                 </motion.div>

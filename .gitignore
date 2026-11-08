@@ -32,9 +32,18 @@ firestore-debug.log*
 ui-debug.log*
 
 .ocr/
+.opencodereview/
 ocr-results*.json
 
 .env*
+!.env.example
+!.env*.example
+!.env.template
+
+# figcraft
+*.figcraft
+.figcraft/
+figcraft-out/
 
 # vercel
 .vercel
@@ -45,6 +54,7 @@ next-env.d.ts
 claude.json
 dev.log
 test.css
+dist/
 
 # IDEs and Editors
 .vscode/

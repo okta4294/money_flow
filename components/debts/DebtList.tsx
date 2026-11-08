@@ -72,112 +72,136 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
   }
 
   return (
-    <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <section className="flex flex-col gap-3.5">
       <AnimatePresence mode="popLayout">
-      {debts.map((debt, idx) => {
-        const pct = debt.totalAmount > 0
-          ? Math.min((debt.paidAmount / debt.totalAmount) * 100, 100)
-          : 0;
-        const overdue = isOverdue(debt.dueDate);
-        const isPaid = debt.status === "paid";
+        {debts.map((debt, idx) => {
+          const pct =
+            debt.totalAmount > 0
+              ? Math.min((debt.paidAmount / debt.totalAmount) * 100, 100)
+              : 0;
+          const overdue = isOverdue(debt.dueDate);
+          const isPaid = debt.status === "paid";
 
-        const colors = [
-          "bg-secondary-container text-white",
-          "bg-primary-fixed text-on-primary-fixed",
-          "bg-tertiary text-white",
-          "bg-primary-container text-on-primary-container"
-        ];
-        const barColors = [
-          "bg-secondary-container",
-          "bg-primary-fixed",
-          "bg-tertiary",
-          "bg-primary-container"
-        ];
-        const icons = ["shopping_cart", "person", "credit_card", "payments"];
-        
-        const colorClass = colors[idx % colors.length];
-        const barColorClass = barColors[idx % barColors.length];
-        const iconName = icons[idx % icons.length];
+          const barColors = [
+            "bg-tertiary-container",
+            "bg-error-container",
+            "bg-secondary-container",
+            "bg-primary-container",
+          ];
+          const barColorClass = isPaid
+            ? "bg-tertiary-container"
+            : overdue
+            ? "bg-error-container"
+            : barColors[idx % barColors.length];
 
-        return (
-          <motion.div
-            layout
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            whileHover={{ scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            key={debt.id}
-            className="bg-surface border-4 border-outline rounded-3xl p-5 shadow-[4px_4px_0_0_var(--theme-outline)] hover:shadow-[6px_6px_0_0_var(--theme-outline)] transition-all flex flex-col gap-4 group cursor-pointer"
-            onClick={() => onEdit(debt)}
-          >
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-3">
-                <div className={`w-12 h-12 ${colorClass} border-2 border-outline rounded-2xl flex items-center justify-center shadow-sm`}>
-                  <span className="material-symbols-outlined text-3xl">{iconName}</span>
-                </div>
-                <div>
-                  <h3 className="font-headline-md text-body-lg text-on-background line-clamp-1">{debt.name}</h3>
-                  <div className="flex flex-col gap-0.5 mt-0.5">
-                    {debt.dueDate && (
-                      <span className={`font-label-bold text-[11px] flex items-center gap-1 ${overdue && !isPaid ? 'text-error' : 'text-on-surface-variant'}`}>
-                        <span className="material-symbols-outlined text-[12px]">schedule</span>
-                        {formatDate(debt.dueDate)}
-                        {overdue && !isPaid && " (Lewat Jatuh Tempo)"}
-                      </span>
+          return (
+            <motion.div
+              layout
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              whileHover={{ y: -2 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              key={debt.id}
+              className="bg-background hover:bg-surface-bright border-2 border-outline rounded-2xl p-4 sm:p-5 shadow-[2px_2px_0_0_var(--theme-outline)] transition-all flex flex-col gap-3 group cursor-pointer"
+              onClick={() => onEdit(debt)}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 min-w-0">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div
+                    className={`w-10 h-10 rounded-xl border-2 border-outline flex items-center justify-center shrink-0 ${
+                      isPaid
+                        ? "bg-tertiary-container text-on-tertiary-container"
+                        : overdue
+                        ? "bg-error-container text-on-error-container"
+                        : "bg-primary-container text-on-primary-container"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-xl">
+                      {isPaid ? "check_circle" : "credit_card"}
+                    </span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                      <h4 className="font-label-bold text-sm sm:text-base font-extrabold text-on-surface truncate max-w-full">
+                        {debt.name}
+                      </h4>
+                      {overdue && !isPaid && (
+                        <span className="px-2 py-0.5 rounded-md bg-error-container text-on-error-container border border-outline text-[10px] font-label-bold uppercase shrink-0">
+                          Lewat Jatuh Tempo
+                        </span>
+                      )}
+                      {isPaid && (
+                        <span className="px-2 py-0.5 rounded-md bg-tertiary-container text-on-tertiary-container border border-outline text-[10px] font-label-bold uppercase shrink-0">
+                          Lunas
+                        </span>
+                      )}
+                    </div>
+                    {(debt.dueDate || debt.note) && (
+                      <p className="text-xs text-on-surface-variant truncate mt-0.5">
+                        {debt.dueDate ? `Jatuh Tempo: ${formatDate(debt.dueDate)}` : ""}
+                        {debt.dueDate && debt.note ? " • " : ""}
+                        {debt.note || ""}
+                      </p>
                     )}
-                    {debt.note && <p className="text-on-surface-variant text-[11px] font-label-bold line-clamp-1">{debt.note}</p>}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 shrink-0 min-w-0">
+                  <span
+                    className={`font-display-lg text-xs sm:text-sm md:text-base font-bold truncate ${
+                      isPaid
+                        ? "text-tertiary dark:text-tertiary-fixed"
+                        : overdue
+                        ? "text-error"
+                        : "text-tertiary dark:text-tertiary-fixed"
+                    }`}
+                  >
+                    Sisa {formatRupiah(debt.remainingAmount)} /{" "}
+                    {formatRupiah(debt.totalAmount)} ({Math.round(pct)}%)
+                  </span>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(debt);
+                      }}
+                      title="Edit Hutang"
+                      className="w-8 h-8 rounded-lg bg-surface hover:bg-surface-bright border-2 border-outline text-on-surface flex items-center justify-center active-press-sm cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-base">
+                        edit
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(debt);
+                      }}
+                      disabled={deletingId === debt.id}
+                      title="Hapus Hutang"
+                      className="w-8 h-8 rounded-lg bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-base">
+                        delete
+                      </span>
+                    </button>
                   </div>
                 </div>
               </div>
-              <span className={`${isPaid ? "bg-primary-container" : overdue ? "bg-error-container" : "bg-surface-container-highest"} border-2 border-outline rounded-full px-3 py-1 text-[10px] font-bold uppercase`}>
-                {isPaid ? "Lunas" : overdue ? "Mendesak" : "Aktif"}
-              </span>
-            </div>
 
-            <div className="space-y-2 mt-2">
-              <div className="flex justify-between items-end mb-1">
-                 <div>
-                   <p className="text-[10px] font-label-bold text-on-surface-variant uppercase tracking-wider">Sudah Bayar</p>
-                   <p className="font-label-bold text-sm text-primary-fixed">{formatRupiah(debt.paidAmount)}</p>
-                 </div>
-                 <div className="text-right">
-                   <p className="text-[10px] font-label-bold text-on-surface-variant uppercase tracking-wider">Sisa</p>
-                   <p className="font-label-bold text-sm text-on-surface">{formatRupiah(debt.remainingAmount)} <span className="text-[10px] opacity-60">/ {formatRupiah(debt.totalAmount)}</span></p>
-                 </div>
+              <div className="h-3.5 w-full bg-surface-container-high border-2 border-outline rounded-full overflow-hidden relative">
+                <div
+                  className={`h-full ${barColorClass} border-r-2 border-outline transition-all duration-500`}
+                  style={{ width: `${Math.max(pct, 6)}%` }}
+                />
               </div>
-              <div className="flex justify-between font-label-bold text-on-background text-xs">
-                <span>Persentase</span>
-                <span>{Math.round(pct)}%</span>
-              </div>
-              <div className="h-6 w-full bg-surface-container border-2 border-outline rounded-full overflow-hidden relative">
-                <div className={`h-full ${barColorClass} border-r-[3px] border-outline transition-all duration-500`} style={{ width: `${pct}%` }}></div>
-              </div>
-            </div>
-
-            <div className="flex justify-end items-center gap-2 mt-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleDelete(debt); }}
-                  disabled={deletingId === debt.id}
-                  className="bg-error-container border-2 border-outline p-2 rounded-xl hover:bg-error hover:text-white transition-colors shadow-[2px_2px_0_0_var(--theme-outline)]"
-                >
-                  <span className="material-symbols-outlined text-xl">delete</span>
-                </motion.button>
-                <motion.button 
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={(e: React.MouseEvent) => { e.stopPropagation(); onEdit(debt); }}
-                    className="bg-primary-container border-2 border-outline p-3 rounded-xl shadow-[2px_2px_0_0_var(--theme-outline)] active-press flex items-center justify-center">
-                  <span className="material-symbols-outlined text-on-background" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      {isPaid ? "check" : "edit"}
-                  </span>
-                </motion.button>
-            </div>
-          </motion.div>
-        );
-      })}
+            </motion.div>
+          );
+        })}
       </AnimatePresence>
     </section>
   );

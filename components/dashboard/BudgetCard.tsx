@@ -78,59 +78,349 @@ export function BudgetCard({
       : 0;
   const dailyProgressPercent = Math.min(100, percentUsed);
 
+  const fixedCategories = categoryAllocations.filter((c) => c.isFixed);
+  const essentialCategories = categoryAllocations.filter(
+    (c) => !c.isFixed && c.isEssential
+  );
+  const discretionaryCategories = categoryAllocations.filter(
+    (c) => !c.isFixed && !c.isEssential
+  );
+
+  const fixedBudgetTotal = fixedCategories.reduce(
+    (sum, c) => sum + c.recommendedBudget,
+    0
+  );
+  const pillar1Total = totalDebtObligation + fixedBudgetTotal;
+  const pillar2Total = essentialCategories.reduce(
+    (sum, c) => sum + c.recommendedBudget,
+    0
+  );
+  const pillar3Total = discretionaryCategories.reduce(
+    (sum, c) => sum + c.recommendedBudget,
+    0
+  );
+
   return (
-    <motion.section
-      whileHover={{ y: -2 }}
-      transition={{ type: "spring", stiffness: 400, damping: 25 }}
-      className="col-span-12 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] rounded-3xl overflow-hidden flex flex-col"
-    >
-      <div className="bg-primary-container border-b-[3px] border-outline px-6 py-4 flex flex-wrap justify-between items-center gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-surface border-2 border-outline flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-2xl">
-              calculate
-            </span>
-          </div>
+    <div className="col-span-12 space-y-6">
+      {/* 3 Kartu Pilar Anggaran Sejajar sesuai FigCraft Frame 02 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* PILAR 1: HUTANG JATUH TEMPO & POS TETAP (100%) */}
+        <motion.div
+          whileHover={{ y: -2 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          className="min-w-0 bg-surface border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] rounded-3xl p-5 flex flex-col gap-4"
+        >
           <div>
-            <h3
-              className="font-headline-md text-xl text-on-primary-container uppercase font-bold tracking-tight"
-              style={{ WebkitTextStroke: "0.5px var(--theme-outline)" }}
-            >
-              Rencana Anggaran & Batas Harian
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-error-container text-on-error-container border-2 border-outline font-label-bold text-[11px] uppercase shadow-[1.5px_1.5px_0_0_var(--theme-outline)] mb-2.5">
+              <span className="material-symbols-outlined text-sm">
+                priority_high
+              </span>
+              <span>1. Hutang Jatuh Tempo & Pos Tetap (100%)</span>
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-display-lg font-black text-on-surface tracking-tight">
+              {formatRupiah(pillar1Total)}
             </h3>
-            <p className="font-label-md text-xs text-on-primary-container/80">
-              Kalkulasi otomatis berbasis tenor hutang dan riwayat kebiasaan
+            <p className="text-[11px] font-body-sm text-on-surface-variant mt-0.5">
+              Wajib lunas 100% di siklus berjalan &bull; Dikecualikan dari kuota harian
             </p>
           </div>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-          {budget.budgetCycle?.isPaydayCycle && (
-            <span className="inline-flex items-center h-7 sm:h-8 px-2.5 sm:px-3 text-[10px] sm:text-xs font-label-bold uppercase bg-tertiary-container text-on-tertiary-container rounded-full border-2 border-outline shadow-[1px_1px_0_0_var(--theme-outline)]">
-              Siklus Gajian
+          <div className="space-y-2.5 flex-1">
+            {/* Pelunasan Hutang di Muka (Early Debt Payment) */}
+            {budget.paidDebtInCycle > 0 && (
+              <div className="bg-background border-2 border-outline rounded-2xl p-3.5 space-y-1.5 shadow-[1.5px_1.5px_0_0_var(--theme-outline)]">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-label-bold text-xs text-on-surface font-extrabold">
+                    Pelunasan Cicilan di Muka &bull;{" "}
+                    {formatRupiah(budget.paidDebtInCycle)}
+                  </span>
+                </div>
+                <div className="h-2.5 w-full bg-surface-container-high border border-outline rounded-full overflow-hidden">
+                  <div className="h-full w-full bg-tertiary-container" />
+                </div>
+                <p className="text-[10px] font-label-bold text-tertiary dark:text-tertiary-fixed">
+                  Early Debt Payment: Otomatis menyerap dana siklus berjalan
+                </p>
+              </div>
+            )}
+
+            {/* Daftar Kewajiban Hutang Jatuh Tempo */}
+            {debtObligations
+              .filter((d) => !d.isUpcoming)
+              .map((d) => (
+                <div
+                  key={d.debtId}
+                  className="bg-background border-2 border-outline rounded-2xl p-3.5 space-y-1.5 shadow-[1.5px_1.5px_0_0_var(--theme-outline)]"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-label-bold text-xs text-on-surface font-extrabold truncate">
+                      {d.debtName}
+                      {d.dueDate ? ` (Jatuh Tempo ${d.dueDate})` : ""} &bull;{" "}
+                      {formatRupiah(d.monthlyObligation)}
+                    </span>
+                  </div>
+                  <div className="h-2.5 w-full bg-surface-container-high border border-outline rounded-full overflow-hidden">
+                    <div
+                      className={`h-full ${
+                        d.isOverdue ? "bg-error-container w-full" : "bg-primary-container w-1/2"
+                      }`}
+                    />
+                  </div>
+                  <p className="text-[10px] font-body-sm text-on-surface-variant">
+                    {d.isOverdue
+                      ? "Lewat jatuh tempo: Wajib segera dilunasi di siklus ini"
+                      : "Prioritas cicilan jatuh tempo di siklus berjalan"}
+                  </p>
+                </div>
+              ))}
+
+            {/* Daftar Pos Pengeluaran Tetap */}
+            {fixedCategories.map((cat) => {
+              const maxVal = Math.max(cat.recommendedBudget, cat.currentMonthSpent, 1);
+              const pct = Math.min(100, (cat.currentMonthSpent / maxVal) * 100);
+              const isPaidFixed =
+                cat.recommendedBudget > 0 &&
+                cat.currentMonthSpent >= cat.recommendedBudget;
+
+              return (
+                <div
+                  key={cat.categoryId}
+                  className="bg-background border-2 border-outline rounded-2xl p-3.5 space-y-1.5 shadow-[1.5px_1.5px_0_0_var(--theme-outline)]"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-label-bold text-xs text-on-surface font-extrabold truncate">
+                      {cat.categoryName} &bull;{" "}
+                      {formatRupiah(cat.recommendedBudget)}
+                    </span>
+                  </div>
+                  <div className="h-2.5 w-full bg-surface-container-high border border-outline rounded-full overflow-hidden">
+                    <div
+                      style={{ width: `${pct}%` }}
+                      className={`h-full ${
+                        isPaidFixed ? "bg-tertiary-container" : "bg-error-container"
+                      }`}
+                    />
+                  </div>
+                  <p
+                    className={`text-[10px] font-label-bold ${
+                      isPaidFixed
+                        ? "text-tertiary dark:text-tertiary-fixed"
+                        : "text-on-surface-variant"
+                    }`}
+                  >
+                    {isPaidFixed
+                      ? "Status: Sudah Terbayar di Siklus Ini"
+                      : `Terpakai ${formatRupiah(cat.currentMonthSpent)} • Sisa ${formatRupiah(
+                          Math.max(0, cat.recommendedBudget - cat.currentMonthSpent)
+                        )}`}
+                  </p>
+                </div>
+              );
+            })}
+
+            {fixedCategories.length === 0 &&
+              debtObligations.filter((d) => !d.isUpcoming).length === 0 &&
+              (budget.paidDebtInCycle ?? 0) === 0 && (
+                <div className="bg-background border-2 border-dashed border-outline rounded-2xl p-4 text-center text-xs text-on-surface-variant">
+                  Tidak ada cicilan jatuh tempo atau pos tetap di siklus ini.
+                </div>
+              )}
+          </div>
+        </motion.div>
+
+        {/* PILAR 2: POS KEBUTUHAN POKOK (BOBOT 4 BULAN) */}
+        <motion.div
+          whileHover={{ y: -2 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          className="min-w-0 bg-surface border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] rounded-3xl p-5 flex flex-col gap-4"
+        >
+          <div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-primary-container text-on-primary-container border-2 border-outline font-label-bold text-[11px] uppercase shadow-[1.5px_1.5px_0_0_var(--theme-outline)] mb-2.5">
+              <span className="material-symbols-outlined text-sm">
+                restaurant
+              </span>
+              <span>2. Pos Kebutuhan Pokok (Bobot 4 Bulan)</span>
             </span>
-          )}
-          {budget.budgetCalculationMode === "strict_rollover" && (
-            <span className="inline-flex items-center h-7 sm:h-8 px-2.5 sm:px-3 text-[10px] sm:text-xs font-label-bold uppercase bg-secondary-container text-on-secondary-container rounded-full border-2 border-outline shadow-[1px_1px_0_0_var(--theme-outline)]">
-              Disiplin Ketat
+            <h3 className="text-2xl sm:text-3xl font-display-lg font-black text-on-surface tracking-tight">
+              {formatRupiah(pillar2Total)}
+            </h3>
+            <p className="text-[11px] font-body-sm text-on-surface-variant mt-0.5">
+              Dilindungi 100% sesuai tren 4 bulan &bull; Kuota{" "}
+              {formatRupiah(dailyEssentialBudget)}/hari
+            </p>
+          </div>
+
+          <div className="space-y-2.5 flex-1">
+            {essentialCategories.length === 0 ? (
+              <div className="bg-background border-2 border-dashed border-outline rounded-2xl p-4 text-center text-xs text-on-surface-variant">
+                Belum ada kategori Pos Pokok (Makan, BBM, Sembako, Dapur).
+              </div>
+            ) : (
+              essentialCategories.map((cat) => {
+                const maxVal = Math.max(
+                  cat.recommendedBudget,
+                  cat.currentMonthSpent,
+                  1
+                );
+                const pct = Math.min(
+                  100,
+                  (cat.currentMonthSpent / maxVal) * 100
+                );
+                const rem = Math.max(
+                  0,
+                  cat.recommendedBudget - cat.currentMonthSpent
+                );
+                const perDay =
+                  remainingDays > 0 ? Math.round(rem / remainingDays) : 0;
+
+                return (
+                  <div
+                    key={cat.categoryId}
+                    className="bg-background border-2 border-outline rounded-2xl p-3.5 space-y-1.5 shadow-[1.5px_1.5px_0_0_var(--theme-outline)]"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-label-bold text-xs text-on-surface font-extrabold truncate">
+                        {cat.categoryName} &bull; Jatah{" "}
+                        {formatRupiah(cat.recommendedBudget)}
+                      </span>
+                    </div>
+                    <div className="h-2.5 w-full bg-surface-container-high border border-outline rounded-full overflow-hidden">
+                      <div
+                        style={{ width: `${pct}%` }}
+                        className={`h-full ${
+                          cat.currentMonthSpent > cat.recommendedBudget
+                            ? "bg-error-container"
+                            : "bg-primary-container"
+                        }`}
+                      />
+                    </div>
+                    <p className="text-[10px] font-body-sm text-on-surface-variant">
+                      Terpakai {formatRupiah(cat.currentMonthSpent)} &bull; Sisa{" "}
+                      {formatRupiah(rem)} ({formatRupiah(perDay)}/hari)
+                    </p>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </motion.div>
+
+        {/* PILAR 3: POS SEKUNDER / VARIABEL (PROPORSIONAL) */}
+        <motion.div
+          whileHover={{ y: -2 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          className="min-w-0 bg-surface border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] rounded-3xl p-5 flex flex-col gap-4"
+        >
+          <div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-secondary-container text-on-secondary-container border-2 border-outline font-label-bold text-[11px] uppercase shadow-[1.5px_1.5px_0_0_var(--theme-outline)] mb-2.5">
+              <span className="material-symbols-outlined text-sm">
+                local_cafe
+              </span>
+              <span>3. Pos Sekunder / Variabel (Proporsional)</span>
             </span>
-          )}
-          <span className="h-7 sm:h-8 px-2.5 sm:px-3 inline-flex items-center font-label-bold text-[10px] sm:text-xs uppercase bg-surface border-2 border-outline rounded-full text-on-surface">
-            {budget.budgetCycle?.isPaydayCycle ? budget.budgetCycle.label : `${month}/${year}`}
-          </span>
-          <button
-            onClick={() => setShowDetails(!showDetails)}
-            className="h-7 sm:h-8 px-3 sm:px-3.5 inline-flex items-center gap-1.5 font-label-bold text-[10px] sm:text-xs uppercase bg-surface-container hover:bg-surface-bright border-2 border-outline rounded-full text-on-surface active-press shadow-[1px_1px_0_0_var(--theme-outline)]"
-          >
-            <span>{showDetails ? "Tutup Rincian" : "Lihat Rincian"}</span>
-            <span className="material-symbols-outlined text-xs sm:text-sm leading-none">
-              {showDetails ? "expand_less" : "expand_more"}
-            </span>
-          </button>
-        </div>
+            <h3 className="text-2xl sm:text-3xl font-display-lg font-black text-on-surface tracking-tight">
+              {formatRupiah(pillar3Total)}
+            </h3>
+            <p className="text-[11px] font-body-sm text-on-surface-variant mt-0.5">
+              Alokasi berbobot kebiasaan riil &bull; Kuota{" "}
+              {formatRupiah(dailyDiscretionaryBudget)}/hari
+            </p>
+          </div>
+
+          <div className="space-y-2.5 flex-1">
+            {discretionaryCategories.length === 0 ? (
+              <div className="bg-background border-2 border-dashed border-outline rounded-2xl p-4 text-center text-xs text-on-surface-variant">
+                Belum ada kategori Pos Sekunder / Gaya Hidup.
+              </div>
+            ) : (
+              discretionaryCategories.map((cat) => {
+                const maxVal = Math.max(
+                  cat.recommendedBudget,
+                  cat.currentMonthSpent,
+                  1
+                );
+                const pct = Math.min(
+                  100,
+                  (cat.currentMonthSpent / maxVal) * 100
+                );
+                const rem = Math.max(
+                  0,
+                  cat.recommendedBudget - cat.currentMonthSpent
+                );
+                const perDay =
+                  remainingDays > 0 ? Math.round(rem / remainingDays) : 0;
+
+                return (
+                  <div
+                    key={cat.categoryId}
+                    className="bg-background border-2 border-outline rounded-2xl p-3.5 space-y-1.5 shadow-[1.5px_1.5px_0_0_var(--theme-outline)]"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-label-bold text-xs text-on-surface font-extrabold truncate">
+                        {cat.categoryName} &bull; Jatah{" "}
+                        {formatRupiah(cat.recommendedBudget)}
+                      </span>
+                      {typeof cat.weightPercent === "number" &&
+                        cat.weightPercent > 0 && (
+                          <span className="text-[9px] font-label-bold uppercase px-1.5 py-0.5 rounded bg-surface border border-outline text-secondary shrink-0">
+                            {cat.weightPercent}%
+                          </span>
+                        )}
+                    </div>
+                    <div className="h-2.5 w-full bg-surface-container-high border border-outline rounded-full overflow-hidden">
+                      <div
+                        style={{ width: `${pct}%` }}
+                        className={`h-full ${
+                          cat.currentMonthSpent > cat.recommendedBudget
+                            ? "bg-error-container"
+                            : "bg-secondary-container"
+                        }`}
+                      />
+                    </div>
+                    <p className="text-[10px] font-body-sm text-on-surface-variant">
+                      Terpakai {formatRupiah(cat.currentMonthSpent)} &bull; Sisa{" "}
+                      {formatRupiah(rem)} ({formatRupiah(perDay)}/hari)
+                    </p>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </motion.div>
       </div>
 
-      <div className="p-6 space-y-6">
+      {/* Kartu Ringkasan Batas Harian & Peringatan Sistem */}
+      <div className="bg-surface border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] rounded-3xl overflow-hidden flex flex-col">
+        <div className="bg-surface-container border-b-[3px] border-outline px-5 sm:px-6 py-3.5 flex flex-wrap justify-between items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="material-symbols-outlined text-primary text-xl">
+              analytics
+            </span>
+            <h3 className="font-headline-md text-sm sm:text-base text-on-surface uppercase font-extrabold">
+              Evaluasi Kuota Harian & Rincian Siklus
+            </h3>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            {budget.budgetCycle?.isPaydayCycle && (
+              <span className="inline-flex items-center h-7 px-2.5 text-[10px] font-label-bold uppercase bg-tertiary-container text-on-tertiary-container rounded-xl border-2 border-outline">
+                Siklus Gajian: {budget.budgetCycle.label}
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={() => setShowDetails(!showDetails)}
+              className="h-7 px-3 inline-flex items-center gap-1 font-label-bold text-[10px] sm:text-xs uppercase bg-surface hover:bg-surface-bright border-2 border-outline rounded-xl text-on-surface active-press-sm shadow-[1.5px_1.5px_0_0_var(--theme-outline)] cursor-pointer"
+            >
+              <span>{showDetails ? "Tutup Rincian Lengkap" : "Lihat Rincian Lengkap"}</span>
+              <span className="material-symbols-outlined text-sm leading-none">
+                {showDetails ? "expand_less" : "expand_more"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div className="p-5 sm:p-6 space-y-5">
         {isOverBudget ? (
           <div className="bg-error-container border-3 border-outline rounded-2xl p-5 shadow-[3px_3px_0_0_var(--theme-outline)] text-on-error-container space-y-3">
             <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -742,7 +1032,8 @@ export function BudgetCard({
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
-    </motion.section>
+    </div>
   );
 }

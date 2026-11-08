@@ -29,33 +29,36 @@ export function MonthSelector({ year, month, onChange }: MonthSelectorProps) {
     year === new Date().getFullYear() && month === new Date().getMonth() + 1;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center justify-between sm:justify-center gap-1.5 px-1 py-0.5 w-full sm:w-auto">
       <button
         id="month-prev"
+        type="button"
         onClick={prev}
-        className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-variant text-on-surface hover:bg-surface-variant/80 transition-colors"
+        aria-label="Bulan sebelumnya"
+        className="w-9 h-9 flex items-center justify-center rounded-lg bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline transition-colors active-press-sm cursor-pointer shrink-0"
       >
-        <i className="fa-solid fa-chevron-left text-sm"></i>
+        <span className="material-symbols-outlined text-lg leading-none">
+          chevron_left
+        </span>
       </button>
 
-      <div className="flex items-center px-2">
-        <span className="font-label-md text-on-surface font-semibold whitespace-nowrap">
+      <div className="flex items-center justify-center px-3 min-w-[130px]">
+        <span className="font-label-bold text-xs sm:text-sm text-on-surface uppercase tracking-wide whitespace-nowrap">
           {MONTHS[month - 1]} {year}
         </span>
-        {isCurrentMonth && (
-          <span className="bg-primary-container/20 text-primary-fixed-dim text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ml-2 hidden sm:inline-block">
-            Bulan Ini
-          </span>
-        )}
       </div>
 
       <button
         id="month-next"
+        type="button"
         onClick={next}
         disabled={isCurrentMonth}
-        className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-variant text-on-surface hover:bg-surface-variant/80 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        aria-label="Bulan berikutnya"
+        className="w-9 h-9 flex items-center justify-center rounded-lg bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline transition-colors disabled:opacity-30 disabled:cursor-not-allowed active-press-sm cursor-pointer shrink-0"
       >
-        <i className="fa-solid fa-chevron-right text-sm"></i>
+        <span className="material-symbols-outlined text-lg leading-none">
+          chevron_right
+        </span>
       </button>
     </div>
   );

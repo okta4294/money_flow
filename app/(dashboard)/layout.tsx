@@ -2,28 +2,44 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { Sidebar } from "@/components/layout/Sidebar";
-import Link from "next/link";
+import { Sidebar, BottomNav } from "@/components/layout/Sidebar";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
-const navItems = [
-  { href: "/dashboard", label: "Dasbor", icon: "home" },
-  { href: "/transactions", label: "Transaksi", icon: "history" },
-  { href: "/budget", label: "Anggaran", icon: "pie_chart" },
-  { href: "/categories", label: "Kategori", icon: "category" },
-  { href: "/accounts", label: "Dompet", icon: "account_balance_wallet" },
-  { href: "/debts", label: "Hutang", icon: "account_balance" },
-];
+const SIDEBAR_STORAGE_KEY = "money_flow_sidebar_expanded";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+      if (saved === "true") {
+        setIsSidebarExpanded(true);
+      }
+    } catch {
+      // Abaikan jika localStorage tidak tersedia
+    }
+  }, []);
+
+  const handleToggleSidebar = () => {
+    setIsSidebarExpanded((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(SIDEBAR_STORAGE_KEY, String(next));
+      } catch {
+        // Abaikan jika localStorage tidak tersedia
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -43,7 +59,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <>
       <header className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 w-full bg-surface sticky top-0 z-40 md:hidden transition-colors border-b-[3px] border-outline shadow-[0_3px_0_0_var(--theme-outline)]">
         <div className="flex items-center gap-3">
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-container border-2 border-outline rounded-full flex items-center justify-center shadow-[2px_2px_0_0_var(--theme-outline)] overflow-hidden">
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-container border-2 border-outline rounded-2xl flex items-center justify-center shadow-[2px_2px_0_0_var(--theme-outline)] overflow-hidden">
             {user?.photoURL ? (
               <Image
                 src={user.photoURL}
@@ -53,20 +69,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className="w-full h-full object-cover"
               />
             ) : (
-              <span className="font-bold text-base sm:text-lg text-on-primary-container">{(user?.displayName || user?.email || "U")[0].toUpperCase()}</span>
+              <span className="font-display-lg text-base sm:text-lg text-on-primary-container">MF</span>
             )}
           </motion.div>
           <h1 className="font-display-lg text-xl sm:text-2xl text-primary uppercase tracking-tighter" style={{ WebkitTextStroke: '0.5px var(--theme-outline)', color: 'var(--theme-primary-container)' }}>Money Flow</h1>
         </div>
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
+          <button
+            type="button"
+            onClick={signOut}
+            className="w-11 h-11 rounded-xl bg-error-container text-on-error-container border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] flex items-center justify-center active-press-sm transition-colors cursor-pointer"
+            title="Keluar Akun"
+            aria-label="Keluar Akun"
+          >
+            <span className="material-symbols-outlined text-[20px]">logout</span>
+          </button>
         </div>
       </header>
 
-      <div className="min-h-screen bg-surface flex transition-colors">
-        <Sidebar />
+      <div className="min-h-screen bg-surface flex transition-colors overflow-x-clip">
+        <Sidebar
+          isExpanded={isSidebarExpanded}
+          onToggleExpand={handleToggleSidebar}
+        />
 
-        <main className="flex-1 w-full md:pl-24 pb-24 md:pb-0 relative">
+        <main
+          className={`flex-1 min-w-0 w-full max-w-full pb-24 md:pb-0 relative transition-all duration-200 ${
+            isSidebarExpanded ? "md:pl-64" : "md:pl-24"
+          }`}
+        >
           <AnimatePresence mode="popLayout">
             <motion.div
               key={pathname}
@@ -74,7 +106,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="px-4 py-4 sm:px-6 sm:py-6 md:p-8 flex flex-col gap-6 max-w-6xl mx-auto min-h-full pb-36"
+              className="px-4 py-4 sm:px-6 sm:py-6 md:p-8 flex flex-col gap-6 w-full min-w-0 max-w-6xl mx-auto min-h-full pb-36"
             >
               {children}
             </motion.div>
@@ -82,37 +114,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden pointer-events-none">
-        <div className="w-full max-w-lg mx-auto px-3 sm:px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1">
-          <nav className="pointer-events-auto flex items-center justify-between p-1.5 bg-surface border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] rounded-2xl transition-colors">
-            {navItems.map(({ href, label, icon }) => {
-              const active = pathname === href || pathname.startsWith(href + "/");
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`flex-1 min-w-0 flex flex-col items-center justify-center py-2 px-0.5 rounded-xl transition-all active-press-sm ${
-                    active
-                      ? "bg-primary-container text-on-primary-container border-2 border-outline shadow-[1.5px_1.5px_0_0_var(--theme-outline)]"
-                      : "text-on-surface-variant hover:text-on-background border-2 border-transparent"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[20px] sm:text-[22px] leading-none shrink-0">
-                    {icon}
-                  </span>
-                  <span
-                    className={`font-label-bold text-[9px] sm:text-[10px] mt-1 truncate max-w-full text-center leading-tight ${
-                      active ? "font-extrabold opacity-100" : "opacity-75"
-                    }`}
-                  >
-                    {label}
-                  </span>
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-      </div>
+      <BottomNav />
     </>
   );
 }

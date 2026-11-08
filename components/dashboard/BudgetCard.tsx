@@ -273,6 +273,9 @@ export function BudgetCard({
                 const perDay =
                   remainingDays > 0 ? Math.round(rem / remainingDays) : 0;
 
+                const isOver = cat.currentMonthSpent > cat.recommendedBudget;
+                const overAmount = cat.currentMonthSpent - cat.recommendedBudget;
+
                 return (
                   <div
                     key={cat.categoryId}
@@ -288,15 +291,24 @@ export function BudgetCard({
                       <div
                         style={{ width: `${pct}%` }}
                         className={`h-full ${
-                          cat.currentMonthSpent > cat.recommendedBudget
+                          isOver
                             ? "bg-error-container"
                             : "bg-primary-container"
                         }`}
                       />
                     </div>
                     <p className="text-[10px] font-body-sm text-on-surface-variant">
-                      Terpakai {formatRupiah(cat.currentMonthSpent)} &bull; Sisa{" "}
-                      {formatRupiah(rem)} ({formatRupiah(perDay)}/hari)
+                      {isOver ? (
+                        <span className="text-error font-extrabold">
+                          Terpakai {formatRupiah(cat.currentMonthSpent)} &bull; Melewati batas{" "}
+                          {formatRupiah(overAmount)}
+                        </span>
+                      ) : (
+                        <>
+                          Terpakai {formatRupiah(cat.currentMonthSpent)} &bull; Sisa{" "}
+                          {formatRupiah(rem)} ({formatRupiah(perDay)}/hari)
+                        </>
+                      )}
                     </p>
                   </div>
                 );
@@ -350,6 +362,9 @@ export function BudgetCard({
                 const perDay =
                   remainingDays > 0 ? Math.round(rem / remainingDays) : 0;
 
+                const isOver = cat.currentMonthSpent > cat.recommendedBudget;
+                const overAmount = cat.currentMonthSpent - cat.recommendedBudget;
+
                 return (
                   <div
                     key={cat.categoryId}
@@ -371,15 +386,24 @@ export function BudgetCard({
                       <div
                         style={{ width: `${pct}%` }}
                         className={`h-full ${
-                          cat.currentMonthSpent > cat.recommendedBudget
+                          isOver
                             ? "bg-error-container"
                             : "bg-secondary-container"
                         }`}
                       />
                     </div>
                     <p className="text-[10px] font-body-sm text-on-surface-variant">
-                      Terpakai {formatRupiah(cat.currentMonthSpent)} &bull; Sisa{" "}
-                      {formatRupiah(rem)} ({formatRupiah(perDay)}/hari)
+                      {isOver ? (
+                        <span className="text-error font-extrabold">
+                          Terpakai {formatRupiah(cat.currentMonthSpent)} &bull; Melewati batas{" "}
+                          {formatRupiah(overAmount)}
+                        </span>
+                      ) : (
+                        <>
+                          Terpakai {formatRupiah(cat.currentMonthSpent)} &bull; Sisa{" "}
+                          {formatRupiah(rem)} ({formatRupiah(perDay)}/hari)
+                        </>
+                      )}
                     </p>
                   </div>
                 );

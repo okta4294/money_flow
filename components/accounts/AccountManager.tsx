@@ -174,33 +174,29 @@ export function AccountManager() {
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   key={acc.id}
                   onClick={() => handleOpenEdit(acc)}
-                  className="bg-background hover:bg-surface-bright border-2 border-outline rounded-2xl p-4 flex items-center justify-between gap-3 shadow-[2px_2px_0_0_var(--theme-outline)] transition-all cursor-pointer"
+                  className="bg-background hover:bg-surface-bright border-2 border-outline rounded-2xl p-3.5 sm:p-4 flex flex-col gap-2.5 shadow-[2px_2px_0_0_var(--theme-outline)] transition-all cursor-pointer"
                 >
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    <div
-                      className={`w-12 h-12 rounded-xl border-2 border-outline flex items-center justify-center shrink-0 shadow-[1.5px_1.5px_0_0_var(--theme-outline)] ${colorClass}`}
-                    >
-                      {getIcon(acc.type)}
+                  <div className="flex items-start justify-between gap-2.5 min-w-0">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div
+                        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl border-2 border-outline flex items-center justify-center shrink-0 shadow-[1.5px_1.5px_0_0_var(--theme-outline)] ${colorClass}`}
+                      >
+                        {getIcon(acc.type)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-label-bold text-sm sm:text-base font-extrabold text-on-surface truncate">
+                          {acc.name}
+                        </h4>
+                        <p className="text-xs font-body-sm text-on-surface-variant truncate">
+                          {
+                            ACCOUNT_TYPES.find((t) => t.value === acc.type)
+                              ?.label
+                          }
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <h4 className="font-label-bold text-sm sm:text-base font-extrabold text-on-surface truncate">
-                        {acc.name}
-                      </h4>
-                      <p className="text-xs font-body-sm text-on-surface-variant truncate">
-                        {
-                          ACCOUNT_TYPES.find((t) => t.value === acc.type)
-                            ?.label
-                        }
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="flex items-center gap-2.5 shrink-0">
-                    <span className="font-display-lg text-base sm:text-lg font-black text-on-surface whitespace-nowrap">
-                      {formatRupiah(bal)}
-                    </span>
-
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         type="button"
                         onClick={(e) => {
@@ -229,6 +225,15 @@ export function AccountManager() {
                       </button>
                     </div>
                   </div>
+
+                  <div className="flex items-baseline justify-between pt-2 border-t-2 border-outline/15 min-w-0">
+                    <span className="text-[11px] font-label-bold uppercase text-on-surface-variant tracking-wider">
+                      Saldo Saat Ini
+                    </span>
+                    <span className="font-display-lg text-base sm:text-lg font-black text-on-surface whitespace-nowrap">
+                      {formatRupiah(bal)}
+                    </span>
+                  </div>
                 </motion.div>
               );
             })}
@@ -248,7 +253,7 @@ export function AccountManager() {
             className="relative bg-surface rounded-3xl w-full max-w-md p-6 border-[3px] border-outline shadow-[6px_6px_0_0_var(--theme-outline)] z-10"
           >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="font-headline-lg text-on-background tracking-tighter" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>
+              <h2 className="font-headline-lg text-on-background tracking-tighter stroke-cartoon">
                 {editingId ? "Edit Akun" : "Akun Baru"}
               </h2>
             </div>

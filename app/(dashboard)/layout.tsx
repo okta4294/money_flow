@@ -72,7 +72,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span className="font-display-lg text-base sm:text-lg text-on-primary-container">MF</span>
             )}
           </motion.div>
-          <h1 className="font-display-lg text-xl sm:text-2xl text-primary uppercase tracking-tighter" style={{ WebkitTextStroke: '0.5px var(--theme-outline)', color: 'var(--theme-primary-container)' }}>Money Flow</h1>
+          <h1 className="font-display-lg text-xl sm:text-2xl text-primary-container stroke-cartoon uppercase tracking-tighter">Money Flow</h1>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
@@ -106,7 +106,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="px-4 py-4 sm:px-6 sm:py-6 md:p-8 flex flex-col gap-6 w-full min-w-0 max-w-6xl mx-auto min-h-full pb-36"
+              className="px-4 py-4 sm:px-6 sm:py-6 md:p-8 flex flex-col gap-6 w-full min-w-0 max-w-6xl mx-auto min-h-full pb-44 md:pb-24"
             >
               {children}
             </motion.div>

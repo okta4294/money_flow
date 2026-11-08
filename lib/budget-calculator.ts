@@ -1079,13 +1079,14 @@ export function calculateBudgetRecommendation(params: {
       currentDiscretionaryFunds = Math.max(0, remainingDiscretionaryFunds - todayDiscretionaryExpensesInCycle);
     }
 
-    // Selaraskan target anggaran tiap kategori dengan kapasitas Saldo Riil yang tersisa
-    categoryAllocations = rawAllocations.map((a) => {
+    // Selaraskan sisa kuota (remainingBudget) tiap kategori dengan kapasitas Saldo Riil yang tersisa.
+    // Jatah rekomendasi (recommendedBudget) tetap mempertahankan target alokasi anggaran yang sah,
+    // TIDAK DITIMPA dengan (currentMonthSpent + sisa) agar batas anggaran stabil dan overspending terdeteksi.
+    categoryAllocations = categoryAllocations.map((a) => {
       if (a.isFixed) {
         return {
           ...a,
-          recommendedBudget: a.historicalAvg,
-          remainingBudget: Math.max(0, a.historicalAvg - a.currentMonthSpent),
+          remainingBudget: Math.max(0, a.recommendedBudget - a.currentMonthSpent),
         };
       }
 
@@ -1095,12 +1096,12 @@ export function calculateBudgetRecommendation(params: {
             ? a.historicalAvg / rawEssentialVariableTotal
             : 1 / Math.max(1, essentialCats.length);
         const remainingForCat = Math.round(currentEssentialFunds * share);
-        const recommendedBudget = a.currentMonthSpent + remainingForCat;
+        const naturalRemaining = Math.max(0, a.recommendedBudget - a.currentMonthSpent);
+        const remainingBudget = Math.min(naturalRemaining, remainingForCat);
 
         return {
           ...a,
-          recommendedBudget,
-          remainingBudget: remainingForCat,
+          remainingBudget,
         };
       }
 
@@ -1109,12 +1110,12 @@ export function calculateBudgetRecommendation(params: {
           ? a.historicalAvg / rawDiscretionaryVariableTotal
           : 1 / Math.max(1, discretionaryCats.length);
       const remainingForCat = Math.round(currentDiscretionaryFunds * share);
-      const recommendedBudget = a.currentMonthSpent + remainingForCat;
+      const naturalRemaining = Math.max(0, a.recommendedBudget - a.currentMonthSpent);
+      const remainingBudget = Math.min(naturalRemaining, remainingForCat);
 
       return {
         ...a,
-        recommendedBudget,
-        remainingBudget: remainingForCat,
+        remainingBudget,
       };
     });
 

@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { deleteTransaction, Transaction } from "@/lib/firestore/transactions";
 import { useCategories } from "@/hooks/useCategories";
 import { motion, AnimatePresence } from "framer-motion";
-import { formatRupiah, formatDate } from "@/lib/utils";
+import { formatRupiah, formatDate, getTransactionIcon } from "@/lib/utils";
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -34,13 +34,15 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const getCategoryIcon = (t: Transaction) => {
-    if (t.type === "transfer") return "swap_horiz";
     const allCategories = [...incomeCategories, ...expenseCategories];
     const cat = allCategories.find((c) => c.id === t.categoryId || c.name === t.category);
-    if (cat?.icon && !cat.icon.includes("fa-")) return cat.icon;
-    if (t.type === "income") return "payments";
-    if (t.debtId) return "credit_card";
-    return "receipt";
+    return getTransactionIcon({
+      type: t.type,
+      categoryIcon: cat?.icon,
+      categoryName: cat?.name || t.category,
+      note: t.note,
+      debtId: t.debtId,
+    });
   };
 
   const getCategoryColor = (t: Transaction) => {
@@ -150,26 +152,9 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
                       t
                     )} z-10 relative text-black`}
                   >
-                    {(() => {
-                      const cat = [
-                        ...incomeCategories,
-                        ...expenseCategories,
-                      ].find((c) => c.id === t.categoryId || c.name === t.category);
-                      if (cat?.icon?.includes("fa-"))
-                        return (
-                          <i
-                            className={`fa-solid ${cat.icon} text-lg sm:text-xl`}
-                          ></i>
-                        );
-                      return (
-                        <span
-                          className="material-symbols-outlined text-xl sm:text-2xl"
-                          style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                          {getCategoryIcon(t)}
-                        </span>
-                      );
-                    })()}
+                    <span className="material-symbols-outlined text-xl sm:text-2xl icon-filled">
+                      {getCategoryIcon(t)}
+                    </span>
                   </div>
 
                   <div className="flex-1 min-w-0 z-10 relative">

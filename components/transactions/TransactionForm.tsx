@@ -8,7 +8,7 @@ import { useAccounts } from "@/hooks/useAccounts";
 import { addTransaction, updateTransaction, Transaction, TransactionInput } from "@/lib/firestore/transactions";
 import { payDebt } from "@/lib/firestore/debts";
 import { motion, AnimatePresence } from "framer-motion";
-import { formatRupiah, formatRupiahInput } from "@/lib/utils";
+import { formatRupiah, formatRupiahInput, normalizeCategoryIcon } from "@/lib/utils";
 
 interface TransactionFormProps {
   open: boolean;
@@ -275,13 +275,9 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                             : "bg-surface text-on-surface hover:bg-surface-bright"
                         }`}
                       >
-                        {cat.icon && cat.icon.includes("fa-") ? (
-                          <i className={`${cat.icon} text-base shrink-0`}></i>
-                        ) : (
-                          <span className="material-symbols-outlined text-base shrink-0">
-                            {cat.icon || "category"}
-                          </span>
-                        )}
+                        <span className="material-symbols-outlined text-base shrink-0">
+                          {normalizeCategoryIcon(cat.icon)}
+                        </span>
                         <span className="truncate flex-1 text-left">
                           {cat.name}
                         </span>

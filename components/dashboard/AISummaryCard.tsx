@@ -282,12 +282,12 @@ export function AISummaryCard({
         ) : isSuper ? (
           <>
             <span className="material-symbols-outlined text-base">bolt</span>
-            <span>{summary ? "Minta Roasting Baru (Super)" : "Minta Roasting Baru Sekarang"}</span>
+            <span>{summary ? "Minta Roasting Baru (Super)" : "masak akun anda"}</span>
           </>
         ) : (
           <>
             <span className="material-symbols-outlined text-base">local_fire_department</span>
-            <span>{summary ? "Minta Roasting Ulang" : "Minta Roasting Baru Sekarang"}</span>
+            <span>{summary ? "Minta Roasting Ulang" : "Masakakun anda"}</span>
           </>
         )}
       </button>

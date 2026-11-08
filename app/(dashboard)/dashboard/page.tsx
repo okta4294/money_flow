@@ -12,6 +12,7 @@ import { AISummaryCard } from "@/components/dashboard/AISummaryCard";
 import { SafeToSpendCard } from "@/components/dashboard/SafeToSpendCard";
 import { useBudgetRecommendation } from "@/hooks/useBudgetRecommendation";
 import { Transaction } from "@/lib/firestore/transactions";
+import { getTransactionIcon } from "@/lib/utils";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -333,7 +334,7 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-3 flex-1 justify-start">
             {recentTransactions.length > 0 ? (
               recentTransactions.map((t) => {
-                const cat = categories.find((c) => c.id === t.categoryId);
+                const cat = categories.find((c) => c.id === t.categoryId || c.name === t.category);
                 const isTransfer = t.type === "transfer";
                 const isIncome = t.type === "income";
 
@@ -356,17 +357,15 @@ export default function DashboardPage() {
                             : "bg-primary-container"
                         }`}
                       >
-                        {isTransfer ? (
-                          <span className="material-symbols-outlined text-xl">
-                            swap_horiz
-                          </span>
-                        ) : cat?.icon?.includes("fa-") ? (
-                          <i className={`fa-solid ${cat.icon} text-lg`}></i>
-                        ) : (
-                          <span className="material-symbols-outlined text-xl">
-                            {cat?.icon || (isIncome ? "payments" : "receipt_long")}
-                          </span>
-                        )}
+                        <span className="material-symbols-outlined text-xl">
+                          {getTransactionIcon({
+                            type: t.type,
+                            categoryIcon: cat?.icon,
+                            categoryName: cat?.name || t.category,
+                            note: t.note,
+                            debtId: t.debtId,
+                          })}
+                        </span>
                       </div>
                       <div className="min-w-0">
                         <h5 className="font-label-bold text-xs sm:text-sm text-on-surface font-extrabold truncate">

@@ -103,11 +103,11 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
               whileHover={{ y: -2 }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
               key={debt.id}
-              className="bg-background hover:bg-surface-bright border-2 border-outline rounded-2xl p-4 sm:p-5 shadow-[2px_2px_0_0_var(--theme-outline)] transition-all flex flex-col gap-3 group cursor-pointer"
+              className="bg-background hover:bg-surface-bright border-2 border-outline rounded-2xl p-3.5 sm:p-5 shadow-[2px_2px_0_0_var(--theme-outline)] transition-all flex flex-col gap-2.5 group cursor-pointer"
               onClick={() => onEdit(debt)}
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 min-w-0">
-                <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-start justify-between gap-2.5 min-w-0">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div
                     className={`w-10 h-10 rounded-xl border-2 border-outline flex items-center justify-center shrink-0 ${
                       isPaid
@@ -147,9 +147,44 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 shrink-0 min-w-0">
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(debt);
+                    }}
+                    title="Edit Hutang"
+                    className="w-8 h-8 rounded-lg bg-surface hover:bg-surface-bright border-2 border-outline text-on-surface flex items-center justify-center active-press-sm cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-base">
+                      edit
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(debt);
+                    }}
+                    disabled={deletingId === debt.id}
+                    title="Hapus Hutang"
+                    className="w-8 h-8 rounded-lg bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-base">
+                      delete
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-baseline justify-between gap-1.5 pt-1.5 border-t border-outline/15 min-w-0">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-[11px] font-label-bold uppercase text-on-surface-variant">
+                    Sisa:
+                  </span>
                   <span
-                    className={`font-display-lg text-xs sm:text-sm md:text-base font-bold truncate ${
+                    className={`font-display-lg text-sm sm:text-base font-extrabold ${
                       isPaid
                         ? "text-tertiary dark:text-tertiary-fixed"
                         : overdue
@@ -157,40 +192,13 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                         : "text-tertiary dark:text-tertiary-fixed"
                     }`}
                   >
-                    Sisa {formatRupiah(debt.remainingAmount)} /{" "}
-                    {formatRupiah(debt.totalAmount)} ({Math.round(pct)}%)
+                    {formatRupiah(debt.remainingAmount)}
                   </span>
-
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(debt);
-                      }}
-                      title="Edit Hutang"
-                      className="w-8 h-8 rounded-lg bg-surface hover:bg-surface-bright border-2 border-outline text-on-surface flex items-center justify-center active-press-sm cursor-pointer"
-                    >
-                      <span className="material-symbols-outlined text-base">
-                        edit
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(debt);
-                      }}
-                      disabled={deletingId === debt.id}
-                      title="Hapus Hutang"
-                      className="w-8 h-8 rounded-lg bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm cursor-pointer"
-                    >
-                      <span className="material-symbols-outlined text-base">
-                        delete
-                      </span>
-                    </button>
-                  </div>
                 </div>
+
+                <span className="text-xs font-label-bold text-on-surface-variant">
+                  Total {formatRupiah(debt.totalAmount)} ({Math.round(pct)}%)
+                </span>
               </div>
 
               <div className="h-3.5 w-full bg-surface-container-high border-2 border-outline rounded-full overflow-hidden relative">

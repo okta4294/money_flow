@@ -65,14 +65,14 @@ export function InitialBalanceModal({
           className="absolute top-4 right-4 text-on-surface-variant hover:text-on-surface transition-colors p-1"
           aria-label="Tutup"
         >
-          <i className="fa-solid fa-xmark text-xl"></i>
+          <span className="material-symbols-outlined text-xl">close</span>
         </button>
 
         <div className="w-12 h-12 bg-primary-container border-2 border-outline rounded-2xl flex items-center justify-center mb-4 text-on-primary-container shadow-sm">
-          <i className="fa-solid fa-piggy-bank text-2xl"></i>
+          <span className="material-symbols-outlined text-2xl">savings</span>
         </div>
 
-        <h2 className="font-headline-lg text-on-background text-2xl tracking-tighter" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>
+        <h2 className="font-headline-lg text-on-background text-2xl tracking-tighter stroke-cartoon">
           Saldo Awal
         </h2>
         <p className="font-body-md text-on-surface-variant text-sm mb-6">

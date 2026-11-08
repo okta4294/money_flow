@@ -10,6 +10,7 @@ import {
   isEligibleIncomeCategory,
 } from "@/lib/budget-calculator";
 import { motion, AnimatePresence } from "framer-motion";
+import { normalizeCategoryIcon } from "@/lib/utils";
 
 interface CategoryManagerProps {
   categories: Category[];
@@ -294,7 +295,6 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {filtered.map((cat, idx) => {
               const colorClass = colors[idx % colors.length];
-              const isFa = cat.icon && cat.icon.includes("fa-");
 
               const isFixed =
                 cat.type === "expense" && isFixedExpenseCategory(cat);
@@ -337,24 +337,20 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                   onClick={() => openEdit(cat)}
                   className="bg-background hover:bg-surface-bright rounded-2xl border-2 border-outline p-3.5 sm:p-4 flex items-center justify-between gap-3 shadow-[2px_2px_0_0_var(--theme-outline)] transition-all cursor-pointer"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div
                       className={`w-11 h-11 rounded-xl border-2 border-outline flex items-center justify-center shrink-0 ${colorClass}`}
                     >
-                      {isFa ? (
-                        <i className={`${cat.icon} text-lg`}></i>
-                      ) : (
-                        <span className="material-symbols-outlined text-xl">
-                          {cat.icon || "category"}
-                        </span>
-                      )}
+                      <span className="material-symbols-outlined text-xl">
+                        {normalizeCategoryIcon(cat.icon)}
+                      </span>
                     </div>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <h4 className="font-label-bold text-sm sm:text-base text-on-surface font-extrabold truncate">
                         {cat.name}
                       </h4>
                       <span
-                        className={`mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-outline text-[10px] font-label-bold uppercase ${badgeStyle}`}
+                        className={`mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-outline text-[10px] font-label-bold uppercase max-w-full truncate ${badgeStyle}`}
                       >
                         {badgeLabel}
                       </span>
@@ -407,7 +403,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
             className="relative bg-surface rounded-3xl w-full max-w-md p-6 border-[3px] border-outline shadow-[6px_6px_0_0_var(--theme-outline)] z-10 max-h-[90vh] overflow-y-auto"
           >
-            <h3 className="font-headline-lg text-on-background mb-5 tracking-tighter" style={{ WebkitTextStroke: '0.5px var(--theme-outline)' }}>
+            <h3 className="font-headline-lg text-on-background mb-5 tracking-tighter stroke-cartoon">
               {editData ? "Edit Kategori" : "Kategori Baru"}
             </h3>
 

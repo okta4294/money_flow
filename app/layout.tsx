@@ -1,11 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Anton } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 
 const plusJakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-sans" });
-const anton = Anton({ subsets: ["latin"], weight: "400", variable: "--font-display" });
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -27,7 +26,7 @@ export default async function RootLayout({
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
-    <html lang="id" className={`${plusJakartaSans.variable} ${anton.variable}`} suppressHydrationWarning>
+    <html lang="id" className={plusJakartaSans.variable} suppressHydrationWarning>
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" nonce={nonce} />
       </head>

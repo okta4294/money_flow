@@ -32,11 +32,11 @@ export function PageHeader({
       className={`flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3.5 sm:gap-4 ${className}`}
     >
       <div className="min-w-0">
-        <h2 className="font-display-lg text-2xl sm:text-3xl md:text-4xl text-on-surface tracking-tight uppercase leading-none">
+        <h2 className="font-display-lg text-2xl sm:text-3xl md:text-4xl font-extrabold text-on-surface tracking-[-0.025em] uppercase leading-[1.08] text-balance">
           {title}
         </h2>
         {subtitle && (
-          <p className="font-body-md text-xs sm:text-sm text-on-surface-variant mt-1.5">
+          <p className="font-body-md text-sm sm:text-base text-on-surface-variant mt-1.5 leading-relaxed max-w-[60ch] text-pretty">
             {subtitle}
           </p>
         )}

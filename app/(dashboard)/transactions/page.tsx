@@ -7,7 +7,6 @@ import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FloatingActionButton } from "@/components/layout/FloatingActionButton";
 import { Transaction } from "@/lib/firestore/transactions";
-import { motion } from "framer-motion";
 import { formatRupiah } from "@/lib/utils";
 
 export default function TransactionsPage() {
@@ -68,7 +67,7 @@ export default function TransactionsPage() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full py-3 pl-11 pr-10 bg-surface border-[3px] border-outline rounded-2xl font-body-md text-sm sm:text-base focus:ring-0 focus:outline-none shadow-[2px_2px_0_0_var(--theme-outline)] transition-all text-on-surface placeholder:text-on-surface-variant/70"
+          className="w-full py-3 pl-11 pr-10 bg-surface border-2 border-outline rounded-2xl font-body-md text-sm sm:text-base focus:ring-0 focus:outline-none focus:border-secondary shadow-[2px_2px_0_0_var(--theme-outline)] transition-all text-on-surface placeholder:text-on-surface-variant/70"
           placeholder="Cari catatan transaksi, kategori, atau akun dompet..."
           type="text"
         />
@@ -87,44 +86,42 @@ export default function TransactionsPage() {
         )}
       </div>
 
-      {/* 2 Kartu Ringkasan: Kuning (Total Pengeluaran) & Hijau (Total Pemasukan) sesuai FigCraft Frame 05 */}
+      {/* 2 Kartu Ringkasan Semantik: Pengeluaran & Pemasukan */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-        <motion.div
-          whileHover={{ y: -2 }}
-          className="bg-primary-container border-[3px] border-outline rounded-2xl p-5 shadow-[4px_4px_0_0_var(--theme-outline)] relative overflow-hidden flex flex-col justify-between gap-2"
-        >
+        <div className="bg-error-container/15 border-2 border-outline rounded-2xl p-5 shadow-[3px_3px_0_0_var(--theme-outline)] relative overflow-hidden flex flex-col justify-between gap-2">
           <div className="flex items-center justify-between gap-2">
-            <p className="font-label-bold text-on-primary-container uppercase text-xs font-extrabold tracking-wide">
+            <p className="font-label-bold text-on-surface-variant uppercase text-xs font-bold tracking-wide">
               Total Pengeluaran Bulan Ini
             </p>
-            <span className="material-symbols-outlined text-xl text-on-primary-container">
-              trending_down
+            <span className="w-8 h-8 rounded-lg bg-error-container text-on-error-container border border-outline/40 flex items-center justify-center">
+              <span className="material-symbols-outlined text-lg">
+                trending_down
+              </span>
             </span>
           </div>
-          <p className="font-display-lg text-3xl sm:text-4xl font-black text-on-primary-container tracking-tight">
+          <p className="font-display-lg text-3xl sm:text-4xl font-extrabold text-error tracking-tight tabular-nums">
             {formatRupiah(totalExpense)}
           </p>
-        </motion.div>
+        </div>
 
-        <motion.div
-          whileHover={{ y: -2 }}
-          className="bg-tertiary-container border-[3px] border-outline rounded-2xl p-5 shadow-[4px_4px_0_0_var(--theme-outline)] relative overflow-hidden flex flex-col justify-between gap-2"
-        >
+        <div className="bg-tertiary-container/15 border-2 border-outline rounded-2xl p-5 shadow-[3px_3px_0_0_var(--theme-outline)] relative overflow-hidden flex flex-col justify-between gap-2">
           <div className="flex items-center justify-between gap-2">
-            <p className="font-label-bold text-on-tertiary-container uppercase text-xs font-extrabold tracking-wide">
+            <p className="font-label-bold text-on-surface-variant uppercase text-xs font-bold tracking-wide">
               Total Pemasukan Bulan Ini
             </p>
-            <span className="material-symbols-outlined text-xl text-on-tertiary-container">
-              trending_up
+            <span className="w-8 h-8 rounded-lg bg-tertiary-container text-on-tertiary-container border border-outline/40 flex items-center justify-center">
+              <span className="material-symbols-outlined text-lg">
+                trending_up
+              </span>
             </span>
           </div>
-          <p className="font-display-lg text-3xl sm:text-4xl font-black text-on-tertiary-container tracking-tight">
+          <p className="font-display-lg text-3xl sm:text-4xl font-extrabold text-tertiary dark:text-tertiary-fixed tracking-tight tabular-nums">
             {formatRupiah(totalIncome)}
           </p>
-        </motion.div>
+        </div>
       </section>
 
-      {/* Filter Tabs dengan Hitungan Transaksi sesuai FigCraft Frame 05 */}
+      {/* Filter Tabs dengan Warna Semantik */}
       <div className="flex items-center justify-between gap-3 overflow-x-auto pb-1 no-scrollbar">
         <div className="flex gap-2.5 shrink-0">
           {(["all", "expense", "income"] as const).map((f) => {
@@ -134,20 +131,24 @@ export default function TransactionsPage() {
               expense: `Pengeluaran (${expenseCount})`,
               income: `Pemasukan (${incomeCount})`,
             };
+            const activeColors = {
+              all: "bg-primary-container text-on-primary-container",
+              expense: "bg-error-container text-on-error-container",
+              income: "bg-tertiary-container text-on-tertiary-container",
+            };
             return (
-              <motion.button
+              <button
                 type="button"
-                whileTap={{ scale: 0.96 }}
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-4 py-2.5 rounded-xl font-label-bold text-xs uppercase tracking-wider transition-all border-2 border-outline active-press-sm cursor-pointer ${
+                className={`px-4 py-2.5 rounded-xl font-label-bold text-xs tracking-wide transition-all border-2 active-press-sm cursor-pointer ${
                   isSelected
-                    ? "bg-secondary-container text-on-secondary-container shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold"
-                    : "bg-surface text-on-surface hover:bg-surface-bright"
+                    ? `${activeColors[f]} border-outline shadow-[2px_2px_0_0_var(--theme-outline)] font-bold`
+                    : "bg-surface text-on-surface-variant border-outline/40 hover:border-outline hover:text-on-surface"
                 }`}
               >
                 {labels[f]}
-              </motion.button>
+              </button>
             );
           })}
         </div>

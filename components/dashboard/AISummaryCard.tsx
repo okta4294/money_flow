@@ -188,14 +188,14 @@ export function AISummaryCard({
     <div className="h-full flex flex-col justify-between relative z-10 overflow-hidden gap-3">
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-on-tertiary-container text-xl">
+          <span className="material-symbols-outlined text-error text-xl">
             local_fire_department
           </span>
-          <h3 className="font-headline-md text-base sm:text-lg text-on-tertiary-container font-extrabold uppercase tracking-tight">
+          <h3 className="font-headline-md text-base sm:text-lg text-on-surface font-bold tracking-tight">
             Roasting Keuangan AI
           </h3>
         </div>
-        <span className="px-2.5 py-1 rounded-xl bg-primary-container text-on-primary-container border-2 border-outline text-[10px] font-label-bold uppercase shadow-[1.5px_1.5px_0_0_var(--theme-outline)] shrink-0">
+        <span className="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface-variant border border-outline/35 text-[10px] font-label-bold uppercase shrink-0">
           {isAnonymous
             ? "MODE TAMU"
             : isSuper
@@ -206,7 +206,7 @@ export function AISummaryCard({
         </span>
       </div>
 
-      <div className="flex-1 text-on-surface font-body-md leading-relaxed bg-surface border-[3px] border-outline p-4 rounded-2xl shadow-[2px_2px_0_0_var(--theme-outline)] flex flex-col justify-center">
+      <div className="flex-1 text-on-surface font-body-md leading-relaxed bg-background border border-outline/30 p-4 rounded-2xl flex flex-col justify-center">
         {!summary && !loading && !error && (
           <div className="space-y-2">
             <p className="font-label-bold text-xs sm:text-sm text-on-surface leading-snug">
@@ -261,10 +261,10 @@ export function AISummaryCard({
             ? "Batas penggunaan harian tercapai"
             : "Sisa jatah harian: 1x"
         }
-        className={`w-full font-label-bold text-xs uppercase tracking-wider py-3 px-4 rounded-2xl flex items-center justify-center gap-2 border-[3px] border-outline transition-all active-press cursor-pointer ${
+        className={`w-full font-label-bold text-xs uppercase tracking-wider py-3 px-4 rounded-2xl flex items-center justify-center gap-2 border-2 border-outline transition-all active-press-sm cursor-pointer ${
           isAnonymous || (!isSuper && limitReached)
             ? "bg-surface-variant text-on-surface-variant cursor-not-allowed opacity-70"
-            : "bg-error-container text-on-error-container shadow-[3px_3px_0_0_var(--theme-outline)] hover:opacity-95"
+            : "bg-surface-container hover:bg-error-container hover:text-on-error-container text-on-surface shadow-[2px_2px_0_0_var(--theme-outline)]"
         }`}
       >
         {checkingLimit ? (
@@ -282,12 +282,12 @@ export function AISummaryCard({
         ) : isSuper ? (
           <>
             <span className="material-symbols-outlined text-base">bolt</span>
-            <span>{summary ? "Minta Roasting Baru (Super)" : "masak akun anda"}</span>
+            <span>{summary ? "Minta Roasting Baru (Super)" : "Mulai Roasting Finansial"}</span>
           </>
         ) : (
           <>
             <span className="material-symbols-outlined text-base">local_fire_department</span>
-            <span>{summary ? "Minta Roasting Ulang" : "Masakakun anda"}</span>
+            <span>{summary ? "Minta Roasting Ulang" : "Mulai Roasting Finansial"}</span>
           </>
         )}
       </button>

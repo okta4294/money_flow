@@ -103,31 +103,27 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-12 gap-5 sm:gap-6 w-full">
         {/* Kartu 1: Total Saldo Bersih (Saldo Dingin) */}
-        <motion.div
-          whileHover={{ y: -2 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          className="col-span-12 lg:col-span-8 bg-primary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-5 sm:p-6 md:p-7 flex flex-col justify-between gap-4 relative overflow-hidden rounded-3xl"
-        >
+        <div className="col-span-12 lg:col-span-8 bg-primary-container border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] p-5 sm:p-6 md:p-7 flex flex-col justify-between gap-4 relative overflow-hidden rounded-3xl">
           <div className="flex flex-wrap items-center justify-between gap-2.5">
-            <div className="h-9 inline-flex items-center gap-2 px-3.5 rounded-xl bg-surface text-on-surface border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)]">
+            <div className="h-9 inline-flex items-center gap-2 px-3 rounded-xl bg-surface/90 text-on-surface border border-outline/40">
               <span className="material-symbols-outlined text-base">
                 account_balance_wallet
               </span>
-              <h2 className="font-label-bold text-[11px] sm:text-xs font-extrabold uppercase tracking-wide">
+              <h2 className="font-label-bold text-[11px] sm:text-xs font-bold uppercase tracking-[0.06em]">
                 Total Saldo Bersih
               </h2>
             </div>
 
             <Link
               href="/accounts"
-              className="h-9 inline-flex items-center gap-1.5 px-3.5 rounded-xl bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline text-[11px] sm:text-xs font-label-bold uppercase shadow-[2px_2px_0_0_var(--theme-outline)] active-press-sm transition-colors"
+              className="h-9 inline-flex items-center gap-1.5 px-3.5 rounded-xl bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline text-[11px] sm:text-xs font-label-bold tracking-wide shadow-[2px_2px_0_0_var(--theme-outline)] active-press-sm transition-colors"
             >
               <span>Kelola Dompet</span>
             </Link>
           </div>
 
           <div className="my-1 sm:my-2">
-            <h3 className="text-[clamp(2.25rem,5vw,3.75rem)] leading-none tracking-tight font-display-lg font-black text-on-primary-container break-words w-full">
+            <h3 className="text-[clamp(2.25rem,5.2vw,3.75rem)] leading-[1.05] tracking-[-0.03em] font-display-lg font-extrabold text-on-primary-container break-words w-full tabular-nums">
               {balanceLoading || (budgetLoading && !budget) ? (
                 <span className="animate-pulse opacity-50">Rp ...</span>
               ) : (
@@ -136,9 +132,9 @@ export default function DashboardPage() {
             </h3>
           </div>
 
-          <div className="bg-surface/95 dark:bg-surface border-2 border-outline rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 text-xs font-label-bold text-on-surface shadow-[2px_2px_0_0_var(--theme-outline)]">
-            <span className="flex items-center gap-1.5 text-on-surface-variant">
-              <span className="material-symbols-outlined text-base text-tertiary">
+          <div className="bg-surface/90 dark:bg-surface/95 border border-outline/30 rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 text-xs sm:text-[13px] leading-snug text-on-surface">
+            <span className="flex items-center gap-1.5 text-on-surface-variant text-pretty">
+              <span className="material-symbols-outlined text-base text-tertiary shrink-0">
                 verified_user
               </span>
               <span>
@@ -146,19 +142,18 @@ export default function DashboardPage() {
               </span>
             </span>
             {!balanceLoading && (
-              <span className="font-extrabold text-on-surface whitespace-nowrap">
-                Total Kas Riil: {formatIDR(totalKas)}
+              <span className="text-on-surface-variant font-medium whitespace-nowrap">
+                Total Kas Riil:{" "}
+                <strong className="font-bold text-on-surface tabular-nums">
+                  {formatIDR(totalKas)}
+                </strong>
               </span>
             )}
           </div>
-        </motion.div>
+        </div>
 
         {/* Kartu 2: Roasting Keuangan AI */}
-        <motion.div
-          whileHover={{ y: -2 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          className="col-span-12 lg:col-span-4 h-full min-h-[260px] bg-tertiary-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-5 sm:p-6 flex flex-col relative rounded-3xl"
-        >
+        <div className="col-span-12 lg:col-span-4 h-full min-h-[260px] bg-surface border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] p-5 sm:p-6 flex flex-col relative rounded-3xl">
           {!loading && !balanceLoading ? (
             <AISummaryCard
               transactions={transactions}
@@ -177,7 +172,7 @@ export default function DashboardPage() {
               <div className="h-4 w-3/4 bg-surface-bright rounded"></div>
             </div>
           )}
-        </motion.div>
+        </div>
 
         {/* Kartu 3: Batas Belanja Hari Ini (Dual Quota Safe-To-Spend) */}
         <SafeToSpendCard
@@ -187,76 +182,72 @@ export default function DashboardPage() {
         />
 
         {/* Kartu 4 (Kiri Bawah - 5 Kolom): Arus Kas & Pos Pengeluaran */}
-        <motion.div
-          whileHover={{ y: -2 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          className="col-span-12 lg:col-span-5 bg-surface border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] rounded-3xl p-5 sm:p-6 flex flex-col justify-between gap-4"
-        >
+        <div className="col-span-12 lg:col-span-5 bg-surface border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] rounded-3xl p-5 sm:p-6 flex flex-col justify-between gap-4">
           <div className="flex items-center justify-between gap-2">
-            <h4 className="font-headline-md text-base sm:text-lg text-on-surface uppercase font-extrabold">
+            <h4 className="font-headline-md text-base sm:text-lg text-on-surface font-bold">
               Arus Kas & Pos Pengeluaran
             </h4>
-            <span className="px-3 py-1 rounded-xl bg-secondary-container text-on-secondary-container border-2 border-outline font-label-bold text-[11px] uppercase shadow-[1.5px_1.5px_0_0_var(--theme-outline)] shrink-0">
+            <span className="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface-variant border border-outline/30 font-label-bold text-[11px] shrink-0">
               Bulan Ini
             </span>
           </div>
 
-          <div className="flex flex-col gap-3.5 flex-1">
+          <div className="flex flex-col gap-3 flex-1">
             {/* Kotak Pemasukan Bulan Ini */}
-            <div className="bg-background border-2 border-outline rounded-2xl p-3.5 space-y-2 shadow-[2px_2px_0_0_var(--theme-outline)]">
+            <div className="bg-background border border-outline/30 rounded-2xl p-3.5 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <span className="font-label-bold text-xs text-on-surface uppercase flex items-center gap-1">
+                <span className="font-label-bold text-xs text-on-surface-variant flex items-center gap-1">
                   <span className="material-symbols-outlined text-base text-tertiary">
                     arrow_upward
                   </span>
                   <span>Pemasukan Bulan Ini</span>
                 </span>
-                <span className="font-display-lg text-base sm:text-lg font-extrabold text-tertiary dark:text-tertiary-fixed">
+                <span className="font-display-lg text-base sm:text-lg font-bold text-tertiary dark:text-tertiary-fixed tabular-nums">
                   +{formatIDR(totalIncome)}
                 </span>
               </div>
-              <div className="h-3.5 w-full bg-surface-container-high border-2 border-outline rounded-full overflow-hidden relative">
+              <div className="h-2.5 w-full bg-surface-container-high border border-outline/40 rounded-full overflow-hidden relative">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${incomePercent}%` }}
-                  transition={{ duration: 0.8, type: "spring" }}
-                  className="h-full bg-tertiary-container border-r-2 border-outline"
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  className="h-full bg-tertiary-container"
                 />
               </div>
             </div>
 
             {/* Kotak Total Pengeluaran */}
-            <div className="bg-background border-2 border-outline rounded-2xl p-3.5 space-y-2 shadow-[2px_2px_0_0_var(--theme-outline)]">
+            <div className="bg-background border border-outline/30 rounded-2xl p-3.5 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <span className="font-label-bold text-xs text-on-surface uppercase flex items-center gap-1">
+                <span className="font-label-bold text-xs text-on-surface-variant flex items-center gap-1">
                   <span className="material-symbols-outlined text-base text-error">
                     arrow_downward
                   </span>
                   <span>Total Pengeluaran ({expenseToIncomeRatio}%)</span>
                 </span>
-                <span className="font-display-lg text-base sm:text-lg font-extrabold text-error">
+                <span className="font-display-lg text-base sm:text-lg font-bold text-error tabular-nums">
                   -{formatIDR(totalExpense)}
                 </span>
               </div>
-              <div className="h-3.5 w-full bg-surface-container-high border-2 border-outline rounded-full overflow-hidden relative">
+              <div className="h-2.5 w-full bg-surface-container-high border border-outline/40 rounded-full overflow-hidden relative">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${expensePercent}%` }}
-                  transition={{ duration: 0.8, type: "spring", delay: 0.1 }}
-                  className="h-full bg-error-container border-r-2 border-outline"
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+                  className="h-full bg-error-container"
                 />
               </div>
             </div>
 
             {/* Kotak Pos Terbesar */}
-            <div className="bg-surface-container border-2 border-outline rounded-2xl p-3.5 space-y-2.5 flex-1 flex flex-col justify-center">
+            <div className="bg-surface-container border border-outline/30 rounded-2xl p-3.5 space-y-2.5 flex-1 flex flex-col justify-center">
               <div className="flex items-center justify-between gap-2">
-                <span className="font-label-bold text-[11px] uppercase text-on-surface font-extrabold">
-                  Pos Pengeluaran Terbesar:
+                <span className="font-label-bold text-xs text-on-surface font-semibold">
+                  Pos Pengeluaran Terbesar
                 </span>
                 <Link
                   href="/categories"
-                  className="text-[10px] font-label-bold uppercase text-secondary hover:underline"
+                  className="text-[11px] font-label-bold text-secondary hover:underline"
                 >
                   Atur Pos &rarr;
                 </Link>
@@ -290,13 +281,13 @@ export default function DashboardPage() {
                             <span className="truncate text-on-surface">
                               {cat.name}
                             </span>
-                            <span className="text-on-surface shrink-0">
+                            <span className="text-on-surface shrink-0 tabular-nums">
                               {formatIDR(spent)}
                             </span>
                           </div>
-                          <div className="h-2.5 w-full bg-surface border border-outline rounded-full overflow-hidden">
+                          <div className="h-2 w-full bg-surface border border-outline/30 rounded-full overflow-hidden">
                             <div
-                              className={`h-full ${barColors[idx % 3]} border-r border-outline`}
+                              className={`h-full ${barColors[idx % 3]}`}
                               style={{ width: `${(spent / maxSpent) * 100}%` }}
                             />
                           </div>
@@ -308,20 +299,16 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Kartu 5 (Kanan Bawah - 7 Kolom): Transaksi Terbaru */}
-        <motion.div
-          whileHover={{ y: -2 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          className="col-span-12 lg:col-span-7 bg-surface border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] rounded-3xl p-5 sm:p-6 flex flex-col gap-4"
-        >
+        <div className="col-span-12 lg:col-span-7 bg-surface border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] rounded-3xl p-5 sm:p-6 flex flex-col gap-4">
           <div className="flex items-center justify-between gap-2">
-            <h4 className="font-headline-md text-base sm:text-lg text-on-surface uppercase font-extrabold">
+            <h4 className="font-headline-md text-base sm:text-lg text-on-surface font-bold">
               Transaksi Terbaru
             </h4>
             <Link
-              className="font-label-bold text-xs uppercase text-secondary hover:underline inline-flex items-center gap-1"
+              className="font-label-bold text-xs text-secondary hover:underline inline-flex items-center gap-1"
               href="/transactions"
             >
               <span>Lihat Semua Riwayat</span>
@@ -331,7 +318,7 @@ export default function DashboardPage() {
             </Link>
           </div>
 
-          <div className="flex flex-col gap-3 flex-1 justify-start">
+          <div className="flex flex-col gap-2.5 flex-1 justify-start">
             {recentTransactions.length > 0 ? (
               recentTransactions.map((t) => {
                 const cat = categories.find((c) => c.id === t.categoryId || c.name === t.category);
@@ -345,16 +332,16 @@ export default function DashboardPage() {
                       setEditTransaction(t);
                       setShowTransactionForm(true);
                     }}
-                    className="flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl border-2 border-outline bg-background hover:bg-surface-bright shadow-[2px_2px_0_0_var(--theme-outline)] transition-all group cursor-pointer"
+                    className="flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl border border-outline/30 bg-background hover:bg-surface-container transition-colors group cursor-pointer"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div
-                        className={`w-11 h-11 rounded-xl border-2 border-outline flex items-center justify-center shrink-0 text-black ${
+                        className={`w-10 h-10 rounded-xl border border-outline/40 flex items-center justify-center shrink-0 text-black ${
                           isIncome
-                            ? "bg-tertiary-container"
+                            ? "bg-tertiary-container/85"
                             : isTransfer
-                            ? "bg-secondary-container text-white"
-                            : "bg-primary-container"
+                            ? "bg-secondary-container/85 text-white"
+                            : "bg-primary-container/85"
                         }`}
                       >
                         <span className="material-symbols-outlined text-xl">
@@ -368,7 +355,7 @@ export default function DashboardPage() {
                         </span>
                       </div>
                       <div className="min-w-0">
-                        <h5 className="font-label-bold text-xs sm:text-sm text-on-surface font-extrabold truncate">
+                        <h5 className="font-label-bold text-xs sm:text-sm text-on-surface font-semibold truncate">
                           {t.note ||
                             (isTransfer
                               ? "Transfer Antar Akun"
@@ -394,7 +381,7 @@ export default function DashboardPage() {
                     </div>
 
                     <span
-                      className={`font-display-lg text-sm sm:text-base md:text-lg font-extrabold whitespace-nowrap shrink-0 ${
+                      className={`font-display-lg text-sm sm:text-base font-bold whitespace-nowrap shrink-0 tabular-nums ${
                         isIncome
                           ? "text-tertiary dark:text-tertiary-fixed"
                           : isTransfer
@@ -409,11 +396,11 @@ export default function DashboardPage() {
                 );
               })
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-background border-2 border-dashed border-outline rounded-2xl text-on-surface-variant">
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-background border border-dashed border-outline/50 rounded-2xl text-on-surface-variant">
                 <span className="material-symbols-outlined text-3xl mb-1.5">
                   receipt_long
                 </span>
-                <p className="font-label-bold text-xs uppercase">
+                <p className="font-label-bold text-xs">
                   Belum ada transaksi di bulan ini
                 </p>
                 <p className="text-[11px] mt-0.5">
@@ -422,7 +409,7 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
-        </motion.div>
+        </div>
       </div>
 
       <FloatingActionButton

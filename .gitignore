@@ -94,3 +94,5 @@ tmp/
 .warp/
 skills-lock.json
 graphify-out/
+PRODUCT.md
+.impeccable/

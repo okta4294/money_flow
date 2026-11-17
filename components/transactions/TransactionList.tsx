@@ -99,7 +99,7 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
   const sortedDates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
 
   return (
-    <div className="bg-surface border-4 border-outline rounded-3xl p-4 sm:p-6 shadow-[4px_4px_0_0_var(--theme-outline)] space-y-6">
+    <div className="bg-surface border-2 border-outline rounded-3xl p-4 sm:p-6 shadow-[3px_3px_0_0_var(--theme-outline)] space-y-6">
       {sortedDates.map((dateStr) => {
         const dayTxs = [...grouped[dateStr]].sort((a, b) => {
           const aTime = a.createdAt?.seconds || 0;
@@ -115,12 +115,12 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
           .reduce((s, t) => s + t.amount, 0);
 
         return (
-          <div key={dateStr} className="space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b-2 border-outline/20 pb-2 px-1">
-              <h3 className="font-label-bold text-secondary uppercase tracking-wider text-xs sm:text-sm font-extrabold">
+          <div key={dateStr} className="space-y-1.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-outline/20 pb-2 px-1">
+              <h3 className="font-label-bold text-secondary uppercase tracking-wider text-xs sm:text-sm font-bold">
                 {getDayLabel(dateStr)}
               </h3>
-              <div className="flex gap-3 text-xs font-label-bold uppercase">
+              <div className="flex gap-3 text-xs font-label-bold tabular-nums">
                 {dayIncome > 0 && (
                   <span className="text-tertiary dark:text-tertiary-fixed">
                     Masuk: +{formatRupiah(dayIncome)}
@@ -134,81 +134,81 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
               </div>
             </div>
 
-            <AnimatePresence>
-              {dayTxs.map((t) => (
-                <motion.div
-                  key={t.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={() => onEdit(t)}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className="bg-background hover:bg-surface-bright border-2 border-outline rounded-2xl p-3.5 sm:p-4 flex items-center gap-3.5 shadow-[2px_2px_0_0_var(--theme-outline)] cursor-pointer group relative overflow-hidden transition-all"
-                >
-                  <div
-                    className={`w-11 h-11 sm:w-12 sm:h-12 shrink-0 flex items-center justify-center rounded-xl border-2 border-outline ${getCategoryColor(
-                      t
-                    )} z-10 relative text-black`}
+            <div className="divide-y divide-outline/10">
+              <AnimatePresence>
+                {dayTxs.map((t) => (
+                  <motion.div
+                    key={t.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => onEdit(t)}
+                    transition={{ duration: 0.15 }}
+                    className="hover:bg-surface-container/75 rounded-2xl px-2.5 py-3 sm:px-3.5 sm:py-3.5 flex items-center gap-3.5 cursor-pointer group relative transition-colors"
                   >
-                    <span className="material-symbols-outlined text-xl sm:text-2xl icon-filled">
-                      {getCategoryIcon(t)}
-                    </span>
-                  </div>
-
-                  <div className="flex-1 min-w-0 z-10 relative">
-                    <p className="font-label-bold text-sm sm:text-base text-on-surface font-extrabold leading-tight truncate">
-                      {t.note || t.category || "Transaksi"}
-                    </p>
-                    <p className="font-body-sm text-on-surface-variant text-xs truncate mt-0.5">
-                      {t.type === "transfer"
-                        ? `Transfer Antar Akun (${t.accountName || "?"} -> ${
-                            t.destinationAccountName || "?"
-                          })`
-                        : `${t.category || "Tanpa Kategori"}${
-                            t.accountName ? ` (${t.accountName})` : ""
-                          }`}
-                    </p>
-                  </div>
-
-                  <div className="text-right z-10 relative flex items-center gap-2 shrink-0 pl-2">
-                    <p
-                      className={`font-display-lg text-sm sm:text-base md:text-lg font-extrabold whitespace-nowrap ${
-                        t.type === "income"
-                          ? "text-tertiary dark:text-tertiary-fixed"
-                          : t.type === "transfer"
-                          ? "text-secondary"
-                          : "text-error"
-                      }`}
+                    <div
+                      className={`w-10 h-10 sm:w-11 sm:h-11 shrink-0 flex items-center justify-center rounded-xl border border-outline/50 ${getCategoryColor(
+                        t
+                      )} text-black`}
                     >
-                      {t.type === "income"
-                        ? "+"
-                        : t.type === "transfer"
-                        ? ""
-                        : "-"}
-                      {formatRupiah(t.amount)}
-                    </p>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(t.id);
-                      }}
-                      disabled={deletingId === t.id}
-                      className="w-8 h-8 rounded-lg border border-outline/40 hover:border-outline bg-surface hover:bg-error-container text-error hover:text-on-error-container flex items-center justify-center transition-colors cursor-pointer"
-                      aria-label="Hapus transaksi"
-                      title="Hapus transaksi"
-                    >
-                      <span className="material-symbols-outlined text-base">
-                        delete
+                      <span className="material-symbols-outlined text-xl icon-filled">
+                        {getCategoryIcon(t)}
                       </span>
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <p className="font-label-bold text-sm sm:text-base text-on-surface font-semibold leading-tight truncate">
+                        {t.note || t.category || "Transaksi"}
+                      </p>
+                      <p className="font-body-sm text-on-surface-variant text-xs truncate mt-0.5">
+                        {t.type === "transfer"
+                          ? `Transfer Antar Akun (${t.accountName || "?"} -> ${
+                              t.destinationAccountName || "?"
+                            })`
+                          : `${t.category || "Tanpa Kategori"}${
+                              t.accountName ? ` • ${t.accountName}` : ""
+                            }`}
+                      </p>
+                    </div>
+
+                    <div className="text-right flex items-center gap-2.5 shrink-0 pl-2">
+                      <p
+                        className={`font-display-lg text-sm sm:text-base font-bold whitespace-nowrap tabular-nums ${
+                          t.type === "income"
+                            ? "text-tertiary dark:text-tertiary-fixed"
+                            : t.type === "transfer"
+                            ? "text-secondary"
+                            : "text-error"
+                        }`}
+                      >
+                        {t.type === "income"
+                          ? "+"
+                          : t.type === "transfer"
+                          ? ""
+                          : "-"}
+                        {formatRupiah(t.amount)}
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(t.id);
+                        }}
+                        disabled={deletingId === t.id}
+                        className="w-8 h-8 rounded-lg border border-outline/30 hover:border-outline bg-surface hover:bg-error-container text-on-surface-variant hover:text-on-error-container flex items-center justify-center transition-colors cursor-pointer"
+                        aria-label="Hapus transaksi"
+                        title="Hapus transaksi"
+                      >
+                        <span className="material-symbols-outlined text-base">
+                          delete
+                        </span>
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
           </div>
         );
       })}

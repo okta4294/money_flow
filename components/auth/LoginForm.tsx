@@ -131,7 +131,7 @@ export function LoginForm() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl py-3 pl-10 pr-4 text-on-background font-body-md text-sm placeholder:text-on-surface-variant/40 focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-all"
+                className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl py-3 pl-10 pr-4 text-on-background font-body-md text-sm placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary focus:shadow-[2px_2px_0_0_var(--theme-secondary)] transition-all"
               />
             </div>
           </div>
@@ -148,7 +148,7 @@ export function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl py-3 pl-10 pr-4 text-on-background font-body-md text-sm placeholder:text-on-surface-variant/40 focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-all"
+              className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl py-3 pl-10 pr-4 text-on-background font-body-md text-sm placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary focus:shadow-[2px_2px_0_0_var(--theme-secondary)] transition-all"
             />
           </div>
         </div>
@@ -160,7 +160,7 @@ export function LoginForm() {
               <button
                 type="button"
                 onClick={handleForgotPassword}
-                className="font-label-bold text-xs text-primary-fixed-dim hover:text-primary-fixed transition-colors"
+                className="font-label-bold text-xs text-secondary hover:underline underline-offset-2 transition-colors cursor-pointer"
               >
                 Lupa sandi?
               </button>
@@ -175,7 +175,7 @@ export function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl py-3 pl-10 pr-10 text-on-background font-body-md text-sm placeholder:text-on-surface-variant/40 focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-all"
+              className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl py-3 pl-10 pr-10 text-on-background font-body-md text-sm placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary focus:shadow-[2px_2px_0_0_var(--theme-secondary)] transition-all"
             />
             <button
               type="button"

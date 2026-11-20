@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useCategories } from "@/hooks/useCategories";
 import { useDebts } from "@/hooks/useDebts";
-import { useAccounts } from "@/hooks/useAccounts";
+import { useGlobalData } from "@/lib/data-context";
 import { addTransaction, updateTransaction, Transaction, TransactionInput } from "@/lib/firestore/transactions";
 import { payDebt } from "@/lib/firestore/debts";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,7 +31,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
   const { user } = useAuth();
   const { incomeCategories, expenseCategories } = useCategories();
   const { activeDebts } = useDebts();
-  const { accounts } = useAccounts();
+  const { accounts } = useGlobalData();
 
   const now = new Date();
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;

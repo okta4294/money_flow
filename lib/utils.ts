@@ -2,12 +2,14 @@
  * Helper utilitas umum untuk formatting mata uang dan tanggal
  */
 
+const rupiahFormatter = new Intl.NumberFormat("id-ID", {
+  style: "currency",
+  currency: "IDR",
+  minimumFractionDigits: 0,
+});
+
 export function formatRupiah(amount: number): string {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
+  return rupiahFormatter.format(amount);
 }
 
 export function formatRupiahInput(value: string): string {

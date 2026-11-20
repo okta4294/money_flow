@@ -124,12 +124,3 @@ export async function getAccountBalances(
   );
   return record;
 }
-
-/**
- * Jumlah saldo seluruh akun, rumus identik dengan AccountManager:
- * pemasukan - pengeluaran - transfer keluar + transfer masuk (per akun, semua waktu).
- */
-export async function getTotalAccountBalance(userId: string, accountIds: string[]): Promise<number> {
-  const record = await getAccountBalances(userId, accountIds);
-  return Object.values(record).reduce((s, b) => s + b, 0);
-}

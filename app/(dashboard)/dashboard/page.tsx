@@ -12,7 +12,7 @@ import { AISummaryCard } from "@/components/dashboard/AISummaryCard";
 import { SafeToSpendCard } from "@/components/dashboard/SafeToSpendCard";
 import { useBudgetRecommendation } from "@/hooks/useBudgetRecommendation";
 import { Transaction } from "@/lib/firestore/transactions";
-import { getTransactionIcon } from "@/lib/utils";
+import { formatRupiah, getTransactionIcon } from "@/lib/utils";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -81,12 +81,7 @@ export default function DashboardPage() {
       ? 100
       : 0;
 
-  const formatIDR = (val: number) =>
-    new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(val);
+  const formatIDR = formatRupiah;
 
   return (
     <>

@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 /**
@@ -23,14 +23,4 @@ export async function checkAiLimit(uid: string): Promise<boolean> {
   }
 
   return true;
-}
-
-/**
- * Menandai bahwa pengguna telah berhasil menggunakan AI hari ini.
- */
-export async function markAiUsage(uid: string): Promise<void> {
-  const dateStr = getTodayDateString();
-  const docRef = doc(db, `users/${uid}/ai-usage/${dateStr}`);
-  
-  await setDoc(docRef, { usedAt: new Date().toISOString() });
 }

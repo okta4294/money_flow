@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import ReactMarkdown from "react-markdown";
+import dynamic from "next/dynamic";
 import { Transaction, getTransactionsByMonth } from "@/lib/firestore/transactions";
 import { useAuth } from "@/lib/auth-context";
 import { checkAiLimit } from "@/lib/firestore/ai-usage";
+
+const ReactMarkdown = dynamic(() => import("react-markdown"), { ssr: false });
 
 interface AISummaryCardProps {
   transactions: Transaction[];

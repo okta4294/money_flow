@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useGlobalData } from "@/lib/data-context";
 import { addAccount, updateAccount, deleteAccount, AccountInput, AccountType } from "@/lib/firestore/accounts";
+import { formatRupiah } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
 const COLORS = [
@@ -71,14 +72,6 @@ export function AccountManager() {
   const handleDelete = async (id: string) => {
     if (!user || !confirm("Hapus akun ini?")) return;
     await deleteAccount(user.uid, id);
-  };
-
-  const formatRupiah = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
   };
 
   const getIcon = (accType: string) => {

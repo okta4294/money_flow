@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { deleteTransaction, Transaction } from "@/lib/firestore/transactions";
 import { useCategories } from "@/hooks/useCategories";
-import { motion, AnimatePresence } from "framer-motion";
 import { formatRupiah, formatDate, getTransactionIcon } from "@/lib/utils";
 
 interface TransactionListProps {
@@ -30,12 +29,21 @@ function getDayLabel(dateStr: string) {
 
 export function TransactionList({ transactions, loading, onEdit }: TransactionListProps) {
   const { user } = useAuth();
-  const { incomeCategories, expenseCategories } = useCategories();
+  const { categories } = useCategories();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  const { categoryById, categoryByName } = useMemo(() => {
+    const byId = new Map<string, (typeof categories)[number]>();
+    const byName = new Map<string, (typeof categories)[number]>();
+    for (const c of categories) {
+      byId.set(c.id, c);
+      byName.set(c.name, c);
+    }
+    return { categoryById: byId, categoryByName: byName };
+  }, [categories]);
+
   const getCategoryIcon = (t: Transaction) => {
-    const allCategories = [...incomeCategories, ...expenseCategories];
-    const cat = allCategories.find((c) => c.id === t.categoryId || c.name === t.category);
+    const cat = categoryById.get(t.categoryId) || categoryByName.get(t.category);
     return getTransactionIcon({
       type: t.type,
       categoryIcon: cat?.icon,
@@ -60,6 +68,31 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
       setDeletingId(null);
     }
   };
+
+  const groupedDays = useMemo(() => {
+    const grouped: Record<string, Transaction[]> = {};
+    for (const t of transactions) {
+      if (!grouped[t.date]) grouped[t.date] = [];
+      grouped[t.date].push(t);
+    }
+
+    return Object.keys(grouped)
+      .sort((a, b) => b.localeCompare(a))
+      .map((dateStr) => {
+        const dayTxs = [...grouped[dateStr]].sort((a, b) => {
+          const aTime = a.createdAt?.seconds || 0;
+          const bTime = b.createdAt?.seconds || 0;
+          return bTime - aTime;
+        });
+        let dayIncome = 0;
+        let dayExpense = 0;
+        for (const t of dayTxs) {
+          if (t.type === "income") dayIncome += t.amount;
+          else if (t.type === "expense") dayExpense += t.amount;
+        }
+        return { dateStr, dayTxs, dayIncome, dayExpense };
+      });
+  }, [transactions]);
 
   if (loading) {
     return (
@@ -90,31 +123,9 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
     );
   }
 
-  const grouped = transactions.reduce((acc, t) => {
-    if (!acc[t.date]) acc[t.date] = [];
-    acc[t.date].push(t);
-    return acc;
-  }, {} as Record<string, Transaction[]>);
-
-  const sortedDates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
-
   return (
     <div className="bg-surface border-2 border-outline rounded-3xl p-4 sm:p-6 shadow-[3px_3px_0_0_var(--theme-outline)] space-y-6">
-      {sortedDates.map((dateStr) => {
-        const dayTxs = [...grouped[dateStr]].sort((a, b) => {
-          const aTime = a.createdAt?.seconds || 0;
-          const bTime = b.createdAt?.seconds || 0;
-          return bTime - aTime;
-        });
-
-        const dayIncome = dayTxs
-          .filter((t) => t.type === "income")
-          .reduce((s, t) => s + t.amount, 0);
-        const dayExpense = dayTxs
-          .filter((t) => t.type === "expense")
-          .reduce((s, t) => s + t.amount, 0);
-
-        return (
+      {groupedDays.map(({ dateStr, dayTxs, dayIncome, dayExpense }) => (
           <div key={dateStr} className="space-y-1.5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-outline/20 pb-2 px-1">
               <h3 className="font-label-bold text-secondary uppercase tracking-wider text-xs sm:text-sm font-bold">
@@ -135,15 +146,10 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
             </div>
 
             <div className="divide-y divide-outline/10">
-              <AnimatePresence>
                 {dayTxs.map((t) => (
-                  <motion.div
+                  <div
                     key={t.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
                     onClick={() => onEdit(t)}
-                    transition={{ duration: 0.15 }}
                     className="hover:bg-surface-container/75 rounded-2xl px-2.5 py-3 sm:px-3.5 sm:py-3.5 flex items-center gap-3.5 cursor-pointer group relative transition-colors"
                   >
                     <div
@@ -205,13 +211,11 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
                         </span>
                       </button>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
-              </AnimatePresence>
             </div>
           </div>
-        );
-      })}
+      ))}
     </div>
   );
 }

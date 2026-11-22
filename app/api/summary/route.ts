@@ -71,7 +71,7 @@ export async function GET(req: Request) {
     }
 
     const superEmail = process.env.SUPER_USER_EMAIL || "";
-    const isSuper = !!superEmail && authUser.email?.toLowerCase() === superEmail.toLowerCase();
+    const isSuper = !!superEmail && authUser.emailVerified === true && authUser.email?.toLowerCase() === superEmail.toLowerCase();
 
     if (isSuper) {
       return NextResponse.json({
@@ -177,7 +177,7 @@ export async function POST(req: Request) {
     }
 
     const superEmail = process.env.SUPER_USER_EMAIL || "";
-    const isSuper = !!superEmail && authUser.email?.toLowerCase() === superEmail.toLowerCase();
+    const isSuper = !!superEmail && authUser.emailVerified === true && authUser.email?.toLowerCase() === superEmail.toLowerCase();
 
     if (!apiKey) {
       return NextResponse.json(
@@ -208,18 +208,31 @@ export async function POST(req: Request) {
       day: "2-digit",
     }).format(new Date());
 
-    // Proteksi Server-Side: Batasi 1x per hari jika BUKAN akun super
+    if (typeof month !== "number" || month < 1 || month > 12) {
+      return NextResponse.json({ success: false, error: "Bulan tidak valid." }, { status: 400 });
+    }
+    if (typeof year !== "number" || year < 2000 || year > 2100) {
+      return NextResponse.json({ success: false, error: "Tahun tidak valid." }, { status: 400 });
+    }
+
+    // Proteksi Server-Side Atomik: Klaim kuota 1x per hari sebelum memanggil AI untuk mencegah race condition
     if (!isSuper && projectId && userId) {
       try {
-        const usageCheckUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}/ai-usage/${today}`;
-        const checkRes = await fetch(usageCheckUrl, {
-          method: "GET",
+        const createUsageUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}/ai-usage?documentId=${today}&key=${firebaseApiKey}`;
+        const claimRes = await fetch(createUsageUrl, {
+          method: "POST",
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
+          body: JSON.stringify({
+            fields: {
+              usedAt: { stringValue: new Date().toISOString() },
+            },
+          }),
         });
 
-        if (checkRes.ok) {
+        if (claimRes.status === 409) {
           return NextResponse.json(
             {
               success: false,
@@ -228,22 +241,27 @@ export async function POST(req: Request) {
             { status: 429 }
           );
         }
+
+        if (!claimRes.ok) {
+          console.warn("Gagal mengklaim kuota AI di server:", claimRes.status);
+          return NextResponse.json(
+            { success: false, error: "Gagal memverifikasi kuota harian AI. Silakan coba lagi." },
+            { status: 503 }
+          );
+        }
       } catch (checkErr) {
         console.warn("Gagal memeriksa limit AI di server:", checkErr);
+        return NextResponse.json(
+          { success: false, error: "Gagal memverifikasi kuota harian AI. Silakan coba lagi." },
+          { status: 503 }
+        );
       }
-    }
-
-    if (typeof month !== "number" || month < 1 || month > 12) {
-      return NextResponse.json({ success: false, error: "Bulan tidak valid." }, { status: 400 });
-    }
-    if (typeof year !== "number" || year < 2000 || year > 2100) {
-      return NextResponse.json({ success: false, error: "Tahun tidak valid." }, { status: 400 });
     }
 
     const safeTransactions = Array.isArray(transactions) ? transactions.slice(0, 500) : [];
     const safeDebts = Array.isArray(activeDebts) ? activeDebts.slice(0, 100) : [];
 
-    const categories: Record<string, { total: number; notes: Set<string> }> = {};
+    const categories: Record<string, { total: number; notes: Set<string> }> = Object.create(null);
     let hasTransactions = false;
 
     safeTransactions.forEach((t: any) => {
@@ -286,7 +304,7 @@ export async function POST(req: Request) {
 
     let prevFormattedTransactions = "None";
     if (prevMonthData && Array.isArray(prevMonthData.transactions) && prevMonthData.transactions.length > 0) {
-      const prevCategories: Record<string, { total: number }> = {};
+      const prevCategories: Record<string, { total: number }> = Object.create(null);
       prevMonthData.transactions.slice(0, 500).forEach((t: any) => {
         if (t && t.type === "expense") {
           const cat = sanitizeText(t.category, 40) || "Lainnya";
@@ -363,27 +381,6 @@ Output Format (Markdown, in Bahasa Indonesia):
         text = await tryGenerate("gemini-2.5-pro");
       } catch (fallbackError: any) {
         throw new Error("Kedua model AI (gemini-2.5-flash & gemini-2.5-pro) sedang tidak tersedia: " + (fallbackError?.message || String(fallbackError)));
-      }
-    }
-
-    // Catat penggunaan untuk akun reguler di Firestore via server
-    if (!isSuper && projectId && userId) {
-      try {
-        const createUsageUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}/ai-usage?documentId=${today}&key=${firebaseApiKey}`;
-        await fetch(createUsageUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            fields: {
-              usedAt: { stringValue: new Date().toISOString() },
-            },
-          }),
-        });
-      } catch (markErr) {
-        console.warn("Gagal mencatat limit AI di server:", markErr);
       }
     }
 

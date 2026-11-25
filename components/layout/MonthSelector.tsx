@@ -35,9 +35,9 @@ export function MonthSelector({ year, month, onChange }: MonthSelectorProps) {
         type="button"
         onClick={prev}
         aria-label="Bulan sebelumnya"
-        className="w-9 h-9 flex items-center justify-center rounded-lg bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline transition-colors active-press-sm cursor-pointer shrink-0"
+        className="w-10 h-10 flex items-center justify-center rounded-lg bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline transition-colors active-press-sm cursor-pointer shrink-0"
       >
-        <span className="material-symbols-outlined text-lg leading-none">
+        <span aria-hidden="true" className="material-symbols-outlined text-lg leading-none">
           chevron_left
         </span>
       </button>
@@ -54,9 +54,9 @@ export function MonthSelector({ year, month, onChange }: MonthSelectorProps) {
         onClick={next}
         disabled={isCurrentMonth}
         aria-label="Bulan berikutnya"
-        className="w-9 h-9 flex items-center justify-center rounded-lg bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline transition-colors disabled:opacity-30 disabled:cursor-not-allowed active-press-sm cursor-pointer shrink-0"
+        className="w-10 h-10 flex items-center justify-center rounded-lg bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline transition-colors disabled:opacity-30 disabled:cursor-not-allowed active-press-sm cursor-pointer shrink-0"
       >
-        <span className="material-symbols-outlined text-lg leading-none">
+        <span aria-hidden="true" className="material-symbols-outlined text-lg leading-none">
           chevron_right
         </span>
       </button>

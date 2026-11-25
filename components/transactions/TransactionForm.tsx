@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { useCategories } from "@/hooks/useCategories";
 import { useDebts } from "@/hooks/useDebts";
@@ -8,7 +9,7 @@ import { useGlobalData } from "@/lib/data-context";
 import { addTransaction, updateTransaction, Transaction, TransactionInput } from "@/lib/firestore/transactions";
 import { payDebt } from "@/lib/firestore/debts";
 import { motion, AnimatePresence } from "framer-motion";
-import { formatRupiah, formatRupiahInput, normalizeCategoryIcon } from "@/lib/utils";
+import { formatRupiah, formatRupiahInput, getLocalDateString, normalizeCategoryIcon } from "@/lib/utils";
 
 interface TransactionFormProps {
   open: boolean;
@@ -30,11 +31,18 @@ const getAccountIcon = (type: string) => {
 export function TransactionForm({ open, onClose, editData }: TransactionFormProps) {
   const { user } = useAuth();
   const { incomeCategories, expenseCategories } = useCategories();
-  const { activeDebts } = useDebts();
-  const { accounts } = useGlobalData();
+  const { debts, activeDebts } = useDebts();
+  const { accounts, accountBalances } = useGlobalData();
 
-  const now = new Date();
-  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const selectableDebts =
+    editData?.debtId && !activeDebts.some((d) => d.id === editData.debtId)
+      ? [
+          ...debts.filter((d) => d.id === editData.debtId),
+          ...activeDebts,
+        ]
+      : activeDebts;
+
+  const today = getLocalDateString();
 
   const [type, setType] = useState<"income" | "expense" | "transfer">("expense");
   const [amount, setAmount] = useState("");
@@ -83,6 +91,15 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
       setDestinationAccountId("");
     }
   }, [type]);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
 
   const selectedCategory = categories.find((c) => c.id === categoryId);
   const showDebtDropdown = type === "expense" && selectedCategory && isDebtCategoryName(selectedCategory.name);
@@ -161,7 +178,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
   return (
     <AnimatePresence>
     {open && (
-      <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:p-4">
+      <div role="dialog" aria-modal="true" aria-labelledby="transaction-modal-title" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:p-4">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
         <motion.div 
           initial={{ opacity: 0, y: 50, scale: 0.95 }} 
@@ -171,7 +188,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           className="relative bg-surface rounded-3xl border-4 border-outline p-6 shadow-[8px_8px_0_0_var(--theme-outline)] w-full sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-y-auto z-10"
         >
         <div className="flex items-center justify-between mb-5 border-b-[3px] border-outline pb-3.5">
-          <h2 className="font-display-lg text-xl sm:text-2xl text-on-surface uppercase tracking-normal">
+          <h2 id="transaction-modal-title" className="font-display-lg text-xl sm:text-2xl text-on-surface uppercase tracking-normal">
             {editData ? "Edit Transaksi" : "Input Transaksi Baru"}
           </h2>
           <button
@@ -236,10 +253,11 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                 id="transaction-amount"
                 type="text"
                 inputMode="numeric"
+                autoFocus={!editData}
                 value={formatRupiahInput(amount)}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0"
-                className="w-full bg-transparent text-on-surface text-2xl sm:text-3xl font-display-lg font-black focus:outline-none"
+                className="w-full bg-transparent text-on-surface text-2xl sm:text-3xl font-display-lg font-black focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-lg"
               />
             </div>
           </div>
@@ -254,12 +272,13 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                   <p className="text-on-surface-variant text-xs font-label-md">
                     Belum ada kategori
                   </p>
-                  <a
+                  <Link
                     href="/categories"
+                    onClick={onClose}
                     className="text-on-primary-container font-label-bold uppercase text-xs mt-2 inline-block border-2 border-outline rounded-xl bg-primary-container px-3 py-1.5 active-press-sm"
                   >
                     + Tambah Kategori
-                  </a>
+                  </Link>
                 </div>
               ) : (
                 <div className="max-h-40 overflow-y-auto p-2 border-2 border-outline rounded-2xl bg-background">
@@ -304,12 +323,13 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                   <p className="text-on-surface-variant text-xs font-label-md">
                     Butuh minimal 2 akun dompet/rekening
                   </p>
-                  <a
+                  <Link
                     href="/accounts"
+                    onClick={onClose}
                     className="text-on-primary-container font-label-bold uppercase text-xs mt-2 inline-block border-2 border-outline rounded-xl bg-primary-container px-3 py-1.5 active-press-sm"
                   >
                     + Tambah Akun
-                  </a>
+                  </Link>
                 </div>
               ) : (
                 <>
@@ -389,12 +409,13 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                   <p className="text-on-surface-variant text-xs font-label-md">
                     Belum ada akun/rekening
                   </p>
-                  <a
+                  <Link
                     href="/accounts"
+                    onClick={onClose}
                     className="text-on-primary-container font-label-bold uppercase text-xs mt-2 inline-block border-2 border-outline rounded-xl bg-primary-container px-3 py-1.5 active-press-sm"
                   >
                     + Tambah Akun
-                  </a>
+                  </Link>
                 </div>
               ) : (
                 <div className="max-h-32 overflow-y-auto p-2 border-2 border-outline rounded-2xl bg-background">
@@ -427,12 +448,15 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                             : "bg-surface text-on-surface hover:bg-surface-bright"
                         }`}
                       >
-                        <span className="material-symbols-outlined text-base">
+                        <span aria-hidden="true" className="material-symbols-outlined text-base shrink-0">
                           {getAccountIcon(acc.type)}
                         </span>
-                        <span className="truncate flex-1 text-left">
-                          {acc.name}
-                        </span>
+                        <div className="min-w-0 flex-1 text-left">
+                          <span className="truncate block">{acc.name}</span>
+                          <span className="text-[9px] font-medium opacity-75 normal-case tabular-nums truncate block">
+                            {formatRupiah(accountBalances[acc.id] ?? 0)}
+                          </span>
+                        </div>
                       </button>
                     ))}
                   </div>
@@ -452,17 +476,18 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                 </span>
               </div>
 
-              {activeDebts.length === 0 ? (
+              {selectableDebts.length === 0 ? (
                 <div className="text-center py-2">
                   <p className="text-on-tertiary-container text-xs font-label-md">
                     Belum ada hutang aktif
                   </p>
-                  <a
+                  <Link
                     href="/debts"
+                    onClick={onClose}
                     className="text-on-surface font-label-bold uppercase text-xs mt-2 inline-block border-2 border-outline rounded-xl bg-surface px-3 py-1.5 active-press-sm"
                   >
                     + Tambah Hutang
-                  </a>
+                  </Link>
                 </div>
               ) : (
                 <>
@@ -477,9 +502,9 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                       className="w-full bg-surface border-2 border-outline rounded-xl px-3.5 py-2.5 text-on-surface font-label-bold uppercase text-xs focus:outline-none cursor-pointer"
                     >
                       <option value="">-- PILIH HUTANG --</option>
-                      {activeDebts.map((debt) => (
+                      {selectableDebts.map((debt) => (
                         <option key={debt.id} value={debt.id}>
-                          {debt.name} (SISA {formatRupiah(debt.remainingAmount)})
+                          {debt.name} ({debt.remainingAmount <= 0 ? "LUNAS" : `SISA ${formatRupiah(debt.remainingAmount)}`})
                         </option>
                       ))}
                     </select>

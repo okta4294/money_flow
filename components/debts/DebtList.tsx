@@ -83,10 +83,8 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
           const isPaid = debt.status === "paid";
 
           const barColors = [
-            "bg-tertiary-container",
-            "bg-error-container",
-            "bg-secondary-container",
             "bg-primary-container",
+            "bg-secondary-container",
           ];
           const barColorClass = isPaid
             ? "bg-tertiary-container"
@@ -103,8 +101,16 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
               whileHover={{ y: -2 }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
               key={debt.id}
-              className="bg-background hover:bg-surface-bright border-2 border-outline rounded-2xl p-3.5 sm:p-5 shadow-[2px_2px_0_0_var(--theme-outline)] transition-all flex flex-col gap-2.5 group cursor-pointer"
+              role="button"
+              tabIndex={0}
+              className="bg-background hover:bg-surface-bright border-2 border-outline rounded-2xl p-3.5 sm:p-5 shadow-[2px_2px_0_0_var(--theme-outline)] transition-all flex flex-col gap-2.5 group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
               onClick={() => onEdit(debt)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onEdit(debt);
+                }
+              }}
             >
               <div className="flex items-start justify-between gap-2.5 min-w-0">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -155,9 +161,10 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                       onEdit(debt);
                     }}
                     title="Edit Hutang"
-                    className="w-8 h-8 rounded-lg bg-surface hover:bg-surface-bright border-2 border-outline text-on-surface flex items-center justify-center active-press-sm cursor-pointer"
+                    aria-label={`Edit ${debt.name}`}
+                    className="w-10 h-10 rounded-xl bg-surface hover:bg-surface-bright border-2 border-outline text-on-surface flex items-center justify-center active-press-sm cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-base">
+                    <span aria-hidden="true" className="material-symbols-outlined text-base">
                       edit
                     </span>
                   </button>
@@ -169,10 +176,11 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                     }}
                     disabled={deletingId === debt.id}
                     title="Hapus Hutang"
-                    className="w-8 h-8 rounded-lg bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm cursor-pointer"
+                    aria-label={`Hapus ${debt.name}`}
+                    className="w-10 h-10 rounded-xl bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm cursor-pointer disabled:opacity-50"
                   >
-                    <span className="material-symbols-outlined text-base">
-                      delete
+                    <span aria-hidden="true" className="material-symbols-outlined text-base">
+                      {deletingId === debt.id ? "hourglass_top" : "delete"}
                     </span>
                   </button>
                 </div>
@@ -189,7 +197,7 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                         ? "text-tertiary dark:text-tertiary-fixed"
                         : overdue
                         ? "text-error"
-                        : "text-tertiary dark:text-tertiary-fixed"
+                        : "text-on-surface"
                     }`}
                   >
                     {formatRupiah(debt.remainingAmount)}

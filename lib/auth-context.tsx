@@ -80,10 +80,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const token = await auth.currentUser.getIdToken();
         guestTokenRef.current = token;
+        await setDoc(
+          doc(db, "users", auth.currentUser.uid),
+          { lastActiveAt: Date.now() },
+          { merge: true }
+        );
       } catch {}
     };
 
-    const intervalId = setInterval(refreshTokenAndHeartbeat, 10 * 60 * 1000);
+    const intervalId = setInterval(refreshTokenAndHeartbeat, 4 * 60 * 1000);
 
     const handlePageHide = () => {
       const token = guestTokenRef.current;

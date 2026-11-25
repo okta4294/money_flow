@@ -49,7 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (loading || !user) {
     return (
-      <div className="h-screen bg-surface flex items-center justify-center">
+      <div className="h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -72,7 +72,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span className="font-display-lg text-base sm:text-lg text-on-primary-container">MF</span>
             )}
           </motion.div>
-          <h1 className="font-display-lg text-xl sm:text-2xl text-primary-container stroke-cartoon uppercase tracking-tighter">Money Flow</h1>
+          <h1 className="font-display-lg text-xl sm:text-2xl text-on-surface uppercase tracking-tighter">Money Flow</h1>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
@@ -88,7 +88,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </header>
 
-      <div className="min-h-screen bg-surface flex transition-colors overflow-x-clip">
+      <div className="min-h-screen bg-background flex transition-colors overflow-x-clip">
         <Sidebar
           isExpanded={isSidebarExpanded}
           onToggleExpand={handleToggleSidebar}

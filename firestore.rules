@@ -16,10 +16,13 @@ service cloud.firestore {
         allow create, update: if isOwner(userId)
           && request.resource.data.keys().size() <= 20
           && request.resource.data.amount is number
-          && request.resource.data.amount >= 0
+          && request.resource.data.amount > 0
           && request.resource.data.type in ['income', 'expense', 'transfer']
           && request.resource.data.date is string
-          && request.resource.data.date.size() <= 20;
+          && request.resource.data.date.size() == 10
+          && (!('note' in request.resource.data) || (request.resource.data.note is string && request.resource.data.note.size() <= 300))
+          && (!('category' in request.resource.data) || (request.resource.data.category is string && request.resource.data.category.size() <= 100))
+          && (request.resource.data.type != 'transfer' || request.resource.data.accountId != request.resource.data.destinationAccountId);
       }
       match /categories/{document=**} {
         allow read, delete: if isOwner(userId);
@@ -39,7 +42,9 @@ service cloud.firestore {
           && request.resource.data.totalAmount is number
           && request.resource.data.totalAmount >= 0
           && request.resource.data.remainingAmount is number
-          && request.resource.data.remainingAmount >= 0;
+          && request.resource.data.remainingAmount >= 0
+          && request.resource.data.remainingAmount <= request.resource.data.totalAmount
+          && (!('status' in request.resource.data) || request.resource.data.status in ['active', 'paid']);
       }
       match /accounts/{document=**} {
         allow read, delete: if isOwner(userId);

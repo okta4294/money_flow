@@ -323,20 +323,29 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={t.id}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => {
                       setEditTransaction(t);
                       setShowTransactionForm(true);
                     }}
-                    className="flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl border border-outline/30 bg-background hover:bg-surface-container transition-colors group cursor-pointer"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setEditTransaction(t);
+                        setShowTransactionForm(true);
+                      }
+                    }}
+                    className="flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl border border-outline/30 bg-background hover:bg-surface-container transition-colors group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div
-                        className={`w-10 h-10 rounded-xl border border-outline/40 flex items-center justify-center shrink-0 text-black ${
+                        className={`w-10 h-10 rounded-xl border border-outline/40 flex items-center justify-center shrink-0 ${
                           isIncome
-                            ? "bg-tertiary-container/85"
+                            ? "bg-tertiary-container/85 text-on-tertiary-container"
                             : isTransfer
-                            ? "bg-secondary-container/85 text-white"
-                            : "bg-primary-container/85"
+                            ? "bg-secondary-container/85 text-on-secondary-container"
+                            : "bg-primary-container/85 text-on-primary-container"
                         }`}
                       >
                         <span className="material-symbols-outlined text-xl">

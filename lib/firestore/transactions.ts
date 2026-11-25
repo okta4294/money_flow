@@ -3,7 +3,9 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  deleteField,
   doc,
+  getDoc,
   query,
   where,
   orderBy,
@@ -12,6 +14,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db } from "../firebase";
+import { payDebt } from "./debts";
 
 export type TransactionType = "income" | "expense" | "transfer";
 
@@ -238,16 +241,66 @@ export async function updateTransaction(
   id: string,
   data: Partial<TransactionInput>
 ) {
-  clearTransactionCache(userId);
   const ref = doc(db, "users", userId, "transactions", id);
-  await updateDoc(ref, data);
+  const snap = await getDoc(ref);
+  const oldTx = snap.exists() ? (snap.data() as Transaction) : null;
+
+  const payload: Record<string, unknown> = Object.fromEntries(
+    Object.entries(data).filter(([, v]) => v !== undefined)
+  );
+  if (oldTx?.debtId && !data.debtId) {
+    payload.debtId = deleteField();
+    payload.debtPaymentAmount = deleteField();
+  }
+
+  clearTransactionCache(userId);
+  await updateDoc(ref, payload);
+
+  const oldDebtId =
+    oldTx?.type === "expense" && oldTx.debtId ? oldTx.debtId : undefined;
+  const oldPaid = oldDebtId
+    ? Math.max(0, oldTx?.debtPaymentAmount ?? oldTx?.amount ?? 0)
+    : 0;
+
+  const effectiveType = data.type ?? oldTx?.type;
+  const newDebtId =
+    effectiveType === "expense" && data.debtId ? data.debtId : undefined;
+  const newPaid = newDebtId
+    ? Math.max(0, data.debtPaymentAmount ?? data.amount ?? 0)
+    : 0;
+
+  if (oldDebtId && oldDebtId === newDebtId) {
+    const delta = newPaid - oldPaid;
+    if (delta !== 0) {
+      await payDebt(userId, oldDebtId, delta);
+    }
+  } else {
+    if (oldDebtId && oldPaid > 0) {
+      await payDebt(userId, oldDebtId, -oldPaid);
+    }
+    if (newDebtId && newPaid > 0) {
+      await payDebt(userId, newDebtId, newPaid);
+    }
+  }
+
   notifyTransactionMutated(userId);
 }
 
 export async function deleteTransaction(userId: string, id: string) {
-  clearTransactionCache(userId);
   const ref = doc(db, "users", userId, "transactions", id);
+  const snap = await getDoc(ref);
+  const oldTx = snap.exists() ? (snap.data() as Transaction) : null;
+
+  clearTransactionCache(userId);
   await deleteDoc(ref);
+
+  if (oldTx?.type === "expense" && oldTx.debtId) {
+    const oldPaid = Math.max(0, oldTx.debtPaymentAmount ?? oldTx.amount ?? 0);
+    if (oldPaid > 0) {
+      await payDebt(userId, oldTx.debtId, -oldPaid);
+    }
+  }
+
   notifyTransactionMutated(userId);
 }
 

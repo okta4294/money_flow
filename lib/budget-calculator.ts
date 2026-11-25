@@ -550,7 +550,10 @@ export function calculateBudgetRecommendation(params: {
   let paidDebtInCycle = 0;
   cycleTransactions.forEach((t) => {
     if (t.type === "expense" && (t.debtId || isDebtCategoryName(t.category))) {
-      paidDebtInCycle += t.amount;
+      paidDebtInCycle +=
+        t.debtId && typeof t.debtPaymentAmount === "number"
+          ? t.debtPaymentAmount
+          : t.amount;
     }
   });
 
@@ -667,7 +670,9 @@ export function calculateBudgetRecommendation(params: {
     });
   }
 
-  const expenseCategories = categories.filter((c) => c.type === "expense");
+  const expenseCategories = categories.filter(
+    (c) => c.type === "expense" && !isDebtCategoryName(c.name)
+  );
 
   const historicalMonthSet = new Set<string>();
   historicalExpenses.forEach((t) => {
@@ -800,6 +805,93 @@ export function calculateBudgetRecommendation(params: {
   const essentialCats = rawAllocations.filter((a) => !a.isFixed && a.isEssential);
   const discretionaryCats = rawAllocations.filter((a) => !a.isFixed && !a.isEssential);
 
+  const allocateVariableByRatio = (
+    items: CategoryBudgetAllocation[],
+    poolAmount: number
+  ): CategoryBudgetAllocation[] => {
+    const cleanPool = Math.max(0, Math.round(poolAmount));
+    if (cleanPool === 0) {
+      return items.map((a) => (a.isFixed ? a : { ...a, recommendedBudget: 0 }));
+    }
+
+    if (isColdStart || rawVariableTotal === 0) {
+      if (essentialCats.length > 0 && discretionaryCats.length > 0) {
+        const targetEssential = Math.round(cleanPool * 0.75);
+        const targetDiscretionary = cleanPool - targetEssential;
+        const essentialPerCat = Math.floor(targetEssential / essentialCats.length);
+        const essentialRem = targetEssential - essentialPerCat * essentialCats.length;
+        const discretionaryPerCat = Math.floor(targetDiscretionary / discretionaryCats.length);
+        const discretionaryRem = targetDiscretionary - discretionaryPerCat * discretionaryCats.length;
+
+        let eIdx = 0;
+        let dIdx = 0;
+        return items.map((a) => {
+          if (a.isFixed) return a;
+          if (a.isEssential) {
+            const extra = eIdx === 0 ? essentialRem : 0;
+            eIdx += 1;
+            return { ...a, recommendedBudget: essentialPerCat + extra };
+          }
+          const extra = dIdx === 0 ? discretionaryRem : 0;
+          dIdx += 1;
+          return { ...a, recommendedBudget: discretionaryPerCat + extra };
+        });
+      }
+      if (essentialCats.length > 0) {
+        const perCat = Math.floor(cleanPool / essentialCats.length);
+        const rem = cleanPool - perCat * essentialCats.length;
+        let eIdx = 0;
+        return items.map((a) => {
+          if (a.isFixed) return a;
+          if (a.isEssential) {
+            const extra = eIdx === 0 ? rem : 0;
+            eIdx += 1;
+            return { ...a, recommendedBudget: perCat + extra };
+          }
+          return { ...a, recommendedBudget: 0 };
+        });
+      }
+      if (discretionaryCats.length > 0) {
+        const perCat = Math.floor(cleanPool / discretionaryCats.length);
+        const rem = cleanPool - perCat * discretionaryCats.length;
+        let dIdx = 0;
+        return items.map((a) => {
+          if (a.isFixed) return a;
+          const extra = dIdx === 0 ? rem : 0;
+          dIdx += 1;
+          return { ...a, recommendedBudget: perCat + extra };
+        });
+      }
+      return items;
+    }
+
+    let allocatedSum = 0;
+    let maxWeightIdx = -1;
+    let maxHistoricalAvg = -1;
+
+    const next = items.map((a, idx) => {
+      if (a.isFixed) return a;
+      const share = a.historicalAvg / rawVariableTotal;
+      const rec = Math.round(cleanPool * share);
+      allocatedSum += rec;
+      if (a.historicalAvg > maxHistoricalAvg) {
+        maxHistoricalAvg = a.historicalAvg;
+        maxWeightIdx = idx;
+      }
+      return { ...a, recommendedBudget: rec };
+    });
+
+    const diff = cleanPool - allocatedSum;
+    if (diff !== 0 && maxWeightIdx >= 0) {
+      next[maxWeightIdx] = {
+        ...next[maxWeightIdx],
+        recommendedBudget: Math.max(0, next[maxWeightIdx].recommendedBudget + diff),
+      };
+    }
+
+    return next;
+  };
+
   const incomeAfterDebtAndSavings = Math.max(0, incomeAfterDebt - savingTarget);
 
   if (incomeAfterDebtAndSavings === 0) {
@@ -836,123 +928,22 @@ export function calculateBudgetRecommendation(params: {
       severity: "critical",
     });
   } else {
-    // Sisa dana yang tersedia untuk Kebutuhan Pokok & Sekunder/Variabel
+    // Sisa dana yang tersedia untuk Kebutuhan Pokok & Sekunder/Variabel sesuai rasio historis
     finalFixedTotal = rawFixedTotal;
     const availableForVariable = incomeAfterDebtAndSavings - rawFixedTotal;
 
-    if (isColdStart || (rawEssentialVariableTotal === 0 && rawDiscretionaryVariableTotal === 0)) {
-      if (essentialCats.length > 0 && discretionaryCats.length > 0) {
-        const targetEssential = Math.round(availableForVariable * 0.75);
-        const targetDiscretionary = availableForVariable - targetEssential;
-
-        const essentialPerCat = Math.floor(targetEssential / essentialCats.length);
-        const discretionaryPerCat = Math.floor(targetDiscretionary / discretionaryCats.length);
-
-        categoryAllocations = rawAllocations.map((a) => {
-          if (a.isFixed) return a;
-          if (a.isEssential) {
-            return { ...a, recommendedBudget: essentialPerCat };
-          }
-          return { ...a, recommendedBudget: discretionaryPerCat };
-        });
-
-        finalEssentialTotal = targetEssential;
-        finalDiscretionaryTotal = targetDiscretionary;
-      } else if (essentialCats.length > 0) {
-        const essentialPerCat = Math.floor(availableForVariable / essentialCats.length);
-        categoryAllocations = rawAllocations.map((a) => {
-          if (a.isFixed) return a;
-          if (a.isEssential) return { ...a, recommendedBudget: essentialPerCat };
-          return { ...a, recommendedBudget: 0 };
-        });
-        finalEssentialTotal = availableForVariable;
-        finalDiscretionaryTotal = 0;
-      } else if (discretionaryCats.length > 0) {
-        const discretionaryPerCat = Math.floor(availableForVariable / discretionaryCats.length);
-        categoryAllocations = rawAllocations.map((a) => {
-          if (a.isFixed) return a;
-          return { ...a, recommendedBudget: discretionaryPerCat };
-        });
-        finalEssentialTotal = 0;
-        finalDiscretionaryTotal = availableForVariable;
-      } else {
-        categoryAllocations = rawAllocations;
-        finalEssentialTotal = 0;
-        finalDiscretionaryTotal = 0;
-      }
-      finalVariableTotal = finalEssentialTotal + finalDiscretionaryTotal;
-    } else if (availableForVariable >= rawEssentialVariableTotal) {
-      const remainingForDiscretionary = availableForVariable - rawEssentialVariableTotal;
-
-      if (rawDiscretionaryVariableTotal > 0) {
-        const discretionaryScale = remainingForDiscretionary / rawDiscretionaryVariableTotal;
-        categoryAllocations = rawAllocations.map((a) => {
-          if (a.isFixed) return a;
-          if (a.isEssential) {
-            return { ...a, recommendedBudget: a.historicalAvg };
-          }
-          return {
-            ...a,
-            recommendedBudget: Math.round(a.historicalAvg * discretionaryScale),
-          };
-        });
-
-        if (discretionaryScale < 1) {
-          isScaledDown = true;
-          warnings.push({
-            id: "budget-scaled-essential-safe",
-            title: "Prioritas Kebutuhan Pokok Terlindungi",
-            description:
-              "Cicilan hutang menyerap sebagian pemasukan. Pos kebutuhan pokok makan dan transportasi dilindungi penuh (100%), sisa dana dialokasikan untuk pos sekunder/variabel.",
-            severity: "info",
-          });
-        }
-      } else if (discretionaryCats.length > 0) {
-        // Jika histori sekunder 0 tapi kategori sekunder terdaftar, bagi rata
-        const perCat = Math.floor(remainingForDiscretionary / discretionaryCats.length);
-        categoryAllocations = rawAllocations.map((a) => {
-          if (a.isFixed) return a;
-          if (a.isEssential) return { ...a, recommendedBudget: a.historicalAvg };
-          return { ...a, recommendedBudget: perCat };
-        });
-      } else {
-        categoryAllocations = rawAllocations.map((a) => {
-          if (a.isFixed) return a;
-          if (a.isEssential) return { ...a, recommendedBudget: a.historicalAvg };
-          return { ...a, recommendedBudget: 0 };
-        });
-      }
-
-      finalEssentialTotal = rawEssentialVariableTotal;
-      finalDiscretionaryTotal = discretionaryCats.length > 0 ? remainingForDiscretionary : 0;
-      finalVariableTotal = finalEssentialTotal + finalDiscretionaryTotal;
-    } else {
+    categoryAllocations = allocateVariableByRatio(rawAllocations, availableForVariable);
+    if (rawVariableTotal > 0 && availableForVariable < rawVariableTotal) {
       isScaledDown = true;
-      const essentialScale = availableForVariable / (rawEssentialVariableTotal || 1);
-
-      categoryAllocations = rawAllocations.map((a) => {
-        if (a.isFixed) return a;
-        if (a.isEssential) {
-          return {
-            ...a,
-            recommendedBudget: Math.round(a.historicalAvg * essentialScale),
-          };
-        }
-        return { ...a, recommendedBudget: 0 };
-      });
-
-      finalEssentialTotal = availableForVariable;
-      finalDiscretionaryTotal = 0;
-      finalVariableTotal = availableForVariable;
-
-      warnings.push({
-        id: "budget-scaled-emergency",
-        title: "Fokus Anggaran Pokok",
-        description:
-          "Dana belanja difokuskan penuh untuk kebutuhan pokok (makan & operasional) karena beban cicilan hutang.",
-        severity: "warning",
-      });
     }
+
+    finalEssentialTotal = categoryAllocations
+      .filter((a) => !a.isFixed && a.isEssential)
+      .reduce((sum, a) => sum + a.recommendedBudget, 0);
+    finalDiscretionaryTotal = categoryAllocations
+      .filter((a) => !a.isFixed && !a.isEssential)
+      .reduce((sum, a) => sum + a.recommendedBudget, 0);
+    finalVariableTotal = finalEssentialTotal + finalDiscretionaryTotal;
   }
 
   const totalFundsForDaily = Math.max(0, incomeAfterDebtAndSavings - finalFixedTotal);
@@ -966,6 +957,11 @@ export function calculateBudgetRecommendation(params: {
   let todayDailyExpensesInCycle = 0;
   let todayEssentialExpensesInCycle = 0;
   let todayDiscretionaryExpensesInCycle = 0;
+
+  let cycleWalletVariableSpent = 0;
+  let todayWalletVariableSpent = 0;
+  const todaySpentByCat = new Map<string, number>();
+  const hasAccounts = Boolean(targetAccountNames && targetAccountNames.length > 0);
 
   if (cycle.isCurrentCycle) {
     const categoryMap = new Map<string, Category>(categories.map((c) => [c.id, c]));
@@ -993,6 +989,11 @@ export function calculateBudgetRecommendation(params: {
         ? isEssentialExpenseCategory(cat)
         : Boolean(t.category && isEssentialExpenseName(t.category));
 
+      const affectsWallet = !hasAccounts || Boolean(t.accountId);
+      if (affectsWallet) {
+        cycleWalletVariableSpent += t.amount;
+      }
+
       if (t.date < todayDateStr) {
         if (isEssential) {
           pastEssentialExpensesInCycle += t.amount;
@@ -1007,6 +1008,12 @@ export function calculateBudgetRecommendation(params: {
           todayDiscretionaryExpensesInCycle += t.amount;
         }
         todayDailyExpensesInCycle += t.amount;
+        if (affectsWallet) {
+          todayWalletVariableSpent += t.amount;
+        }
+        if (t.categoryId) {
+          todaySpentByCat.set(t.categoryId, (todaySpentByCat.get(t.categoryId) || 0) + t.amount);
+        }
       }
     });
   }
@@ -1016,8 +1023,7 @@ export function calculateBudgetRecommendation(params: {
   let remainingEssentialFunds = finalEssentialTotal;
   let remainingDiscretionaryFunds = finalDiscretionaryTotal;
 
-  // Mode Saldo Riil: dana harian = saldo bersih saat ini - hutang jatuh tempo belum dibayar - tagihan tetap belum dibayar - akumulasi target tabungan.
-  // Pengeluaran lampau sudah tercermin di saldo, sehingga tidak dikurangkan lagi.
+  // Mode Saldo Riil: anggaran & dana harian dihitung langsung dari Saldo Bersih memakai rasio bulan-bulan sebelumnya.
   const useBalance = cycle.isCurrentCycle && typeof currentBalance === "number";
   let unpaidFixedObligation = 0;
   let availableBalanceForDaily: number | undefined = undefined;
@@ -1030,94 +1036,110 @@ export function calculateBudgetRecommendation(params: {
     availableBalanceForDaily =
       (currentBalance as number) - unpaidDebtObligation - unpaidFixedObligation - cumulativeSavingsLocked;
 
-    // Saldo bersih di awal hari ini (sebelum pengeluaran harian hari ini terjadi).
-    // Digunakan sebagai dasar perhitungan kuota harian hari ini agar batas harian tetap stabil
-    // dan tidak mengalami pengurangan ganda (double-deduction) saat dicatat hari ini.
-    const startOfDayAvailableBalance = availableBalanceForDaily + todayDailyExpensesInCycle;
+    // Saldo bersih di awal hari ini (sebelum pengeluaran harian hari ini terjadi)
+    // dan saldo bersih saat ini (livePool = Total Saldo Bersih di Dasbor).
+    const startOfDayAvailableBalance = availableBalanceForDaily + todayWalletVariableSpent;
     const pool = Math.max(0, startOfDayAvailableBalance);
     const livePool = Math.max(0, availableBalanceForDaily);
 
-    if (isColdStart || (rawEssentialVariableTotal === 0 && rawDiscretionaryVariableTotal === 0)) {
-      if (essentialCats.length > 0 && discretionaryCats.length > 0) {
-        remainingEssentialFunds = Math.round(pool * 0.75);
-        remainingDiscretionaryFunds = pool - remainingEssentialFunds;
-      } else if (essentialCats.length > 0) {
-        remainingEssentialFunds = pool;
-        remainingDiscretionaryFunds = 0;
-      } else if (discretionaryCats.length > 0) {
-        remainingEssentialFunds = 0;
-        remainingDiscretionaryFunds = pool;
-      } else {
-        remainingEssentialFunds = 0;
-        remainingDiscretionaryFunds = 0;
-      }
-    } else {
-      const essentialNeed = Math.round(
-        rawEssentialVariableTotal * (Math.max(1, cycle.remainingDays) / Math.max(1, cycle.daysInCycle))
-      );
-      remainingEssentialFunds = Math.min(pool, essentialNeed);
-      remainingDiscretionaryFunds = discretionaryCats.length > 0 ? pool - remainingEssentialFunds : 0;
+    // Kapasitas uang bersih siklus penuh sebelum terpakai belanja variabel siklus ini,
+    // sehingga target jatah siklus (recommendedBudget) stabil dan proporsional terhadap rasio historis.
+    const cycleCleanPool = Math.max(livePool, availableBalanceForDaily + cycleWalletVariableSpent);
+
+    if (rawVariableTotal > 0 && cycleCleanPool < rawVariableTotal) {
+      isScaledDown = true;
     }
 
-    // Untuk alokasi per kategori bulanan, gunakan kapasitas sisa saldo riil saat ini (livePool)
-    // agar sisa kuota kategori bulanan mencerminkan pengeluaran riil yang telah berjalan.
-    let currentEssentialFunds = 0;
-    let currentDiscretionaryFunds = 0;
-    if (isColdStart || (rawEssentialVariableTotal === 0 && rawDiscretionaryVariableTotal === 0)) {
-      if (essentialCats.length > 0 && discretionaryCats.length > 0) {
-        currentEssentialFunds = Math.round(livePool * 0.75);
-        currentDiscretionaryFunds = livePool - currentEssentialFunds;
-      } else if (essentialCats.length > 0) {
-        currentEssentialFunds = livePool;
-        currentDiscretionaryFunds = 0;
-      } else if (discretionaryCats.length > 0) {
-        currentEssentialFunds = 0;
-        currentDiscretionaryFunds = livePool;
-      }
-    } else {
-      currentEssentialFunds = Math.max(0, remainingEssentialFunds - todayEssentialExpensesInCycle);
-      currentDiscretionaryFunds = Math.max(0, remainingDiscretionaryFunds - todayDiscretionaryExpensesInCycle);
-    }
+    const cycleAllocated = allocateVariableByRatio(rawAllocations, cycleCleanPool);
 
-    // Selaraskan sisa kuota (remainingBudget) tiap kategori dengan kapasitas Saldo Riil yang tersisa.
-    // Jatah rekomendasi (recommendedBudget) tetap mempertahankan target alokasi anggaran yang sah,
-    // TIDAK DITIMPA dengan (currentMonthSpent + sisa) agar batas anggaran stabil dan overspending terdeteksi.
-    categoryAllocations = categoryAllocations.map((a) => {
-      if (a.isFixed) {
-        return {
-          ...a,
-          remainingBudget: Math.max(0, a.recommendedBudget - a.currentMonthSpent),
-        };
-      }
+    // Hitung sisa anggaran per kategori (remainingBudget) agar jumlahnya selaras 100% dengan Saldo Bersih saat ini (livePool).
+    const naturalRems = cycleAllocated.map((a) =>
+      a.isFixed ? 0 : Math.max(0, a.recommendedBudget - a.currentMonthSpent)
+    );
+    const totalNaturalRem = naturalRems.reduce((sum, v) => sum + v, 0);
 
-      if (a.isEssential) {
-        const share =
-          rawEssentialVariableTotal > 0
-            ? a.historicalAvg / rawEssentialVariableTotal
-            : 1 / Math.max(1, essentialCats.length);
-        const remainingForCat = Math.round(currentEssentialFunds * share);
-        const naturalRemaining = Math.max(0, a.recommendedBudget - a.currentMonthSpent);
-        const remainingBudget = Math.min(naturalRemaining, remainingForCat);
-
-        return {
-          ...a,
-          remainingBudget,
-        };
-      }
-
-      const share =
-        rawDiscretionaryVariableTotal > 0
-          ? a.historicalAvg / rawDiscretionaryVariableTotal
-          : 1 / Math.max(1, discretionaryCats.length);
-      const remainingForCat = Math.round(currentDiscretionaryFunds * share);
-      const naturalRemaining = Math.max(0, a.recommendedBudget - a.currentMonthSpent);
-      const remainingBudget = Math.min(naturalRemaining, remainingForCat);
-
-      return {
+    if (livePool === 0) {
+      categoryAllocations = cycleAllocated.map((a) => ({
         ...a,
-        remainingBudget,
-      };
+        remainingBudget: a.isFixed
+          ? Math.max(0, a.recommendedBudget - a.currentMonthSpent)
+          : 0,
+      }));
+    } else if (totalNaturalRem > 0) {
+      let remSum = 0;
+      let maxRemIdx = -1;
+      let maxNatVal = -1;
+
+      const withRem = cycleAllocated.map((a, idx) => {
+        if (a.isFixed) {
+          return {
+            ...a,
+            remainingBudget: Math.max(0, a.recommendedBudget - a.currentMonthSpent),
+          };
+        }
+        const nat = naturalRems[idx];
+        const scaledRem =
+          totalNaturalRem === livePool
+            ? nat
+            : Math.round(livePool * (nat / totalNaturalRem));
+        remSum += scaledRem;
+        if (nat > maxNatVal) {
+          maxNatVal = nat;
+          maxRemIdx = idx;
+        }
+        return {
+          ...a,
+          remainingBudget: scaledRem,
+        };
+      });
+
+      const remDiff = livePool - remSum;
+      if (remDiff !== 0 && maxRemIdx >= 0) {
+        withRem[maxRemIdx] = {
+          ...withRem[maxRemIdx],
+          remainingBudget: Math.max(0, (withRem[maxRemIdx].remainingBudget || 0) + remDiff),
+        };
+      }
+      categoryAllocations = withRem;
+    } else {
+      const fallbackLive = allocateVariableByRatio(rawAllocations, livePool);
+      categoryAllocations = cycleAllocated.map((a, idx) => ({
+        ...a,
+        remainingBudget: a.isFixed
+          ? Math.max(0, a.recommendedBudget - a.currentMonthSpent)
+          : fallbackLive[idx].recommendedBudget,
+      }));
+    }
+
+    // Kuota harian awal hari ini (pool) dibagi mengikuti sisa jatah sebelum pengeluaran hari ini sesuai rasio.
+    let essentialStartNat = 0;
+    let discretionaryStartNat = 0;
+    categoryAllocations.forEach((a) => {
+      if (a.isFixed) return;
+      const spentToday = todaySpentByCat.get(a.categoryId) || 0;
+      const spentBeforeToday = Math.max(0, a.currentMonthSpent - spentToday);
+      const startNat = Math.max(0, a.recommendedBudget - spentBeforeToday);
+      if (a.isEssential) {
+        essentialStartNat += startNat;
+      } else {
+        discretionaryStartNat += startNat;
+      }
     });
+    const totalStartNat = essentialStartNat + discretionaryStartNat;
+
+    if (pool === 0) {
+      remainingEssentialFunds = 0;
+      remainingDiscretionaryFunds = 0;
+    } else if (totalStartNat > 0) {
+      remainingEssentialFunds = Math.round(pool * (essentialStartNat / totalStartNat));
+      remainingDiscretionaryFunds = pool - remainingEssentialFunds;
+    } else {
+      const startFallback = allocateVariableByRatio(rawAllocations, pool);
+      remainingEssentialFunds = startFallback
+        .filter((a) => !a.isFixed && a.isEssential)
+        .reduce((sum, a) => sum + a.recommendedBudget, 0);
+      remainingDiscretionaryFunds = pool - remainingEssentialFunds;
+    }
 
     finalEssentialTotal = categoryAllocations
       .filter((a) => !a.isFixed && a.isEssential)
@@ -1317,19 +1339,26 @@ export function calculateBudgetRecommendation(params: {
     monthlySavingTarget: savingTarget,
     cumulativeSavings: cumulativeSavingsLocked,
     hasCustomTargetThisMonth,
-    savingsRecommendation: {
-      monthlyRecommended: Math.max(0, eligibleIncome - (totalDebtObligation + rawFixedTotal + rawEssentialVariableTotal)),
-      weeklyRecommended: Math.round(Math.max(0, eligibleIncome - (totalDebtObligation + rawFixedTotal + rawEssentialVariableTotal)) / 4),
-      hasFixedIncome: eligibleIncome > 0,
-      fixedIncomeAmount: eligibleIncome,
-      obligationsAmount: totalDebtObligation + rawFixedTotal + rawEssentialVariableTotal,
-      reason:
-        eligibleIncome <= 0
-          ? "Belum ada pemasukan tetap (gaji) yang terdeteksi bulan ini. Tandai kategori pemasukan di menu Kategori agar rekomendasi otomatis aktif."
-          : eligibleIncome - (totalDebtObligation + rawFixedTotal + rawEssentialVariableTotal) <= 0
-          ? "Penghasilan tetap telah habis untuk cicilan hutang, tagihan tetap, dan kebutuhan pokok. Tidak disarankan menabung bulan ini agar kebutuhan utama tercukupi."
-          : "Dihitung dari sisa penghasilan tetap setelah dikurangi cicilan hutang, tagihan tetap bulanan, dan kebutuhan pokok.",
-    },
+    savingsRecommendation: (() => {
+      const disposableForSaving = Math.max(
+        0,
+        eligibleIncome - (totalDebtObligation + rawFixedTotal + rawEssentialVariableTotal)
+      );
+      const monthlyRecommended = Math.round(disposableForSaving * 0.2);
+      return {
+        monthlyRecommended,
+        weeklyRecommended: Math.round(monthlyRecommended / 4.33),
+        hasFixedIncome: eligibleIncome > 0,
+        fixedIncomeAmount: eligibleIncome,
+        obligationsAmount: totalDebtObligation + rawFixedTotal + rawEssentialVariableTotal,
+        reason:
+          eligibleIncome <= 0
+            ? "Belum ada pemasukan tetap (gaji) yang terdeteksi bulan ini. Tandai kategori pemasukan di menu Kategori agar rekomendasi otomatis aktif."
+            : disposableForSaving <= 0
+            ? "Penghasilan tetap telah habis untuk cicilan hutang, tagihan tetap, dan kebutuhan pokok. Tidak disarankan menabung bulan ini agar kebutuhan utama tercukupi."
+            : "20% dari sisa penghasilan tetap setelah dikurangi cicilan hutang, tagihan tetap bulanan, dan kebutuhan pokok.",
+      };
+    })(),
     budgetSource,
     budgetCalculationMode,
     warnings,

@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { Transaction, getTransactionsByMonth } from "@/lib/firestore/transactions";
 import { useAuth } from "@/lib/auth-context";
 import { checkAiLimit } from "@/lib/firestore/ai-usage";
+import { getLocalDateString } from "@/lib/utils";
 
 const ReactMarkdown = dynamic(() => import("react-markdown"), { ssr: false });
 
@@ -55,7 +56,7 @@ export function AISummaryCard({
         return;
       }
 
-      const todayStr = new Date().toISOString().split("T")[0];
+      const todayStr = getLocalDateString();
       const sessionKey = `ai_limit_${user.uid}_${todayStr}`;
 
       if (typeof window !== "undefined") {
@@ -165,7 +166,7 @@ export function AISummaryCard({
       }
 
       setSummary(data.text);
-      const todayStr = new Date().toISOString().split("T")[0];
+      const todayStr = getLocalDateString();
       const sessionKey = `ai_limit_${user.uid}_${todayStr}`;
       if (data.isSuper) {
         setIsSuper(true);

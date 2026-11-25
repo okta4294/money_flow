@@ -39,6 +39,15 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
     setError("");
   }, [editData, open]);
 
+  useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
+
   const numericAmount = parseInt(amount.replace(/\D/g, "") || "0");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,12 +59,19 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
     setError("");
     setLoading(true);
     try {
-      const data: DebtInput = {
-        name: name.trim(),
-        totalAmount: numericAmount,
-        ...(dueDate ? { dueDate } : {}),
-        ...(note.trim() ? { note: note.trim() } : {}),
-      };
+      const data: DebtInput = editData
+        ? {
+            name: name.trim(),
+            totalAmount: numericAmount,
+            dueDate: dueDate || "",
+            note: note.trim(),
+          }
+        : {
+            name: name.trim(),
+            totalAmount: numericAmount,
+            ...(dueDate ? { dueDate } : {}),
+            ...(note.trim() ? { note: note.trim() } : {}),
+          };
       if (editData) {
         await updateDebt(user.uid, editData.id, data);
       } else {
@@ -73,7 +89,7 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
   return (
     <AnimatePresence>
     {open && (
-      <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:p-4">
+      <div role="dialog" aria-modal="true" aria-labelledby="debt-modal-title" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:p-4">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
         <motion.div 
           initial={{ opacity: 0, y: 50, scale: 0.95 }} 
@@ -85,11 +101,11 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
           <div className="flex items-center justify-between mb-6 border-b-4 border-outline pb-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 border-2 border-outline bg-surface text-on-surface flex items-center justify-center rounded-2xl shadow-sm">
-                <span className="material-symbols-outlined text-2xl">
+                <span aria-hidden="true" className="material-symbols-outlined text-2xl">
                   credit_card
                 </span>
               </div>
-              <h2 className="font-display-lg text-2xl text-on-tertiary-container uppercase tracking-normal">
+              <h2 id="debt-modal-title" className="font-display-lg text-2xl text-on-tertiary-container uppercase tracking-normal">
                 {editData ? "Edit Hutang" : "Tambah Hutang"}
               </h2>
             </div>
@@ -105,21 +121,22 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">
+            <label htmlFor="debt-name-input" className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">
               Nama Hutang / Paylater
             </label>
             <input
               id="debt-name-input"
               type="text"
+              autoFocus={!editData}
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="CONTOH: SHOPEE PAYLATER..."
-              className="w-full bg-surface border-2 border-outline rounded-xl px-4 py-3 text-on-surface font-label-bold uppercase text-sm focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors placeholder:text-on-surface-variant"
+              className="w-full bg-surface border-2 border-outline rounded-xl px-4 py-3 text-on-surface font-label-bold uppercase text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors placeholder:text-on-surface-variant"
             />
           </div>
 
           <div>
-            <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">
+            <label htmlFor="debt-amount-input" className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">
               {editData ? "Total Hutang (diperbarui)" : "Total Hutang"}
             </label>
             <div className="relative">
@@ -131,14 +148,14 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
                 value={formatRupiahInput(amount)}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0"
-                className="w-full bg-surface border-2 border-outline rounded-xl pl-12 pr-4 py-3 text-on-surface text-xl font-display-lg focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors"
+                className="w-full bg-surface border-2 border-outline rounded-xl pl-12 pr-4 py-3 text-on-surface text-xl font-display-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors"
               />
             </div>
           </div>
 
           <div>
-            <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2 flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-base">
+            <label htmlFor="debt-due-date" className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2 flex items-center gap-1.5">
+              <span aria-hidden="true" className="material-symbols-outlined text-base">
                 calendar_month
               </span>
               <span>Jatuh Tempo (opsional)</span>
@@ -148,19 +165,19 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full bg-surface border-2 border-outline rounded-xl px-4 py-3 text-on-surface font-label-bold uppercase text-xs focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors cursor-pointer"
+              className="w-full bg-surface border-2 border-outline rounded-xl px-4 py-3 text-on-surface font-label-bold uppercase text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors cursor-pointer"
             />
           </div>
 
           <div>
-            <label className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">Catatan (opsional)</label>
+            <label htmlFor="debt-note-input" className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">Catatan (opsional)</label>
             <input
               id="debt-note-input"
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="TAMBAHKAN CATATAN..."
-              className="w-full bg-surface border-2 border-outline rounded-xl px-4 py-3 text-on-surface font-label-bold uppercase text-sm focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors placeholder:text-on-surface-variant"
+              className="w-full bg-surface border-2 border-outline rounded-xl px-4 py-3 text-on-surface font-label-bold uppercase text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors placeholder:text-on-surface-variant"
             />
           </div>
 

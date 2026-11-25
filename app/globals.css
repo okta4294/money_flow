@@ -102,54 +102,54 @@
 }
 
 :root {
-  /* Light Theme (Premium Cartoon / Comic) */
-  --theme-on-secondary-container: #ffffff;
-  --theme-surface-tint: #ff6b6b;
-  --theme-surface-container-low: #ffffff;
-  --theme-on-tertiary-container: #ffffff;
-  --theme-inverse-surface: #1e1e1e;
-  --theme-primary-fixed: #ffd93d;
-  --theme-secondary: #4d96ff;
-  --theme-surface-container-highest: #f4f4f4;
-  --theme-on-primary-container: #1e1e1e;
-  --theme-on-background: #1e1e1e;
-  --theme-surface-container-lowest: #ffffff;
-  --theme-secondary-fixed-dim: #9bc0ff;
-  --theme-on-error-container: #ffffff;
-  --theme-primary-fixed-dim: #ffc900;
-  --theme-tertiary: #6bcb77;
-  --theme-surface-variant: #f8f9fa;
-  --theme-surface: #ffffff;
-  --theme-on-tertiary-fixed-variant: #1e1e1e;
-  --theme-surface-container: #f0f0f0;
-  --theme-on-primary: #ffffff;
-  --theme-error-container: #ff4757;
-  --theme-tertiary-fixed: #a2fca8;
-  --theme-on-primary-fixed-variant: #1e1e1e;
-  --theme-inverse-primary: #ffc900;
-  --theme-outline: #1e1e1e;
-  --theme-tertiary-fixed-dim: #7ee08a;
-  --theme-outline-variant: #d1d1d1;
-  --theme-on-primary-fixed: #1e1e1e;
-  --theme-error: #ff4757;
-  --theme-inverse-on-surface: #f4f4f4;
-  --theme-on-secondary-fixed: #1e1e1e;
-  --theme-background: #fffdf5; /* subtle warm white */
-  --theme-on-secondary-fixed-variant: #1e1e1e;
-  --theme-primary-container: #ffd93d;
-  --theme-surface-container-high: #e0e0e0;
-  --theme-secondary-container: #4d96ff;
-  --theme-surface-bright: #ffffff;
-  --theme-on-tertiary-fixed: #1e1e1e;
-  --theme-secondary-fixed: #b5d5ff;
-  --theme-primary: #ff6b6b;
-  --theme-surface-dim: #e8e8e8;
-  --theme-on-error: #ffffff;
-  --theme-on-tertiary: #ffffff;
-  --theme-on-secondary: #ffffff;
-  --theme-on-surface: #1e1e1e;
-  --theme-on-surface-variant: #4a4a4a;
-  --theme-tertiary-container: #6bcb77;
+  /* Light Theme (Warm Paper Neo-Brutalist — Low Glare & WCAG AA) */
+  --theme-on-secondary-container: #10254a;
+  --theme-surface-tint: #c84332;
+  --theme-surface-container-low: #f6f2e9;
+  --theme-on-tertiary-container: #123320;
+  --theme-inverse-surface: #24211c;
+  --theme-primary-fixed: #f2cc63;
+  --theme-secondary: #2156b5;
+  --theme-surface-container-highest: #d5cbb8;
+  --theme-on-primary-container: #241e11;
+  --theme-on-background: #24211c;
+  --theme-surface-container-lowest: #fdfbf7;
+  --theme-secondary-fixed-dim: #7da9eb;
+  --theme-on-error-container: #4a1210;
+  --theme-primary-fixed-dim: #e2b338;
+  --theme-tertiary: #1d7543;
+  --theme-surface-variant: #efe9dc;
+  --theme-surface: #faf7f0;
+  --theme-on-tertiary-fixed-variant: #123320;
+  --theme-surface-container: #e8e1d3;
+  --theme-on-primary: #fffaf5;
+  --theme-error-container: #f2b8b2;
+  --theme-tertiary-fixed: #a6dfb5;
+  --theme-on-primary-fixed-variant: #241e11;
+  --theme-inverse-primary: #e2b338;
+  --theme-outline: #2b2720;
+  --theme-tertiary-fixed-dim: #7ec493;
+  --theme-outline-variant: #c8beac;
+  --theme-on-primary-fixed: #241e11;
+  --theme-error: #b92b27;
+  --theme-inverse-on-surface: #f6f2e9;
+  --theme-on-secondary-fixed: #10254a;
+  --theme-background: #f2ede2; /* warm oatmeal paper to prevent glare */
+  --theme-on-secondary-fixed-variant: #10254a;
+  --theme-primary-container: #efc44e;
+  --theme-surface-container-high: #dfd6c5;
+  --theme-secondary-container: #96bcf5;
+  --theme-surface-bright: #fdfbf7;
+  --theme-on-tertiary-fixed: #123320;
+  --theme-secondary-fixed: #bfd6fa;
+  --theme-primary: #c84332;
+  --theme-surface-dim: #ded6c6;
+  --theme-on-error: #fffaf5;
+  --theme-on-tertiary: #fffaf5;
+  --theme-on-secondary: #fffaf5;
+  --theme-on-surface: #24211c;
+  --theme-on-surface-variant: #575046;
+  --theme-tertiary-container: #86cf9c;
 }
 
 .dark {
@@ -157,7 +157,7 @@
   --theme-on-secondary-container: #ffffff;
   --theme-surface-tint: #ff8585;
   --theme-surface-container-low: #2a2d3e;
-  --theme-on-tertiary-container: #ffffff;
+  --theme-on-tertiary-container: #0c2414;
   --theme-inverse-surface: #ffffff;
   --theme-primary-fixed: #ffdf60;
   --theme-secondary: #6eaaff;
@@ -174,11 +174,11 @@
   --theme-on-tertiary-fixed-variant: #1e1e1e;
   --theme-surface-container: #232634;
   --theme-on-primary: #1e1e1e;
-  --theme-error-container: #ff6b7d;
+  --theme-error-container: #c92a3e;
   --theme-tertiary-fixed: #b4fdb9;
   --theme-on-primary-fixed-variant: #1e1e1e;
   --theme-inverse-primary: #ffb700;
-  --theme-outline: #10121a; /* darker border for dark mode */
+  --theme-outline: #4a5068; /* visible crisp border for dark mode */
   --theme-tertiary-fixed-dim: #97eb9f;
   --theme-outline-variant: #42465d;
   --theme-on-primary-fixed: #1e1e1e;
@@ -189,14 +189,14 @@
   --theme-on-secondary-fixed-variant: #1e1e1e;
   --theme-primary-container: #ffc107;
   --theme-surface-container-high: #32364a;
-  --theme-secondary-container: #3d8bff;
+  --theme-secondary-container: #2563eb;
   --theme-surface-bright: #3b3f57;
   --theme-on-tertiary-fixed: #1e1e1e;
   --theme-secondary-fixed: #c6e0ff;
   --theme-primary: #ff8585;
   --theme-surface-dim: #141620;
   --theme-on-error: #ffffff;
-  --theme-on-tertiary: #1e1e1e;
+  --theme-on-tertiary: #0c2414;
   --theme-on-secondary: #ffffff;
   --theme-on-surface: #ffffff;
   --theme-on-surface-variant: #cbd5e1;
@@ -258,6 +258,11 @@
 
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+::selection {
+  background-color: var(--theme-primary-container);
+  color: var(--theme-on-primary-container);
 }
 
 h1, h2, h3, h4 {

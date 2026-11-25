@@ -13,7 +13,7 @@ export default function TransactionsPage() {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
-  const [filter, setFilter] = useState<"all" | "income" | "expense">("all");
+  const [filter, setFilter] = useState<"all" | "income" | "expense" | "transfer">("all");
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
@@ -43,6 +43,10 @@ export default function TransactionsPage() {
     () => transactions.filter((t) => t.type === "income").length,
     [transactions]
   );
+  const transferCount = useMemo(
+    () => transactions.filter((t) => t.type === "transfer").length,
+    [transactions]
+  );
 
   const handleEdit = (t: Transaction) => {
     setEditTransaction(t);
@@ -67,11 +71,12 @@ export default function TransactionsPage() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full py-3 pl-11 pr-10 bg-surface border-2 border-outline rounded-2xl font-body-md text-sm sm:text-base focus:ring-0 focus:outline-none focus:border-secondary shadow-[2px_2px_0_0_var(--theme-outline)] transition-all text-on-surface placeholder:text-on-surface-variant/70"
+          aria-label="Cari catatan transaksi, kategori, atau akun dompet"
+          className="w-full py-3 pl-11 pr-10 bg-surface border-2 border-outline rounded-2xl font-body-md text-sm sm:text-base focus:ring-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus:border-secondary shadow-[2px_2px_0_0_var(--theme-outline)] transition-all text-on-surface placeholder:text-on-surface-variant/70"
           placeholder="Cari catatan transaksi, kategori, atau akun dompet..."
           type="text"
         />
-        <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl">
+        <span aria-hidden="true" className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl">
           search
         </span>
         {search && (
@@ -124,17 +129,19 @@ export default function TransactionsPage() {
       {/* Filter Tabs dengan Warna Semantik */}
       <div className="flex items-center justify-between gap-3 overflow-x-auto pb-1 no-scrollbar">
         <div className="flex gap-2.5 shrink-0">
-          {(["all", "expense", "income"] as const).map((f) => {
+          {(["all", "expense", "income", "transfer"] as const).map((f) => {
             const isSelected = filter === f;
             const labels = {
               all: `Semua Mutasi (${transactions.length})`,
               expense: `Pengeluaran (${expenseCount})`,
               income: `Pemasukan (${incomeCount})`,
+              transfer: `Transfer (${transferCount})`,
             };
             const activeColors = {
               all: "bg-primary-container text-on-primary-container",
               expense: "bg-error-container text-on-error-container",
               income: "bg-tertiary-container text-on-tertiary-container",
+              transfer: "bg-secondary-container text-on-secondary-container",
             };
             return (
               <button

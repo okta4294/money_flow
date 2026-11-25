@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useGlobalData } from "@/lib/data-context";
 import { Transaction, getTransactionsForMonths } from "@/lib/firestore/transactions";
 import { calculateSavingsSummary } from "@/lib/firestore/savings";
+import { getLocalDateString } from "@/lib/utils";
 import {
   calculateBudgetRecommendation,
   evaluateDailySpendingLimit,
@@ -63,6 +64,7 @@ export function useBudgetRecommendation(
     saveMonthlySaving,
     addSavingsWithdrawal,
     deleteSavingsWithdrawal,
+    budgetSource,
     budgetCalculationMode,
   } = useGlobalData();
 
@@ -107,13 +109,7 @@ export function useBudgetRecommendation(
     };
   }, [user?.uid, year, month]);
 
-  const todayDateStr = useMemo(() => {
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = String(now.getMonth() + 1).padStart(2, "0");
-    const d = String(now.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
-  }, []);
+  const todayDateStr = getLocalDateString();
 
   const allTransactions = useMemo(() => {
     const map = new Map<string, Transaction>();
@@ -163,7 +159,7 @@ export function useBudgetRecommendation(
       categories,
       activeDebts,
       allTransactions,
-      budgetSource: "all_income",
+      budgetSource,
       budgetCalculationMode,
       currentBalance,
       targetAccountNames,
@@ -184,6 +180,7 @@ export function useBudgetRecommendation(
     categoriesLoading,
     debtsLoading,
     monthlySavingsLoading,
+    budgetSource,
     budgetCalculationMode,
     currentBalance,
     targetAccountNames,

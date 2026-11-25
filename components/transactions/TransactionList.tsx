@@ -54,9 +54,9 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
   };
 
   const getCategoryColor = (t: Transaction) => {
-     if (t.type === "income") return "bg-tertiary-container";
-     if (t.type === "transfer") return "bg-secondary-container";
-     return "bg-error-container";
+     if (t.type === "income") return "bg-tertiary-container text-on-tertiary-container";
+     if (t.type === "transfer") return "bg-secondary-container text-on-secondary-container";
+     return "bg-error-container text-on-error-container";
   };
 
   const handleDelete = async (id: string) => {
@@ -149,15 +149,23 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
                 {dayTxs.map((t) => (
                   <div
                     key={t.id}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => onEdit(t)}
-                    className="hover:bg-surface-container/75 rounded-2xl px-2.5 py-3 sm:px-3.5 sm:py-3.5 flex items-center gap-3.5 cursor-pointer group relative transition-colors"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onEdit(t);
+                      }
+                    }}
+                    className="hover:bg-surface-container/75 rounded-2xl px-2.5 py-3 sm:px-3.5 sm:py-3.5 flex items-center gap-3.5 cursor-pointer group relative transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                   >
                     <div
                       className={`w-10 h-10 sm:w-11 sm:h-11 shrink-0 flex items-center justify-center rounded-xl border border-outline/50 ${getCategoryColor(
                         t
-                      )} text-black`}
+                      )}`}
                     >
-                      <span className="material-symbols-outlined text-xl icon-filled">
+                      <span aria-hidden="true" className="material-symbols-outlined text-xl icon-filled">
                         {getCategoryIcon(t)}
                       </span>
                     </div>
@@ -202,12 +210,12 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
                           handleDelete(t.id);
                         }}
                         disabled={deletingId === t.id}
-                        className="w-8 h-8 rounded-lg border border-outline/30 hover:border-outline bg-surface hover:bg-error-container text-on-surface-variant hover:text-on-error-container flex items-center justify-center transition-colors cursor-pointer"
+                        className="w-10 h-10 rounded-xl border border-outline/30 hover:border-outline bg-surface hover:bg-error-container text-on-surface-variant hover:text-on-error-container flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50"
                         aria-label="Hapus transaksi"
                         title="Hapus transaksi"
                       >
-                        <span className="material-symbols-outlined text-base">
-                          delete
+                        <span aria-hidden="true" className="material-symbols-outlined text-base">
+                          {deletingId === t.id ? "hourglass_top" : "delete"}
                         </span>
                       </button>
                     </div>

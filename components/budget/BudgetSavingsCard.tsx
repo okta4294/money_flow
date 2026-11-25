@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { formatRupiah, formatRupiahInput, formatDate } from "@/lib/utils";
+import { formatRupiah, formatRupiahInput, formatDate, getLocalDateString } from "@/lib/utils";
 import { SavingsSummaryResult } from "@/lib/firestore/savings";
 import { SavingsRecommendation } from "@/lib/budget-calculator";
 
@@ -49,13 +49,20 @@ export function BudgetSavingsCard({
   // State untuk Modal Tarik Tabungan
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [withdrawDate, setWithdrawDate] = useState(() => {
-    return new Date().toISOString().split("T")[0];
-  });
+  const [withdrawDate, setWithdrawDate] = useState(() => getLocalDateString());
   const [withdrawNote, setWithdrawNote] = useState("");
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [withdrawError, setWithdrawError] = useState<string | null>(null);
   const [deletingWithdrawalId, setDeletingWithdrawalId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!showWithdrawModal) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowWithdrawModal(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showWithdrawModal]);
 
   useEffect(() => {
     setInputVal(currentTargetAmount > 0 ? String(currentTargetAmount) : "");
@@ -101,7 +108,7 @@ export function BudgetSavingsCard({
   const handleOpenWithdraw = () => {
     setWithdrawAmount("");
     setWithdrawNote("");
-    setWithdrawDate(new Date().toISOString().split("T")[0]);
+    setWithdrawDate(getLocalDateString());
     setWithdrawError(null);
     setShowWithdrawModal(true);
   };
@@ -367,7 +374,7 @@ export function BudgetSavingsCard({
                     onClick={() => setHistoryTab("targets")}
                     className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-md text-xs font-label-bold uppercase transition-all ${
                       historyTab === "targets"
-                        ? "bg-secondary text-white border border-outline shadow-[1px_1px_0_0_var(--theme-outline)]"
+                        ? "bg-secondary-container text-on-secondary-container border border-outline shadow-[1px_1px_0_0_var(--theme-outline)]"
                         : "text-on-surface-variant hover:text-on-surface"
                     }`}
                   >
@@ -378,7 +385,7 @@ export function BudgetSavingsCard({
                     onClick={() => setHistoryTab("withdrawals")}
                     className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-md text-xs font-label-bold uppercase transition-all ${
                       historyTab === "withdrawals"
-                        ? "bg-secondary text-white border border-outline shadow-[1px_1px_0_0_var(--theme-outline)]"
+                        ? "bg-secondary-container text-on-secondary-container border border-outline shadow-[1px_1px_0_0_var(--theme-outline)]"
                         : "text-on-surface-variant hover:text-on-surface"
                     }`}
                   >
@@ -415,7 +422,7 @@ export function BudgetSavingsCard({
                           <div
                             className={`w-7 h-7 rounded-md border flex items-center justify-center text-xs font-bold shrink-0 ${
                               item.isCurrentMonth
-                                ? "bg-secondary text-white border-outline"
+                                ? "bg-secondary-container text-on-secondary-container border-outline"
                                 : "bg-surface text-on-surface border-outline/40"
                             }`}
                           >
@@ -427,7 +434,7 @@ export function BudgetSavingsCard({
                                 {item.monthLabel}
                               </span>
                               {item.isCurrentMonth && (
-                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase bg-secondary text-white">
+                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase bg-secondary-container text-on-secondary-container">
                                   Bulan Ini
                                 </span>
                               )}
@@ -561,23 +568,24 @@ export function BudgetSavingsCard({
       {/* 7. Modal Tarik Tabungan */}
       <AnimatePresence>
         {showWithdrawModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+          <div role="dialog" aria-modal="true" aria-labelledby="withdraw-modal-title" className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setShowWithdrawModal(false)} />
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="bg-surface-container border-4 border-outline shadow-[5px_5px_0_0_var(--theme-outline)] rounded-2xl p-4 sm:p-5 max-w-md w-full space-y-4 max-h-[90vh] overflow-y-auto"
+              className="relative z-10 bg-surface-container border-4 border-outline shadow-[5px_5px_0_0_var(--theme-outline)] rounded-2xl p-4 sm:p-5 max-w-md w-full space-y-4 max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between pb-2 border-b border-outline/20">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-lg bg-error-container border border-outline flex items-center justify-center">
-                    <span className="material-symbols-outlined text-on-error-container text-base">
+                    <span aria-hidden="true" className="material-symbols-outlined text-on-error-container text-base">
                       payments
                     </span>
                   </div>
                   <div>
-                    <h4 className="font-label-bold text-sm sm:text-base uppercase text-on-surface">
+                    <h4 id="withdraw-modal-title" className="font-label-bold text-sm sm:text-base uppercase text-on-surface">
                       Tarik Dana Tabungan
                     </h4>
                     <p className="font-body-sm text-[11px] text-on-surface-variant">
@@ -589,9 +597,10 @@ export function BudgetSavingsCard({
                 <button
                   type="button"
                   onClick={() => setShowWithdrawModal(false)}
-                  className="w-8 h-8 rounded-lg border border-outline flex items-center justify-center text-on-surface-variant hover:bg-surface-bright active-press-sm"
+                  aria-label="Tutup modal"
+                  className="w-9 h-9 rounded-lg border border-outline flex items-center justify-center text-on-surface-variant hover:bg-surface-bright active-press-sm cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-sm">close</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-sm">close</span>
                 </button>
               </div>
 
@@ -663,7 +672,7 @@ export function BudgetSavingsCard({
                   <button
                     type="submit"
                     disabled={isWithdrawing}
-                    className="h-10 px-4 py-2 rounded-xl text-xs font-label-bold uppercase bg-error text-white hover:bg-error/90 border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] active-press flex items-center gap-1.5 transition-all disabled:opacity-50"
+                    className="h-10 px-4 py-2 rounded-xl text-xs font-label-bold uppercase bg-error-container text-on-error-container hover:opacity-95 border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)] active-press flex items-center gap-1.5 transition-all disabled:opacity-50"
                   >
                     <span className="material-symbols-outlined text-sm">
                       {isWithdrawing ? "hourglass_top" : "check"}

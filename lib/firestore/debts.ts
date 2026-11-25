@@ -3,6 +3,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  deleteField,
   doc,
   getDoc,
   onSnapshot,
@@ -70,6 +71,15 @@ export async function updateDebt(
   data: Partial<DebtInput>
 ) {
   const ref = doc(db, "users", userId, "debts", id);
+  const clean: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (value === undefined) continue;
+    if ((key === "dueDate" || key === "note") && value === "") {
+      clean[key] = deleteField();
+    } else {
+      clean[key] = value;
+    }
+  }
 
   if (data.totalAmount !== undefined) {
     const snap = await getDoc(ref);
@@ -77,14 +87,14 @@ export async function updateDebt(
       const current = snap.data() as Debt;
       const newRemaining = data.totalAmount - current.paidAmount;
       await updateDoc(ref, {
-        ...data,
+        ...clean,
         remainingAmount: Math.max(0, newRemaining),
         status: (newRemaining <= 0 ? "paid" : "active") as DebtStatus,
       });
       return;
     }
   }
-  await updateDoc(ref, data as Record<string, unknown>);
+  await updateDoc(ref, clean);
 }
 
 export async function deleteDebt(userId: string, id: string) {
@@ -106,7 +116,7 @@ export async function payDebt(
   if (!snap.exists()) return;
 
   const debt = snap.data() as Debt;
-  const newPaid = debt.paidAmount + paymentAmount;
+  const newPaid = Math.max(0, (debt.paidAmount || 0) + paymentAmount);
   const newRemaining = Math.max(0, debt.totalAmount - newPaid);
   const newStatus: DebtStatus = newRemaining <= 0 ? "paid" : "active";
 

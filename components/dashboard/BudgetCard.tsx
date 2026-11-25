@@ -86,19 +86,39 @@ export function BudgetCard({
     (c) => !c.isFixed && !c.isEssential
   );
 
+  const useCleanBalance = budget.currentBalance !== undefined;
   const fixedBudgetTotal = fixedCategories.reduce(
     (sum, c) => sum + c.recommendedBudget,
     0
   );
   const pillar1Total = totalDebtObligation + fixedBudgetTotal;
-  const pillar2Total = essentialCategories.reduce(
+  const pillar2RecommendedTotal = essentialCategories.reduce(
     (sum, c) => sum + c.recommendedBudget,
     0
   );
-  const pillar3Total = discretionaryCategories.reduce(
+  const pillar2RemainingTotal = essentialCategories.reduce(
+    (sum, c) =>
+      sum +
+      (c.remainingBudget ?? Math.max(0, c.recommendedBudget - c.currentMonthSpent)),
+    0
+  );
+  const pillar2Total = useCleanBalance
+    ? pillar2RemainingTotal
+    : pillar2RecommendedTotal;
+
+  const pillar3RecommendedTotal = discretionaryCategories.reduce(
     (sum, c) => sum + c.recommendedBudget,
     0
   );
+  const pillar3RemainingTotal = discretionaryCategories.reduce(
+    (sum, c) =>
+      sum +
+      (c.remainingBudget ?? Math.max(0, c.recommendedBudget - c.currentMonthSpent)),
+    0
+  );
+  const pillar3Total = useCleanBalance
+    ? pillar3RemainingTotal
+    : pillar3RecommendedTotal;
 
   return (
     <div className="col-span-12 space-y-6">
@@ -245,8 +265,10 @@ export function BudgetCard({
               {formatRupiah(pillar2Total)}
             </h3>
             <p className="text-[11px] font-body-sm text-on-surface-variant mt-0.5">
-              Dilindungi 100% sesuai tren 4 bulan &bull; Kuota{" "}
-              {formatRupiah(dailyEssentialBudget)}/hari
+              {useCleanBalance && pillar2RecommendedTotal !== pillar2Total
+                ? `Sisa dari jatah ${formatRupiah(pillar2RecommendedTotal)}`
+                : "Sesuai rasio pengeluaran 4 bulan"}{" "}
+              &bull; Kuota {formatRupiah(dailyEssentialBudget)}/hari
             </p>
           </div>
 
@@ -266,10 +288,9 @@ export function BudgetCard({
                   100,
                   (cat.currentMonthSpent / maxVal) * 100
                 );
-                const rem = Math.max(
-                  0,
-                  cat.recommendedBudget - cat.currentMonthSpent
-                );
+                const rem =
+                  cat.remainingBudget ??
+                  Math.max(0, cat.recommendedBudget - cat.currentMonthSpent);
                 const perDay =
                   remainingDays > 0 ? Math.round(rem / remainingDays) : 0;
 
@@ -286,6 +307,12 @@ export function BudgetCard({
                         {cat.categoryName} &bull; Jatah{" "}
                         {formatRupiah(cat.recommendedBudget)}
                       </span>
+                      {typeof cat.weightPercent === "number" &&
+                        cat.weightPercent > 0 && (
+                          <span className="text-[9px] font-label-bold uppercase px-1.5 py-0.5 rounded bg-surface border border-outline text-primary shrink-0">
+                            {cat.weightPercent}%
+                          </span>
+                        )}
                     </div>
                     <div className="h-2.5 w-full bg-surface-container-high border border-outline rounded-full overflow-hidden">
                       <div
@@ -334,8 +361,10 @@ export function BudgetCard({
               {formatRupiah(pillar3Total)}
             </h3>
             <p className="text-[11px] font-body-sm text-on-surface-variant mt-0.5">
-              Alokasi berbobot kebiasaan riil &bull; Kuota{" "}
-              {formatRupiah(dailyDiscretionaryBudget)}/hari
+              {useCleanBalance && pillar3RecommendedTotal !== pillar3Total
+                ? `Sisa dari jatah ${formatRupiah(pillar3RecommendedTotal)}`
+                : "Sesuai rasio pengeluaran 4 bulan"}{" "}
+              &bull; Kuota {formatRupiah(dailyDiscretionaryBudget)}/hari
             </p>
           </div>
 
@@ -355,10 +384,9 @@ export function BudgetCard({
                   100,
                   (cat.currentMonthSpent / maxVal) * 100
                 );
-                const rem = Math.max(
-                  0,
-                  cat.recommendedBudget - cat.currentMonthSpent
-                );
+                const rem =
+                  cat.remainingBudget ??
+                  Math.max(0, cat.recommendedBudget - cat.currentMonthSpent);
                 const perDay =
                   remainingDays > 0 ? Math.round(rem / remainingDays) : 0;
 
@@ -987,10 +1015,10 @@ export function BudgetCard({
                                 </span>
                                 <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-sm border border-outline ${
                                   cat.isFixed
-                                    ? "bg-amber-400 text-slate-950 dark:bg-amber-300"
+                                    ? "bg-primary-container text-on-primary-container"
                                     : cat.isEssential
-                                    ? "bg-emerald-500 text-white dark:bg-emerald-400 dark:text-slate-950"
-                                    : "bg-indigo-500 text-white dark:bg-indigo-400 dark:text-slate-950"
+                                    ? "bg-tertiary-container text-on-tertiary-container"
+                                    : "bg-secondary-container text-on-secondary-container"
                                 }`}>
                                   {cat.isFixed ? "Tetap" : cat.isEssential ? "Pokok" : "Sekunder"}
                                 </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { Category, addCategory, updateCategory, deleteCategory } from "@/lib/firestore/categories";
 import { TransactionType } from "@/lib/firestore/transactions";
@@ -56,6 +56,15 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
   const [posFilter, setPosFilter] = useState<string>("all");
+
+  useEffect(() => {
+    if (!showForm) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowForm(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showForm]);
 
   const posOptions =
     tab === "expense"
@@ -334,8 +343,16 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                   whileHover={{ y: -2 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   key={cat.id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => openEdit(cat)}
-                  className="bg-background hover:bg-surface-bright rounded-2xl border-2 border-outline p-3.5 sm:p-4 flex items-center justify-between gap-3 shadow-[2px_2px_0_0_var(--theme-outline)] transition-all cursor-pointer"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openEdit(cat);
+                    }
+                  }}
+                  className="bg-background hover:bg-surface-bright rounded-2xl border-2 border-outline p-3.5 sm:p-4 flex items-center justify-between gap-3 shadow-[2px_2px_0_0_var(--theme-outline)] transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div
@@ -365,9 +382,10 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                         openEdit(cat);
                       }}
                       title="Edit Kategori"
-                      className="w-8 h-8 rounded-lg bg-surface hover:bg-surface-bright border-2 border-outline text-on-surface flex items-center justify-center active-press-sm cursor-pointer"
+                      aria-label={`Edit ${cat.name}`}
+                      className="w-10 h-10 rounded-xl bg-surface hover:bg-surface-bright border-2 border-outline text-on-surface flex items-center justify-center active-press-sm cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-base">
+                      <span aria-hidden="true" className="material-symbols-outlined text-base">
                         edit
                       </span>
                     </button>
@@ -378,9 +396,10 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                         handleDelete(cat);
                       }}
                       title="Hapus Kategori"
-                      className="w-8 h-8 rounded-lg bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm cursor-pointer"
+                      aria-label={`Hapus ${cat.name}`}
+                      className="w-10 h-10 rounded-xl bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-base">
+                      <span aria-hidden="true" className="material-symbols-outlined text-base">
                         delete
                       </span>
                     </button>
@@ -394,8 +413,8 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
 
       <AnimatePresence>
       {showForm && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowForm(false)} />
+        <div role="dialog" aria-modal="true" aria-labelledby="category-modal-title" className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setShowForm(false)} />
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }} 
             animate={{ opacity: 1, scale: 1, y: 0 }} 
@@ -403,20 +422,31 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
             className="relative bg-surface rounded-3xl w-full max-w-md p-6 border-[3px] border-outline shadow-[6px_6px_0_0_var(--theme-outline)] z-10 max-h-[90vh] overflow-y-auto"
           >
-            <h3 className="font-headline-lg text-on-background mb-5 tracking-tighter stroke-cartoon">
-              {editData ? "Edit Kategori" : "Kategori Baru"}
-            </h3>
+            <div className="flex items-center justify-between mb-5">
+              <h3 id="category-modal-title" className="font-headline-lg text-on-background tracking-tighter stroke-cartoon">
+                {editData ? "Edit Kategori" : "Kategori Baru"}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                aria-label="Tutup modal"
+                className="w-9 h-9 rounded-xl bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center active-press-sm cursor-pointer shadow-[2px_2px_0_0_var(--theme-outline)]"
+              >
+                <span aria-hidden="true" className="material-symbols-outlined text-lg">close</span>
+              </button>
+            </div>
 
-            <div className="space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-4">
               <div>
-                <label className="text-on-surface-variant font-label-bold block mb-1.5 uppercase tracking-widest text-xs">Nama Kategori</label>
+                <label htmlFor="category-name-input" className="text-on-surface-variant font-label-bold block mb-1.5 uppercase tracking-widest text-xs">Nama Kategori</label>
                 <input
                   id="category-name-input"
                   type="text"
+                  autoFocus={!editData}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Contoh: Makanan & Minuman"
-                  className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl px-4 py-3 text-on-background font-body-md focus:outline-none focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-all"
+                  className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl px-4 py-3 text-on-background font-body-md focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-all"
                 />
               </div>
 
@@ -586,6 +616,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
 
               <div className="flex gap-3 pt-4">
                 <button
+                  type="button"
                   onClick={() => setShowForm(false)}
                   className="flex-1 py-3 rounded-xl bg-surface border-2 border-outline text-on-background font-label-bold transition-all hover:bg-surface-bright active-press"
                 >
@@ -593,14 +624,14 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                 </button>
                 <button
                   id="save-category"
-                  onClick={handleSave}
+                  type="submit"
                   disabled={formLoading}
                   className="flex-1 py-3 rounded-xl bg-primary-container border-2 border-outline text-on-primary-container font-label-bold transition-all disabled:opacity-50 active-press shadow-[2px_2px_0_0_var(--theme-outline)] hover:shadow-[4px_4px_0_0_var(--theme-outline)]"
                 >
                   {formLoading ? "Menyimpan..." : "Simpan"}
                 </button>
               </div>
-            </div>
+            </form>
           </motion.div>
         </div>
       )}

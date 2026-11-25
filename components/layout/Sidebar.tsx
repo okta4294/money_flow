@@ -8,6 +8,7 @@ import { ThemeToggle } from "./ThemeToggle";
 export interface NavItem {
   href: string;
   label: string;
+  shortLabel: string;
   icon: string;
   description: string;
 }
@@ -16,36 +17,42 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: "/dashboard",
     label: "Dasbor",
+    shortLabel: "Dasbor",
     icon: "home",
     description: "Ringkasan & batas harian",
   },
   {
     href: "/transactions",
     label: "Transaksi",
+    shortLabel: "Mutasi",
     icon: "receipt_long",
     description: "Catat & riwayat mutasi",
   },
   {
     href: "/budget",
     label: "Anggaran Pintar",
+    shortLabel: "Anggaran",
     icon: "pie_chart",
     description: "Pos gajian & tabungan 20%",
   },
   {
     href: "/categories",
     label: "Kategori Pos",
+    shortLabel: "Kategori",
     icon: "grid_view",
     description: "Atur pos pemasukan & beban",
   },
   {
     href: "/accounts",
     label: "Dompet & Akun",
+    shortLabel: "Dompet",
     icon: "account_balance_wallet",
     description: "Saldo bank, e-wallet & kas",
   },
   {
     href: "/debts",
     label: "Hutang & Paylater",
+    shortLabel: "Hutang",
     icon: "credit_card",
     description: "Tagihan & cicilan jatuh tempo",
   },
@@ -260,7 +267,7 @@ export function BottomNav() {
           aria-label="Navigasi Utama Mobile"
           className="pointer-events-auto flex items-center justify-between gap-1.5 p-2 bg-surface-container border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] rounded-2xl transition-colors"
         >
-          {NAV_ITEMS.map(({ href, label, icon }) => {
+          {NAV_ITEMS.map(({ href, label, shortLabel, icon }) => {
             const active =
               pathname === href || pathname.startsWith(href + "/");
             return (
@@ -270,14 +277,17 @@ export function BottomNav() {
                 aria-current={active ? "page" : undefined}
                 title={label}
                 aria-label={label}
-                className={`flex-1 h-12 flex items-center justify-center rounded-xl transition-all active-press-sm border-2 ${
+                className={`flex-1 min-w-0 py-1.5 px-1 flex flex-col items-center justify-center gap-0.5 rounded-xl transition-all active-press-sm border-2 ${
                   active
                     ? "bg-primary-container text-on-primary-container border-outline shadow-[2px_2px_0_0_var(--theme-outline)]"
                     : "bg-transparent text-on-surface-variant border-transparent hover:bg-surface/80 hover:text-on-surface"
                 }`}
               >
-                <span className="material-symbols-outlined text-[22px] leading-none shrink-0">
+                <span aria-hidden="true" className="material-symbols-outlined text-[20px] leading-none shrink-0">
                   {icon}
+                </span>
+                <span className="text-[9px] font-label-bold leading-none truncate max-w-full">
+                  {shortLabel}
                 </span>
               </Link>
             );

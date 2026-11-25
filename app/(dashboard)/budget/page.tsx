@@ -31,7 +31,11 @@ export default function BudgetPage() {
     <>
       <PageHeader
         title="Anggaran & Tabungan"
-        subtitle={`Rekomendasi otomatis`}
+        subtitle={
+          budgetCalculationMode === "adaptive"
+            ? "Mode Adaptif: Bagi rata sisa saldo bersih dengan sisa hari"
+            : "Mode Disiplin 1:1: Akumulasi kuota harian hari per hari"
+        }
         year={year}
         month={month}
         onMonthChange={(y, m) => {

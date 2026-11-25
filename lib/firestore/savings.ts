@@ -6,6 +6,7 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { db } from "../firebase";
+import { getLocalDateString } from "../utils";
 import type { UserSettings } from "./user-settings";
 
 export interface MonthlySaving {
@@ -131,7 +132,7 @@ export async function addSavingsWithdrawal(
   const newRecord: SavingsWithdrawal = {
     id,
     amount: Math.max(0, withdrawal.amount),
-    date: withdrawal.date || nowStr.split("T")[0],
+    date: withdrawal.date || getLocalDateString(),
     ...(withdrawal.note?.trim() ? { note: withdrawal.note.trim() } : {}),
     createdAt: nowStr,
   };

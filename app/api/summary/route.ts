@@ -186,6 +186,14 @@ export async function POST(req: Request) {
       );
     }
 
+    const contentLength = Number(req.headers.get("content-length") || "0");
+    if (contentLength > 524288) {
+      return NextResponse.json(
+        { success: false, error: "Ukuran data permintaan terlalu besar." },
+        { status: 413 }
+      );
+    }
+
     const body = await req.json();
     const {
       month,
@@ -215,38 +223,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: "Tahun tidak valid." }, { status: 400 });
     }
 
-    // Proteksi Server-Side Atomik: Klaim kuota 1x per hari sebelum memanggil AI untuk mencegah race condition
+    // Cek kuota harian terlebih dahulu (read-only) sebelum memanggil AI
     if (!isSuper && projectId && userId) {
       try {
-        const createUsageUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}/ai-usage?documentId=${today}&key=${firebaseApiKey}`;
-        const claimRes = await fetch(createUsageUrl, {
-          method: "POST",
+        const usageCheckUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}/ai-usage/${today}`;
+        const checkRes = await fetch(usageCheckUrl, {
+          method: "GET",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            fields: {
-              usedAt: { stringValue: new Date().toISOString() },
-            },
-          }),
         });
-
-        if (claimRes.status === 409) {
+        if (checkRes.ok) {
           return NextResponse.json(
             {
               success: false,
               error: "Batas penggunaan harian (1x/hari) telah tercapai. Silakan coba lagi besok.",
             },
             { status: 429 }
-          );
-        }
-
-        if (!claimRes.ok) {
-          console.warn("Gagal mengklaim kuota AI di server:", claimRes.status);
-          return NextResponse.json(
-            { success: false, error: "Gagal memverifikasi kuota harian AI. Silakan coba lagi." },
-            { status: 503 }
           );
         }
       } catch (checkErr) {
@@ -381,6 +374,26 @@ Output Format (Markdown, in Bahasa Indonesia):
         text = await tryGenerate("gemini-2.5-pro");
       } catch (fallbackError: any) {
         throw new Error("Kedua model AI (gemini-2.5-flash & gemini-2.5-pro) sedang tidak tersedia: " + (fallbackError?.message || String(fallbackError)));
+      }
+    }
+
+    if (!isSuper && projectId && userId) {
+      try {
+        const createUsageUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}/ai-usage?documentId=${today}&key=${firebaseApiKey}`;
+        await fetch(createUsageUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            fields: {
+              usedAt: { stringValue: new Date().toISOString() },
+            },
+          }),
+        });
+      } catch (claimErr) {
+        console.warn("Gagal mencatat kuota AI setelah sukses:", claimErr);
       }
     }
 

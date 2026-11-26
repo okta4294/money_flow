@@ -10,6 +10,8 @@ import { addTransaction, updateTransaction, Transaction, TransactionInput } from
 import { payDebt } from "@/lib/firestore/debts";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatRupiah, formatRupiahInput, getLocalDateString, normalizeCategoryIcon } from "@/lib/utils";
+import { triggerSakugaPop, showSakugaToast } from "@/lib/sakuga";
+import { SakugaInput } from "@/components/ui/SakugaInput";
 
 interface TransactionFormProps {
   open: boolean;
@@ -161,11 +163,13 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
 
       if (editData) {
         await updateTransaction(user.uid, editData.id, data);
+        showSakugaToast("Transaksi diperbarui!");
       } else {
         await addTransaction(user.uid, data);
         if (type !== "transfer" && showDebtDropdown && selectedDebtId && numericDebtPayment > 0) {
           await payDebt(user.uid, selectedDebtId, numericDebtPayment);
         }
+        showSakugaToast("Transaksi tersimpan!");
       }
       onClose();
     } catch {
@@ -185,16 +189,16 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           animate={{ opacity: 1, y: 0, scale: 1 }} 
           exit={{ opacity: 0, y: 50, scale: 0.95 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          className="relative bg-surface rounded-3xl border-4 border-outline p-6 shadow-[8px_8px_0_0_var(--theme-outline)] w-full sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-y-auto z-10"
+          className="relative bg-surface comic-modal p-6 w-full sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-y-auto z-10"
         >
         <div className="flex items-center justify-between mb-5 border-b-[3px] border-outline pb-3.5">
-          <h2 id="transaction-modal-title" className="font-display-lg text-xl sm:text-2xl text-on-surface uppercase tracking-normal">
+          <h2 id="transaction-modal-title" className="font-display-lg font-extrabold text-xl sm:text-2xl text-on-surface tracking-tight">
             {editData ? "Edit Transaksi" : "Input Transaksi Baru"}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="bg-error-container text-on-error-container border-2 border-outline rounded-xl w-9 h-9 flex items-center justify-center active-press-sm cursor-pointer shadow-[2px_2px_0_0_var(--theme-outline)]"
+            className="bg-error-container text-on-error-container border-2 border-outline rounded-xl w-11 h-11 flex items-center justify-center active-press-sm cursor-pointer shadow-[2px_2px_0_0_var(--theme-outline)]"
             aria-label="Tutup modal"
           >
             <span className="material-symbols-outlined text-lg">close</span>
@@ -205,9 +209,9 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           <button
             type="button"
             onClick={() => setType("expense")}
-            className={`py-2.5 rounded-xl font-label-bold uppercase text-xs border-2 border-outline transition-all active-press-sm cursor-pointer ${
+            className={`min-h-11 py-2 rounded-xl font-label-bold font-bold text-xs border-2 border-outline transition-all active-press-sm cursor-pointer ${
               type === "expense"
-                ? "bg-error-container text-on-error-container shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold"
+                ? "bg-error-container text-on-error-container shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold sketch-hatch"
                 : "bg-surface text-on-surface hover:bg-surface-bright"
             }`}
           >
@@ -216,9 +220,9 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           <button
             type="button"
             onClick={() => setType("income")}
-            className={`py-2.5 rounded-xl font-label-bold uppercase text-xs border-2 border-outline transition-all active-press-sm cursor-pointer ${
+            className={`min-h-11 py-2 rounded-xl font-label-bold font-bold text-xs border-2 border-outline transition-all active-press-sm cursor-pointer ${
               type === "income"
-                ? "bg-tertiary-container text-on-tertiary-container shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold"
+                ? "bg-tertiary-container text-on-tertiary-container shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold sketch-hatch"
                 : "bg-surface text-on-surface hover:bg-surface-bright"
             }`}
           >
@@ -227,37 +231,38 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           <button
             type="button"
             onClick={() => setType("transfer")}
-            className={`py-2.5 rounded-xl font-label-bold uppercase text-xs border-2 border-outline transition-all active-press-sm cursor-pointer ${
+            className={`min-h-11 py-2 rounded-xl font-label-bold font-bold text-xs border-2 border-outline transition-all active-press-sm cursor-pointer ${
               type === "transfer"
-                ? "bg-secondary-container text-on-secondary-container shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold"
+                ? "bg-secondary-container text-on-secondary-container shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold sketch-hatch"
                 : "bg-surface text-on-surface hover:bg-surface-bright"
             }`}
           >
-            Transfer Akun
+            Transfer
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="bg-background border-[3px] border-outline rounded-2xl p-3.5 shadow-[2px_2px_0_0_var(--theme-outline)]">
+          <div className="bg-background border-2 border-outline rounded-xl p-3.5 shadow-[2px_2px_0_0_var(--theme-outline)]">
             <label
               htmlFor="transaction-amount"
-              className="font-label-bold text-on-surface-variant uppercase tracking-wider text-[11px] block mb-1"
+              className="font-label-bold font-bold text-on-surface-variant uppercase tracking-wider text-xs block mb-1"
             >
               Nominal Transaksi (Rupiah)
             </label>
             <div className="relative flex items-center">
-              <span className="font-display-lg text-on-surface text-xl sm:text-2xl mr-2">
+              <span className="font-display-lg font-extrabold text-on-surface text-xl sm:text-2xl mr-2 shrink-0">
                 Rp
               </span>
-              <input
+              <SakugaInput
                 id="transaction-amount"
-                type="text"
+                name="amount"
+                label="Nominal Transaksi (Rupiah)"
                 inputMode="numeric"
                 autoFocus={!editData}
                 value={formatRupiahInput(amount)}
-                onChange={(e) => setAmount(e.target.value)}
+                onValueChange={setAmount}
                 placeholder="0"
-                className="w-full bg-transparent text-on-surface text-2xl sm:text-3xl font-display-lg font-black focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-lg"
+                className="sakuga-field--hero-amount"
               />
             </div>
           </div>
@@ -452,8 +457,8 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                           {getAccountIcon(acc.type)}
                         </span>
                         <div className="min-w-0 flex-1 text-left">
-                          <span className="truncate block">{acc.name}</span>
-                          <span className="text-[9px] font-medium opacity-75 normal-case tabular-nums truncate block">
+                          <span className="truncate block text-xs">{acc.name}</span>
+                          <span className="text-xs font-medium opacity-80 normal-case tabular-nums truncate block">
                             {formatRupiah(accountBalances[acc.id] ?? 0)}
                           </span>
                         </div>
@@ -492,19 +497,19 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
               ) : (
                 <>
                   <div>
-                    <label className="font-label-bold text-on-tertiary-container uppercase tracking-wider text-xs block mb-1.5">
+                    <label htmlFor="debt-selector" className="font-label-bold font-bold text-on-tertiary-container uppercase tracking-wider text-xs block mb-1.5">
                       Hutang yang dibayar (opsional)
                     </label>
                     <select
                       id="debt-selector"
                       value={selectedDebtId}
                       onChange={(e) => setSelectedDebtId(e.target.value)}
-                      className="w-full bg-surface border-2 border-outline rounded-xl px-3.5 py-2.5 text-on-surface font-label-bold uppercase text-xs focus:outline-none cursor-pointer"
+                      className="w-full min-h-11 bg-surface border-2 border-outline rounded-xl px-3.5 py-2.5 text-on-surface font-label-bold font-bold text-base sm:text-sm focus:outline-none cursor-pointer"
                     >
-                      <option value="">-- PILIH HUTANG --</option>
+                      <option value="">-- Pilih Hutang --</option>
                       {selectableDebts.map((debt) => (
                         <option key={debt.id} value={debt.id}>
-                          {debt.name} ({debt.remainingAmount <= 0 ? "LUNAS" : `SISA ${formatRupiah(debt.remainingAmount)}`})
+                          {debt.name} ({debt.remainingAmount <= 0 ? "Lunas" : `Sisa ${formatRupiah(debt.remainingAmount)}`})
                         </option>
                       ))}
                     </select>
@@ -512,24 +517,25 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
 
                   {selectedDebtId && (
                     <div>
-                      <label className="font-label-bold text-on-tertiary-container uppercase tracking-wider text-xs block mb-1.5">
+                      <label htmlFor="debt-payment-amount" className="font-label-bold font-bold text-on-tertiary-container uppercase tracking-wider text-xs block mb-1.5">
                         Nominal Dibayarkan
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-display-lg text-on-surface text-base">
+                        <span aria-hidden="true" className="pointer-events-none z-10 absolute left-3.5 top-1/2 -translate-y-1/2 font-display-lg font-extrabold text-on-surface text-base">
                           Rp
                         </span>
-                        <input
+                        <SakugaInput
                           id="debt-payment-amount"
-                          type="text"
+                          name="debtPaymentAmount"
+                          label="Nominal Dibayarkan"
                           inputMode="numeric"
                           value={formatRupiahInput(debtPaymentAmount)}
-                          onChange={(e) => setDebtPaymentAmount(e.target.value)}
+                          onValueChange={setDebtPaymentAmount}
                           placeholder="0"
-                          className="w-full bg-surface border-2 border-outline rounded-xl pl-10 pr-4 py-2.5 text-on-surface text-base font-display-lg focus:outline-none"
+                          className="sakuga-field--surface sakuga-field--pl-rp"
                         />
                       </div>
-                      <p className="text-on-tertiary-container font-label-bold text-[10px] uppercase mt-1.5 flex items-center gap-1">
+                      <p className="text-on-tertiary-container font-label-bold font-semibold text-xs mt-1.5 flex items-center gap-1">
                         <span className="material-symbols-outlined text-sm">
                           check_circle
                         </span>
@@ -546,7 +552,7 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
             <div>
               <label
                 htmlFor="transaction-date"
-                className="font-label-bold text-on-surface uppercase tracking-wider text-xs block mb-1.5"
+                className="font-label-bold font-bold text-on-surface uppercase tracking-wider text-xs block mb-1.5"
               >
                 Tanggal
               </label>
@@ -555,30 +561,30 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full bg-background border-2 border-outline rounded-xl px-3.5 py-2.5 text-on-surface font-label-bold uppercase text-xs focus:outline-none cursor-pointer"
+                className="w-full min-h-11 bg-background border-2 border-outline rounded-xl px-3.5 py-2.5 text-on-surface font-label-bold font-semibold text-base sm:text-sm focus:outline-none cursor-pointer"
               />
             </div>
 
             <div>
               <label
                 htmlFor="transaction-note"
-                className="font-label-bold text-on-surface uppercase tracking-wider text-xs block mb-1.5"
+                className="font-label-bold font-bold text-on-surface uppercase tracking-wider text-xs block mb-1.5"
               >
                 Catatan (Opsional)
               </label>
-              <input
+              <SakugaInput
                 id="transaction-note"
-                type="text"
+                name="note"
+                label="Catatan (Opsional)"
                 value={note}
-                onChange={(e) => setNote(e.target.value)}
+                onValueChange={setNote}
                 placeholder="Contoh: Nasi Padang Siang..."
-                className="w-full bg-background border-2 border-outline rounded-xl px-3.5 py-2.5 text-on-surface font-body-md text-xs sm:text-sm focus:outline-none placeholder:text-on-surface-variant"
               />
             </div>
           </div>
 
           {error && (
-            <div className="bg-error-container text-on-error-container border-2 border-outline rounded-xl px-3.5 py-2.5 font-label-bold uppercase text-xs flex items-center gap-2">
+            <div className="bg-error-container text-on-error-container border-2 border-outline rounded-xl px-3.5 py-2.5 font-label-bold font-bold text-xs flex items-center gap-2">
               <span className="material-symbols-outlined text-base">
                 warning
               </span>
@@ -587,18 +593,19 @@ export function TransactionForm({ open, onClose, editData }: TransactionFormProp
           )}
 
           <div className="flex gap-3 pt-3 border-t-[3px] border-outline">
-            <button
-              type="button"
+            <sakuga-button
+              variant="secondary"
               onClick={onClose}
-              className="flex-1 py-3 rounded-2xl bg-surface hover:bg-surface-bright text-on-surface font-label-bold text-xs uppercase tracking-wider border-2 border-outline active-press-sm cursor-pointer"
+              className="flex-1 sakuga-cancel-btn"
             >
               Batal
-            </button>
+            </sakuga-button>
             <button
               id="save-transaction"
               type="submit"
               disabled={loading}
-              className="flex-[1.6] py-3 rounded-2xl font-label-bold text-xs uppercase tracking-wider bg-tertiary-container text-on-tertiary-container border-[3px] border-outline shadow-[3px_3px_0_0_var(--theme-outline)] active-press-sm disabled:opacity-50 cursor-pointer"
+              onClick={(e) => triggerSakugaPop(e.currentTarget, "impact")}
+              className="flex-[1.6] min-h-11 py-3 rounded-xl font-label-bold font-extrabold text-xs sm:text-sm uppercase tracking-wider bg-tertiary-container text-on-tertiary-container border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] active-press-sm disabled:opacity-50 cursor-pointer sketch-hatch"
             >
               {loading
                 ? "Menyimpan..."

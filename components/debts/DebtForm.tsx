@@ -7,6 +7,8 @@ import { addDebt, updateDebt, Debt, DebtInput } from "@/lib/firestore/debts";
 import { ensureDebtCategoryExists } from "@/lib/firestore/categories";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatRupiahInput } from "@/lib/utils";
+import { triggerSakugaPop, showSakugaToast } from "@/lib/sakuga";
+import { SakugaInput } from "@/components/ui/SakugaInput";
 
 interface DebtFormProps {
   open: boolean;
@@ -74,9 +76,11 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
           };
       if (editData) {
         await updateDebt(user.uid, editData.id, data);
+        showSakugaToast("Hutang diperbarui!");
       } else {
         await addDebt(user.uid, data);
         await ensureDebtCategoryExists(user.uid, categories);
+        showSakugaToast("Hutang tersimpan!");
       }
       onClose();
     } catch {
@@ -96,65 +100,66 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
           animate={{ opacity: 1, y: 0, scale: 1 }} 
           exit={{ opacity: 0, y: 50, scale: 0.95 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          className="relative bg-tertiary-container border-4 border-outline p-6 rounded-3xl shadow-[8px_8px_0_0_var(--theme-outline)] w-full sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-y-auto z-10"
+          className="relative bg-surface comic-modal p-6 w-full sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-y-auto z-10"
         >
-          <div className="flex items-center justify-between mb-6 border-b-4 border-outline pb-4">
+          <div className="flex items-center justify-between mb-5 border-b-[3px] border-outline pb-3.5">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 border-2 border-outline bg-surface text-on-surface flex items-center justify-center rounded-2xl shadow-sm">
+              <div className="w-11 h-11 border-2 border-outline bg-tertiary-container text-on-tertiary-container flex items-center justify-center rounded-xl shadow-[2px_2px_0_0_var(--theme-outline)]">
                 <span aria-hidden="true" className="material-symbols-outlined text-2xl">
                   credit_card
                 </span>
               </div>
-              <h2 id="debt-modal-title" className="font-display-lg text-2xl text-on-tertiary-container uppercase tracking-normal">
+              <h2 id="debt-modal-title" className="font-display-lg font-extrabold text-xl sm:text-2xl text-on-surface tracking-tight">
                 {editData ? "Edit Hutang" : "Tambah Hutang"}
               </h2>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="bg-error-container text-on-error-container border-2 border-outline rounded-xl p-1 w-10 h-10 flex items-center justify-center active-press-sm hover:opacity-90 cursor-pointer"
+              className="bg-error-container text-on-error-container border-2 border-outline rounded-xl w-11 h-11 flex items-center justify-center active-press-sm hover:opacity-90 cursor-pointer shadow-[2px_2px_0_0_var(--theme-outline)]"
               aria-label="Tutup modal"
             >
               <span className="material-symbols-outlined text-lg">close</span>
             </button>
           </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="debt-name-input" className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">
+            <label htmlFor="debt-name-input" className="font-label-bold font-bold text-on-surface-variant uppercase tracking-wider text-xs block mb-1.5">
               Nama Hutang / Paylater
             </label>
-            <input
+            <SakugaInput
               id="debt-name-input"
-              type="text"
+              name="debtName"
+              label="Nama Hutang / Paylater"
               autoFocus={!editData}
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="CONTOH: SHOPEE PAYLATER..."
-              className="w-full bg-surface border-2 border-outline rounded-xl px-4 py-3 text-on-surface font-label-bold uppercase text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors placeholder:text-on-surface-variant"
+              onValueChange={setName}
+              placeholder="Contoh: Shopee Paylater..."
             />
           </div>
 
           <div>
-            <label htmlFor="debt-amount-input" className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">
+            <label htmlFor="debt-amount-input" className="font-label-bold font-bold text-on-surface-variant uppercase tracking-wider text-xs block mb-1.5">
               {editData ? "Total Hutang (diperbarui)" : "Total Hutang"}
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 font-display-lg text-on-surface text-xl">Rp</span>
-              <input
+              <span aria-hidden="true" className="pointer-events-none z-10 absolute left-3.5 top-1/2 -translate-y-1/2 font-display-lg font-extrabold text-lg text-on-surface">Rp</span>
+              <SakugaInput
                 id="debt-amount-input"
-                type="text"
+                name="debtAmount"
+                label={editData ? "Total Hutang (diperbarui)" : "Total Hutang"}
                 inputMode="numeric"
                 value={formatRupiahInput(amount)}
-                onChange={(e) => setAmount(e.target.value)}
+                onValueChange={setAmount}
                 placeholder="0"
-                className="w-full bg-surface border-2 border-outline rounded-xl pl-12 pr-4 py-3 text-on-surface text-xl font-display-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors"
+                className="sakuga-field--pl-rp"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="debt-due-date" className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2 flex items-center gap-1.5">
+            <label htmlFor="debt-due-date" className="font-label-bold font-bold text-on-surface-variant uppercase tracking-wider text-xs mb-1.5 flex items-center gap-1.5">
               <span aria-hidden="true" className="material-symbols-outlined text-base">
                 calendar_month
               </span>
@@ -165,24 +170,24 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full bg-surface border-2 border-outline rounded-xl px-4 py-3 text-on-surface font-label-bold uppercase text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors cursor-pointer"
+              className="w-full min-h-12 bg-background border-2 border-outline rounded-xl px-4 py-3 text-on-surface font-label-bold font-semibold text-base sm:text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors cursor-pointer"
             />
           </div>
 
           <div>
-            <label htmlFor="debt-note-input" className="font-label-bold text-on-tertiary-container uppercase tracking-widest text-xs block mb-2">Catatan (opsional)</label>
-            <input
+            <label htmlFor="debt-note-input" className="font-label-bold font-bold text-on-surface-variant uppercase tracking-wider text-xs block mb-1.5">Catatan (opsional)</label>
+            <SakugaInput
               id="debt-note-input"
-              type="text"
+              name="debtNote"
+              label="Catatan (opsional)"
               value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="TAMBAHKAN CATATAN..."
-              className="w-full bg-surface border-2 border-outline rounded-xl px-4 py-3 text-on-surface font-label-bold uppercase text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-colors placeholder:text-on-surface-variant"
+              onValueChange={setNote}
+              placeholder="Tambahkan catatan..."
             />
           </div>
 
           {error && (
-            <div className="bg-error-container text-on-error-container border-2 border-outline rounded-xl px-4 py-3 font-label-bold uppercase text-xs flex items-center gap-2">
+            <div className="bg-error-container text-on-error-container border-2 border-outline rounded-xl px-4 py-3 font-label-bold font-bold text-xs sm:text-sm flex items-center gap-2">
               <span className="material-symbols-outlined text-base">
                 warning
               </span>
@@ -190,19 +195,20 @@ export function DebtForm({ open, onClose, editData }: DebtFormProps) {
             </div>
           )}
 
-          <div className="flex gap-4 pt-4 mt-8 border-t-4 border-outline">
-            <button
-              type="button"
+          <div className="flex gap-3 pt-4 mt-6 border-t-[3px] border-outline">
+            <sakuga-button
+              variant="secondary"
               onClick={onClose}
-              className="flex-1 py-4 rounded-xl bg-surface text-on-surface font-label-bold uppercase tracking-widest border-2 border-outline active-press"
+              className="flex-1 sakuga-cancel-btn"
             >
               Batal
-            </button>
+            </sakuga-button>
             <button
               id="save-debt"
               type="submit"
               disabled={loading}
-              className="flex-1 py-4 rounded-xl font-label-bold uppercase tracking-widest text-on-tertiary bg-tertiary border-2 border-outline active-press disabled:opacity-50 shadow-[2px_2px_0_0_var(--theme-outline)]"
+              onClick={(e) => triggerSakugaPop(e.currentTarget, "impact")}
+              className="flex-1 min-h-11 py-3 rounded-xl font-label-bold font-extrabold text-sm uppercase tracking-wider text-on-tertiary-container bg-tertiary-container border-2 border-outline active-press disabled:opacity-50 shadow-[2px_2px_0_0_var(--theme-outline)] cursor-pointer sketch-hatch"
             >
               {loading ? "Menyimpan..." : editData ? "Perbarui" : "Tambah"}
             </button>

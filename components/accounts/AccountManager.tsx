@@ -6,10 +6,12 @@ import { useGlobalData } from "@/lib/data-context";
 import { addAccount, updateAccount, deleteAccount, AccountInput, AccountType } from "@/lib/firestore/accounts";
 import { formatRupiah } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { triggerSakugaPop, showSakugaToast } from "@/lib/sakuga";
+import { SakugaInput } from "@/components/ui/SakugaInput";
 
 const COLORS = [
-  "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
-  "#8b5cf6", "#ec4899", "#14b8a6", "#64748b"
+  "#2156b5", "#1d7543", "#efc44e", "#c84332",
+  "#0f766e", "#d97706", "#334155", "#575046"
 ];
 
 const ACCOUNT_TYPES: { value: AccountType; label: string; icon: string }[] = [
@@ -69,8 +71,10 @@ export function AccountManager() {
       const data: AccountInput = { name: name.trim(), type, color };
       if (editingId) {
         await updateAccount(user.uid, editingId, data);
+        showSakugaToast("Dompet diperbarui!");
       } else {
         await addAccount(user.uid, data);
+        showSakugaToast("Dompet tersimpan!");
       }
       setIsOpen(false);
     } finally {
@@ -93,7 +97,7 @@ export function AccountManager() {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-36 bg-surface-bright neo-brutalist-border rounded-3xl animate-pulse" />
+          <div key={i} className="h-36 bg-surface-bright comic-card animate-pulse" />
         ))}
       </div>
     );
@@ -108,55 +112,58 @@ export function AccountManager() {
 
   return (
     <div className="space-y-6">
-      {/* Kartu Hero Kuning: Total Saldo Kas Seluruh Dompet sesuai FigCraft Frame 06 */}
+      {/* Kartu Hero Kuning: Total Saldo Kas Seluruh Dompet */}
       <motion.div
         whileHover={{ y: -2 }}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
-        className="bg-primary-container text-on-primary-container border-4 border-outline rounded-3xl p-5 sm:p-6 shadow-[4px_4px_0_0_var(--theme-outline)] flex flex-col justify-between gap-3"
+        className="bg-primary-container text-on-primary-container comic-card sketch-crosshatch p-5 sm:p-6 flex flex-col justify-between gap-3"
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <span className="font-label-bold text-xs sm:text-sm uppercase font-extrabold tracking-wide">
+          <h2 className="font-label-bold text-xs sm:text-sm uppercase font-extrabold tracking-wide">
             Total Saldo Kas Seluruh Dompet ({accounts.length} Akun Aktif)
-          </span>
+          </h2>
 
           <button
             type="button"
-            onClick={handleOpenNew}
-            className="px-4 py-2 rounded-xl bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline font-label-bold text-xs uppercase shadow-[2px_2px_0_0_var(--theme-outline)] active-press-sm flex items-center gap-1.5 cursor-pointer"
+            onClick={(e) => {
+              triggerSakugaPop(e.currentTarget, "sparkle");
+              handleOpenNew();
+            }}
+            className="min-h-11 px-4 py-2 rounded-xl bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline font-label-bold font-bold text-xs sm:text-sm shadow-[2px_2px_0_0_var(--theme-outline)] active-press-sm flex items-center gap-1.5 cursor-pointer"
           >
             <span className="material-symbols-outlined text-base">add</span>
             <span>Tambah Dompet Baru</span>
           </button>
         </div>
 
-        <h3 className="font-display-lg text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-on-primary-container">
+        <p className="font-display-lg text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-on-primary-container tabular-nums">
           {formatRupiah(totalAccountBalance)}
-        </h3>
+        </p>
       </motion.div>
 
-      {/* Kartu Daftar Saldo Real-Time per Akun Dompet sesuai FigCraft Frame 06 */}
-      <div className="bg-surface border-4 border-outline rounded-3xl p-5 sm:p-6 shadow-[4px_4px_0_0_var(--theme-outline)] space-y-4">
+      {/* Kartu Daftar Saldo Real-Time per Akun Dompet */}
+      <div className="bg-surface comic-card p-5 sm:p-6 space-y-4">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="font-headline-md text-sm sm:text-base uppercase font-extrabold text-on-surface">
+          <h2 className="font-headline-md text-base sm:text-lg font-extrabold text-on-surface">
             Saldo Real-Time Per Akun Dompet
-          </h3>
-          <span className="text-xs font-label-bold text-on-surface-variant">
+          </h2>
+          <span className="text-xs sm:text-sm font-label-bold font-bold text-on-surface-variant">
             {accounts.length} Rekening / Dompet
           </span>
         </div>
 
         {accounts.length === 0 ? (
-          <div className="bg-background border-2 border-dashed border-outline rounded-2xl p-8 text-center space-y-2">
+          <div className="bg-background border-2 border-dashed border-outline/60 rounded-xl p-8 text-center space-y-2 sketch-hatch">
             <span className="material-symbols-outlined text-3xl text-on-surface-variant">
               account_balance_wallet
             </span>
-            <p className="font-label-bold text-sm text-on-surface uppercase">
+            <p className="font-label-bold font-bold text-sm text-on-surface">
               Belum ada dompet atau rekening terdaftar
             </p>
             <button
               type="button"
               onClick={handleOpenNew}
-              className="mt-1 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container border-2 border-outline font-label-bold text-xs uppercase shadow-[2px_2px_0_0_var(--theme-outline)] cursor-pointer"
+              className="mt-1 min-h-11 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container border-2 border-outline font-label-bold font-bold text-xs sm:text-sm shadow-[2px_2px_0_0_var(--theme-outline)] cursor-pointer"
             >
               + Tambah Dompet Pertama
             </button>
@@ -184,19 +191,19 @@ export function AccountManager() {
                       handleOpenEdit(acc);
                     }
                   }}
-                  className="bg-background hover:bg-surface-bright border-2 border-outline rounded-2xl p-3.5 sm:p-4 flex flex-col gap-2.5 shadow-[2px_2px_0_0_var(--theme-outline)] transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                  className="bg-background hover:bg-surface-bright border-2 border-outline/50 hover:border-outline rounded-xl p-4 flex flex-col gap-2.5 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                 >
                   <div className="flex items-start justify-between gap-2.5 min-w-0">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div
-                        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl border-2 border-outline flex items-center justify-center shrink-0 shadow-[1.5px_1.5px_0_0_var(--theme-outline)] ${colorClass}`}
+                        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl border-2 border-outline flex items-center justify-center shrink-0 shadow-[2px_2px_0_0_var(--theme-outline)] ${colorClass}`}
                       >
                         {getIcon(acc.type)}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h4 className="font-label-bold text-sm sm:text-base font-extrabold text-on-surface truncate">
+                        <h3 className="font-label-bold text-base font-extrabold text-on-surface truncate">
                           {acc.name}
-                        </h4>
+                        </h3>
                         <p className="text-xs font-body-sm text-on-surface-variant truncate">
                           {
                             ACCOUNT_TYPES.find((t) => t.value === acc.type)
@@ -215,7 +222,7 @@ export function AccountManager() {
                         }}
                         title="Edit Akun"
                         aria-label={`Edit ${acc.name}`}
-                        className="w-10 h-10 rounded-xl bg-surface hover:bg-surface-bright border-2 border-outline text-on-surface flex items-center justify-center active-press-sm cursor-pointer"
+                        className="w-11 h-11 rounded-xl bg-surface hover:bg-surface-bright border-2 border-outline text-on-surface flex items-center justify-center active-press-sm cursor-pointer"
                       >
                         <span aria-hidden="true" className="material-symbols-outlined text-base">
                           edit
@@ -229,7 +236,7 @@ export function AccountManager() {
                         }}
                         title="Hapus Akun"
                         aria-label={`Hapus ${acc.name}`}
-                        className="w-10 h-10 rounded-xl bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm cursor-pointer"
+                        className="w-11 h-11 rounded-xl bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm cursor-pointer"
                       >
                         <span aria-hidden="true" className="material-symbols-outlined text-base">
                           delete
@@ -239,10 +246,10 @@ export function AccountManager() {
                   </div>
 
                   <div className="flex items-baseline justify-between pt-2 border-t-2 border-outline/15 min-w-0">
-                    <span className="text-[11px] font-label-bold uppercase text-on-surface-variant tracking-wider">
+                    <span className="text-xs font-label-bold font-semibold uppercase text-on-surface-variant tracking-wider">
                       Saldo Saat Ini
                     </span>
-                    <span className="font-display-lg text-base sm:text-lg font-black text-on-surface whitespace-nowrap">
+                    <span className="font-display-lg text-base sm:text-lg font-extrabold text-on-surface whitespace-nowrap tabular-nums">
                       {formatRupiah(bal)}
                     </span>
                   </div>
@@ -262,17 +269,17 @@ export function AccountManager() {
             animate={{ opacity: 1, scale: 1, y: 0 }} 
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="relative bg-surface rounded-3xl w-full max-w-md p-6 border-[3px] border-outline shadow-[6px_6px_0_0_var(--theme-outline)] z-10"
+            className="relative bg-surface comic-modal w-full max-w-md p-6 z-10"
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 id="account-modal-title" className="font-headline-lg text-on-background tracking-tighter stroke-cartoon">
+            <div className="flex items-center justify-between mb-5 pb-3.5 border-b-[3px] border-outline">
+              <h2 id="account-modal-title" className="font-display-lg text-xl sm:text-2xl font-extrabold text-on-background tracking-tight">
                 {editingId ? "Edit Akun" : "Akun Baru"}
               </h2>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
                 aria-label="Tutup modal"
-                className="w-9 h-9 rounded-xl bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center active-press-sm cursor-pointer shadow-[2px_2px_0_0_var(--theme-outline)]"
+                className="w-11 h-11 rounded-xl bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center active-press-sm cursor-pointer shadow-[2px_2px_0_0_var(--theme-outline)]"
               >
                 <span aria-hidden="true" className="material-symbols-outlined text-lg">close</span>
               </button>
@@ -280,21 +287,22 @@ export function AccountManager() {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label htmlFor="account-name-input" className="text-on-surface-variant font-label-bold block mb-1.5 uppercase tracking-widest text-xs">Nama Akun</label>
-                <input
+                <label htmlFor="account-name-input" className="text-on-surface-variant font-label-bold font-bold block mb-1.5 uppercase tracking-wider text-xs">Nama Akun</label>
+                <SakugaInput
                   id="account-name-input"
-                  type="text"
+                  name="accountName"
+                  label="Nama Akun"
                   autoFocus={!editingId}
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onValueChange={setName}
                   placeholder="Contoh: BCA, GoPay, Dompet Tunai..."
-                  className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl px-4 py-3 text-on-background font-body-md focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-all"
                   required
+                  className="sakuga-field--lowest"
                 />
               </div>
 
               <div>
-                <label className="text-on-surface-variant font-label-bold block mb-1.5 uppercase tracking-widest text-xs">Tipe Akun</label>
+                <span className="text-on-surface-variant font-label-bold font-bold block mb-1.5 uppercase tracking-wider text-xs">Tipe Akun</span>
                 <div className="grid grid-cols-2 gap-2">
                   {ACCOUNT_TYPES.map((t) => (
                     <motion.button
@@ -302,9 +310,9 @@ export function AccountManager() {
                       key={t.value}
                       type="button"
                       onClick={() => setType(t.value)}
-                      className={`flex items-center gap-2 px-3 py-3 rounded-xl font-label-bold transition-all border-2 border-outline ${
+                      className={`min-h-12 flex items-center gap-2 px-3 py-3 rounded-xl font-label-bold font-bold text-sm transition-all border-2 border-outline cursor-pointer ${
                         type === t.value 
-                          ? "bg-primary-container text-on-primary-container shadow-[2px_2px_0_0_var(--theme-outline)] -translate-y-0.5 -translate-x-0.5" 
+                          ? "bg-primary-container text-on-primary-container shadow-[2px_2px_0_0_var(--theme-outline)] sketch-hatch" 
                           : "bg-surface-container-lowest text-on-surface-variant hover:bg-surface-bright"
                       }`}
                     >
@@ -315,18 +323,19 @@ export function AccountManager() {
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
+              <div className="flex gap-3 pt-4 border-t-[3px] border-outline">
+                <sakuga-button
+                  variant="secondary"
                   onClick={() => setIsOpen(false)}
-                  className="flex-1 py-3 rounded-xl bg-surface border-2 border-outline text-on-background font-label-bold transition-all hover:bg-surface-bright active-press"
+                  className="flex-1 sakuga-cancel-btn"
                 >
                   Batal
-                </button>
+                </sakuga-button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 py-3 rounded-xl bg-primary-container border-2 border-outline text-on-primary-container font-label-bold transition-all disabled:opacity-50 active-press shadow-[2px_2px_0_0_var(--theme-outline)] hover:shadow-[4px_4px_0_0_var(--theme-outline)]"
+                  onClick={(e) => triggerSakugaPop(e.currentTarget, "impact")}
+                  className="flex-1 min-h-11 py-3 rounded-xl bg-primary-container border-2 border-outline text-on-primary-container font-label-bold font-extrabold text-sm transition-all disabled:opacity-50 active-press shadow-[2px_2px_0_0_var(--theme-outline)] cursor-pointer sketch-hatch"
                 >
                   {submitting ? "Menyimpan..." : "Simpan"}
                 </button>

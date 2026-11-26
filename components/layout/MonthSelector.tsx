@@ -29,7 +29,7 @@ export function MonthSelector({ year, month, onChange }: MonthSelectorProps) {
     year === new Date().getFullYear() && month === new Date().getMonth() + 1;
 
   return (
-    <div className="flex items-center justify-between sm:justify-center gap-1.5 px-1 py-0.5 w-full sm:w-auto">
+    <div className="flex items-center justify-between sm:justify-center gap-1.5 w-full sm:w-auto">
       <button
         id="month-prev"
         type="button"
@@ -42,8 +42,8 @@ export function MonthSelector({ year, month, onChange }: MonthSelectorProps) {
         </span>
       </button>
 
-      <div className="flex items-center justify-center px-3 min-w-[130px]">
-        <span className="font-label-bold text-xs sm:text-sm text-on-surface uppercase tracking-wide whitespace-nowrap">
+      <div className="flex items-center justify-center px-3 min-w-[136px]">
+        <span className="font-label-bold font-bold text-sm text-on-surface tracking-tight whitespace-nowrap tabular-nums">
           {MONTHS[month - 1]} {year}
         </span>
       </div>
@@ -54,7 +54,7 @@ export function MonthSelector({ year, month, onChange }: MonthSelectorProps) {
         onClick={next}
         disabled={isCurrentMonth}
         aria-label="Bulan berikutnya"
-        className="w-10 h-10 flex items-center justify-center rounded-lg bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline transition-colors disabled:opacity-30 disabled:cursor-not-allowed active-press-sm cursor-pointer shrink-0"
+        className="w-10 h-10 flex items-center justify-center rounded-lg bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline transition-colors disabled:opacity-35 disabled:cursor-not-allowed active-press-sm cursor-pointer shrink-0"
       >
         <span aria-hidden="true" className="material-symbols-outlined text-lg leading-none">
           chevron_right

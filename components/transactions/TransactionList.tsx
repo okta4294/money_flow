@@ -98,8 +98,8 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
     return (
       <div className="space-y-4">
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="bg-surface neo-brutalist-border rounded-lg p-4 flex items-center gap-4 animate-pulse">
-            <div className="w-14 h-14 bg-surface-bright rounded-xl neo-brutalist-border"></div>
+          <div key={i} className="bg-surface comic-card p-4 flex items-center gap-4 animate-pulse">
+            <div className="w-12 h-12 bg-surface-bright rounded-xl border-2 border-outline"></div>
             <div className="flex-1 space-y-2">
               <div className="h-4 bg-surface-bright rounded w-24"></div>
               <div className="h-3 bg-surface-bright rounded w-16"></div>
@@ -113,25 +113,25 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
 
   if (transactions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-20 h-20 bg-surface-container neo-brutalist-border rounded-2xl flex items-center justify-center mb-4 neo-brutalist-shadow-sm">
+      <div className="flex flex-col items-center justify-center py-16 text-center bg-surface comic-card sketch-hatch px-6">
+        <div className="w-16 h-16 bg-surface-container comic-subcard flex items-center justify-center mb-4">
           <span className="material-symbols-outlined text-4xl text-on-surface-variant">inbox</span>
         </div>
-        <p className="font-headline-md text-on-surface">Belum ada transaksi.</p>
-        <p className="font-body-md text-on-surface-variant mt-1">Mulai catat transaksi pertama Anda bulan ini.</p>
+        <p className="font-headline-md font-extrabold text-lg text-on-surface">Belum ada transaksi.</p>
+        <p className="font-body-md text-sm text-on-surface-variant mt-1">Mulai catat transaksi pertama Anda bulan ini.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-surface border-2 border-outline rounded-3xl p-4 sm:p-6 shadow-[3px_3px_0_0_var(--theme-outline)] space-y-6">
+    <div className="bg-surface comic-card p-4 sm:p-6 space-y-6">
       {groupedDays.map(({ dateStr, dayTxs, dayIncome, dayExpense }) => (
           <div key={dateStr} className="space-y-1.5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-outline/20 pb-2 px-1">
-              <h3 className="font-label-bold text-secondary uppercase tracking-wider text-xs sm:text-sm font-bold">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b-2 border-outline/20 pb-2 px-1">
+              <h2 className="font-label-bold text-secondary uppercase tracking-wider text-xs sm:text-sm font-extrabold">
                 {getDayLabel(dateStr)}
-              </h3>
-              <div className="flex gap-3 text-xs font-label-bold tabular-nums">
+              </h2>
+              <div className="flex gap-3 text-xs sm:text-sm font-label-bold font-bold tabular-nums">
                 {dayIncome > 0 && (
                   <span className="text-tertiary dark:text-tertiary-fixed">
                     Masuk: +{formatRupiah(dayIncome)}
@@ -145,7 +145,7 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
               </div>
             </div>
 
-            <div className="divide-y divide-outline/10">
+            <div className="divide-y divide-outline/15">
                 {dayTxs.map((t) => (
                   <div
                     key={t.id}
@@ -158,10 +158,10 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
                         onEdit(t);
                       }
                     }}
-                    className="hover:bg-surface-container/75 rounded-2xl px-2.5 py-3 sm:px-3.5 sm:py-3.5 flex items-center gap-3.5 cursor-pointer group relative transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                    className="hover:bg-surface-container/75 rounded-xl px-2.5 py-3 sm:px-3.5 sm:py-3.5 flex items-center gap-3.5 cursor-pointer group relative transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                   >
                     <div
-                      className={`w-10 h-10 sm:w-11 sm:h-11 shrink-0 flex items-center justify-center rounded-xl border border-outline/50 ${getCategoryColor(
+                      className={`w-10 h-10 sm:w-11 sm:h-11 shrink-0 flex items-center justify-center rounded-xl border-2 border-outline/60 ${getCategoryColor(
                         t
                       )}`}
                     >
@@ -171,7 +171,7 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <p className="font-label-bold text-sm sm:text-base text-on-surface font-semibold leading-tight truncate">
+                      <p className="font-label-bold text-sm sm:text-base text-on-surface font-bold leading-tight truncate">
                         {t.note || t.category || "Transaksi"}
                       </p>
                       <p className="font-body-sm text-on-surface-variant text-xs truncate mt-0.5">
@@ -187,7 +187,7 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
 
                     <div className="text-right flex items-center gap-2.5 shrink-0 pl-2">
                       <p
-                        className={`font-display-lg text-sm sm:text-base font-bold whitespace-nowrap tabular-nums ${
+                        className={`font-display-lg text-sm sm:text-base font-extrabold whitespace-nowrap tabular-nums ${
                           t.type === "income"
                             ? "text-tertiary dark:text-tertiary-fixed"
                             : t.type === "transfer"
@@ -210,7 +210,7 @@ export function TransactionList({ transactions, loading, onEdit }: TransactionLi
                           handleDelete(t.id);
                         }}
                         disabled={deletingId === t.id}
-                        className="w-10 h-10 rounded-xl border border-outline/30 hover:border-outline bg-surface hover:bg-error-container text-on-surface-variant hover:text-on-error-container flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50"
+                        className="w-11 h-11 rounded-xl border-2 border-outline/40 hover:border-outline bg-surface hover:bg-error-container text-on-surface-variant hover:text-on-error-container flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50"
                         aria-label="Hapus transaksi"
                         title="Hapus transaksi"
                       >

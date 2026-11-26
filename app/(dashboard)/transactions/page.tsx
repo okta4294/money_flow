@@ -6,6 +6,7 @@ import { TransactionList } from "@/components/transactions/TransactionList";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FloatingActionButton } from "@/components/layout/FloatingActionButton";
+import { SakugaInput } from "@/components/ui/SakugaInput";
 import { Transaction } from "@/lib/firestore/transactions";
 import { formatRupiah } from "@/lib/utils";
 
@@ -68,22 +69,25 @@ export default function TransactionsPage() {
       />
 
       <div className="relative w-full min-w-0">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          aria-label="Cari catatan transaksi, kategori, atau akun dompet"
-          className="w-full py-3 pl-11 pr-10 bg-surface border-2 border-outline rounded-2xl font-body-md text-sm sm:text-base focus:ring-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus:border-secondary shadow-[2px_2px_0_0_var(--theme-outline)] transition-all text-on-surface placeholder:text-on-surface-variant/70"
-          placeholder="Cari catatan transaksi, kategori, atau akun dompet..."
+        <SakugaInput
+          id="transaction-search"
+          name="search"
           type="text"
+          inputMode="search"
+          label="Cari catatan transaksi, kategori, atau akun dompet"
+          placeholder="Cari catatan transaksi, kategori, atau akun dompet..."
+          value={search}
+          onValueChange={setSearch}
+          className="sakuga-field--surface sakuga-field--pl-icon sakuga-field--pr-icon"
         />
-        <span aria-hidden="true" className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl">
+        <span aria-hidden="true" className="material-symbols-outlined pointer-events-none z-10 absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl">
           search
         </span>
         {search && (
           <button
             type="button"
             onClick={() => setSearch("")}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface p-1 active-press cursor-pointer"
+            className="z-10 absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface active-press-sm cursor-pointer"
             aria-label="Hapus pencarian"
           >
             <span className="material-symbols-outlined text-base">close</span>
@@ -93,12 +97,12 @@ export default function TransactionsPage() {
 
       {/* 2 Kartu Ringkasan Semantik: Pengeluaran & Pemasukan */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-        <div className="bg-error-container/15 border-2 border-outline rounded-2xl p-5 shadow-[3px_3px_0_0_var(--theme-outline)] relative overflow-hidden flex flex-col justify-between gap-2">
+        <div className="bg-error-container/15 comic-card sketch-hatch p-5 relative overflow-hidden flex flex-col justify-between gap-2">
           <div className="flex items-center justify-between gap-2">
-            <p className="font-label-bold text-on-surface-variant uppercase text-xs font-bold tracking-wide">
+            <h2 className="font-label-bold text-on-surface-variant uppercase text-xs font-bold tracking-wide">
               Total Pengeluaran Bulan Ini
-            </p>
-            <span className="w-8 h-8 rounded-lg bg-error-container text-on-error-container border border-outline/40 flex items-center justify-center">
+            </h2>
+            <span className="w-9 h-9 rounded-lg bg-error-container text-on-error-container border-2 border-outline/60 flex items-center justify-center">
               <span className="material-symbols-outlined text-lg">
                 trending_down
               </span>
@@ -109,12 +113,12 @@ export default function TransactionsPage() {
           </p>
         </div>
 
-        <div className="bg-tertiary-container/15 border-2 border-outline rounded-2xl p-5 shadow-[3px_3px_0_0_var(--theme-outline)] relative overflow-hidden flex flex-col justify-between gap-2">
+        <div className="bg-tertiary-container/15 comic-card sketch-hatch p-5 relative overflow-hidden flex flex-col justify-between gap-2">
           <div className="flex items-center justify-between gap-2">
-            <p className="font-label-bold text-on-surface-variant uppercase text-xs font-bold tracking-wide">
+            <h2 className="font-label-bold text-on-surface-variant uppercase text-xs font-bold tracking-wide">
               Total Pemasukan Bulan Ini
-            </p>
-            <span className="w-8 h-8 rounded-lg bg-tertiary-container text-on-tertiary-container border border-outline/40 flex items-center justify-center">
+            </h2>
+            <span className="w-9 h-9 rounded-lg bg-tertiary-container text-on-tertiary-container border-2 border-outline/60 flex items-center justify-center">
               <span className="material-symbols-outlined text-lg">
                 trending_up
               </span>
@@ -148,10 +152,10 @@ export default function TransactionsPage() {
                 type="button"
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-4 py-2.5 rounded-xl font-label-bold text-xs tracking-wide transition-all border-2 active-press-sm cursor-pointer ${
+                className={`min-h-11 px-4 py-2 rounded-xl font-label-bold text-xs sm:text-sm tracking-tight transition-all border-2 active-press-sm cursor-pointer ${
                   isSelected
-                    ? `${activeColors[f]} border-outline shadow-[2px_2px_0_0_var(--theme-outline)] font-bold`
-                    : "bg-surface text-on-surface-variant border-outline/40 hover:border-outline hover:text-on-surface"
+                    ? `${activeColors[f]} border-outline shadow-[2px_2px_0_0_var(--theme-outline)] font-bold sketch-hatch`
+                    : "bg-surface text-on-surface-variant border-outline/45 hover:border-outline hover:text-on-surface font-semibold"
                 }`}
               >
                 {labels[f]}

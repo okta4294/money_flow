@@ -7,7 +7,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { Sidebar, BottomNav } from "@/components/layout/Sidebar";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 const SIDEBAR_STORAGE_KEY = "money_flow_sidebar_expanded";
@@ -57,22 +57,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <>
-      <header className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 w-full bg-surface sticky top-0 z-40 md:hidden transition-colors border-b-[3px] border-outline shadow-[0_3px_0_0_var(--theme-outline)]">
+      <header className="flex justify-between items-center px-4 sm:px-6 py-3 w-full bg-surface sticky top-0 z-40 md:hidden transition-colors border-b-[3px] border-outline shadow-[0_3px_0_0_var(--theme-outline)]">
         <div className="flex items-center gap-3">
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-container border-2 border-outline rounded-2xl flex items-center justify-center shadow-[2px_2px_0_0_var(--theme-outline)] overflow-hidden">
+          <div className="w-11 h-11 bg-primary-container border-2 border-outline rounded-xl flex items-center justify-center shadow-[2px_2px_0_0_var(--theme-outline)] overflow-hidden sketch-hatch">
             {user?.photoURL ? (
               <Image
                 src={user.photoURL}
                 alt="Avatar Pengguna"
-                width={48}
-                height={48}
+                width={44}
+                height={44}
                 className="w-full h-full object-cover"
               />
             ) : (
-              <span className="font-display-lg text-base sm:text-lg text-on-primary-container">MF</span>
+              <span className="font-display-lg font-extrabold text-base text-on-primary-container">MF</span>
             )}
-          </motion.div>
-          <h1 className="font-display-lg text-xl sm:text-2xl text-on-surface uppercase tracking-tighter">Money Flow</h1>
+          </div>
+          <span className="font-display-lg font-extrabold text-xl text-on-surface uppercase tracking-tight">
+            Money Flow
+          </span>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
@@ -88,29 +90,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </header>
 
-      <div className="min-h-screen bg-background flex transition-colors overflow-x-clip">
+      <div className="min-h-screen flex transition-colors overflow-x-clip">
         <Sidebar
           isExpanded={isSidebarExpanded}
           onToggleExpand={handleToggleSidebar}
         />
 
         <main
-          className={`flex-1 min-w-0 w-full max-w-full pb-24 md:pb-0 relative transition-all duration-200 ${
+          className={`flex-1 min-w-0 w-full max-w-full relative transition-all duration-200 ${
             isSidebarExpanded ? "md:pl-64" : "md:pl-24"
           }`}
         >
-          <AnimatePresence mode="popLayout">
-            <motion.div
-              key={pathname}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="px-4 py-4 sm:px-6 sm:py-6 md:p-8 flex flex-col gap-6 w-full min-w-0 max-w-6xl mx-auto min-h-full pb-44 md:pb-24"
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.15 }}
+            className="px-4 py-4 sm:px-6 sm:py-6 md:p-8 flex flex-col gap-6 w-full min-w-0 max-w-6xl mx-auto min-h-full pb-32 md:pb-16"
+          >
+            {children}
+          </motion.div>
         </main>
       </div>
 

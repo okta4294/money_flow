@@ -6,6 +6,7 @@ import { Transaction, getTransactionsByMonth } from "@/lib/firestore/transaction
 import { useAuth } from "@/lib/auth-context";
 import { checkAiLimit } from "@/lib/firestore/ai-usage";
 import { getLocalDateString } from "@/lib/utils";
+import { triggerSakugaPop } from "@/lib/sakuga";
 
 const ReactMarkdown = dynamic(() => import("react-markdown"), { ssr: false });
 
@@ -194,35 +195,35 @@ export function AISummaryCard({
           <span className="material-symbols-outlined text-error text-xl">
             local_fire_department
           </span>
-          <h3 className="font-headline-md text-base sm:text-lg text-on-surface font-bold tracking-tight">
+          <h2 className="font-headline-md text-lg text-on-surface font-extrabold tracking-tight">
             Roasting Keuangan AI
-          </h3>
+          </h2>
         </div>
-        <span className="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface-variant border border-outline/35 text-[10px] font-label-bold uppercase shrink-0">
+        <span className="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface-variant border-2 border-outline/40 text-xs font-label-bold font-bold shrink-0">
           {isAnonymous
-            ? "MODE TAMU"
+            ? "Mode Tamu"
             : isSuper
-            ? "SUPER UNLIMITED"
+            ? "Super Unlimited"
             : limitReached
-            ? "KUOTA 0/1 HARI INI"
-            : "KUOTA 1/1 HARI INI"}
+            ? "Kuota 0/1"
+            : "Kuota 1/1"}
         </span>
       </div>
 
-      <div className="flex-1 text-on-surface font-body-md leading-relaxed bg-background border border-outline/30 p-4 rounded-2xl flex flex-col justify-center">
+      <div className="flex-1 text-on-surface font-body-md leading-relaxed bg-background border-2 border-outline/35 p-4 rounded-xl flex flex-col justify-center">
         {!summary && !loading && !error && (
           <div className="space-y-2">
-            <p className="font-label-bold text-xs sm:text-sm text-on-surface leading-snug">
+            <p className="font-label-bold font-bold text-sm text-on-surface leading-snug">
               &ldquo;Uang masih seuprit, tapi ngopi tiap hari? Sadar diri aja kak kalau masih miskin mah&rdquo;
             </p>
-            <p className="italic text-on-surface-variant text-xs">
+            <p className="italic text-on-surface-variant text-xs sm:text-sm">
               Dompetmu butuh pertolongan pertama, bukan es kopi susu lagi.
             </p>
           </div>
         )}
 
         {error && (
-          <div className="flex items-center gap-2 text-on-error-container bg-error-container border-2 border-outline p-3 rounded-xl text-xs font-label-bold">
+          <div className="flex items-center gap-2 text-on-error-container bg-error-container border-2 border-outline p-3 rounded-xl text-xs sm:text-sm font-label-bold font-bold">
             <span className="material-symbols-outlined text-base shrink-0">
               warning
             </span>
@@ -235,7 +236,7 @@ export function AISummaryCard({
             <div className="h-3.5 w-3/4 bg-surface-container-high rounded-md animate-pulse" />
             <div className="h-3.5 w-1/2 bg-surface-container-high rounded-md animate-pulse" />
             <div className="h-3.5 w-5/6 bg-surface-container-high rounded-md animate-pulse" />
-            <div className="flex items-center justify-center gap-2 pt-2 text-on-surface text-xs font-label-bold">
+            <div className="flex items-center justify-center gap-2 pt-2 text-on-surface text-xs sm:text-sm font-label-bold font-bold">
               <span className="material-symbols-outlined text-base animate-spin">
                 progress_activity
               </span>
@@ -245,7 +246,7 @@ export function AISummaryCard({
         )}
 
         {summary && !loading && (
-          <div className="text-xs sm:text-sm max-w-none leading-relaxed [&_h1]:text-on-surface [&_h1]:font-bold [&_h1]:text-base [&_h1]:mb-1.5 [&_h2]:text-on-surface [&_h2]:font-bold [&_h2]:text-sm [&_h2]:mb-1.5 [&_h2]:mt-2 [&_h3]:text-on-surface [&_h3]:font-bold [&_h3]:mb-1 [&_p]:text-on-surface [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:mb-2 [&_li]:mb-0.5 [&_ol]:list-decimal [&_ol]:pl-4 [&_ol]:mb-2 [&_strong]:text-on-surface [&_strong]:font-extrabold overflow-y-auto max-h-[220px] no-scrollbar pr-1">
+          <div className="text-sm max-w-none leading-relaxed [&_h1]:text-on-surface [&_h1]:font-bold [&_h1]:text-base [&_h1]:mb-1.5 [&_h2]:text-on-surface [&_h2]:font-bold [&_h2]:text-sm [&_h2]:mb-1.5 [&_h2]:mt-2 [&_h3]:text-on-surface [&_h3]:font-bold [&_h3]:mb-1 [&_p]:text-on-surface [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:mb-2 [&_li]:mb-0.5 [&_ol]:list-decimal [&_ol]:pl-4 [&_ol]:mb-2 [&_strong]:text-on-surface [&_strong]:font-extrabold overflow-y-auto max-h-[220px] no-scrollbar pr-1">
             <ReactMarkdown>{summary}</ReactMarkdown>
           </div>
         )}
@@ -253,7 +254,10 @@ export function AISummaryCard({
 
       <button
         type="button"
-        onClick={handleGenerate}
+        onClick={(e) => {
+          triggerSakugaPop(e.currentTarget, "impact");
+          handleGenerate();
+        }}
         disabled={loading || isAnonymous || (!isSuper && limitReached) || checkingLimit}
         title={
           isAnonymous
@@ -264,7 +268,7 @@ export function AISummaryCard({
             ? "Batas penggunaan harian tercapai"
             : "Sisa jatah harian: 1x"
         }
-        className={`w-full font-label-bold text-xs uppercase tracking-wider py-3 px-4 rounded-2xl flex items-center justify-center gap-2 border-2 border-outline transition-all active-press-sm cursor-pointer ${
+        className={`w-full min-h-11 font-label-bold font-bold text-xs sm:text-sm uppercase tracking-wide py-3 px-4 rounded-xl flex items-center justify-center gap-2 border-2 border-outline transition-all active-press-sm cursor-pointer ${
           isAnonymous || (!isSuper && limitReached)
             ? "bg-surface-variant text-on-surface-variant cursor-not-allowed opacity-70"
             : "bg-surface-container hover:bg-error-container hover:text-on-error-container text-on-surface shadow-[2px_2px_0_0_var(--theme-outline)]"

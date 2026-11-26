@@ -98,36 +98,36 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-12 gap-5 sm:gap-6 w-full">
         {/* Kartu 1: Total Saldo Bersih (Saldo Dingin) */}
-        <div className="col-span-12 lg:col-span-8 bg-primary-container border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] p-5 sm:p-6 md:p-7 flex flex-col justify-between gap-4 relative overflow-hidden rounded-3xl">
+        <div className="col-span-12 lg:col-span-8 bg-primary-container comic-card sketch-crosshatch p-5 sm:p-6 md:p-7 flex flex-col justify-between gap-4 relative overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-2.5">
-            <div className="h-9 inline-flex items-center gap-2 px-3 rounded-xl bg-surface/90 text-on-surface border border-outline/40">
+            <div className="min-h-10 inline-flex items-center gap-2 px-3 rounded-xl bg-surface text-on-surface border-2 border-outline shadow-[2px_2px_0_0_var(--theme-outline)]">
               <span className="material-symbols-outlined text-base">
                 account_balance_wallet
               </span>
-              <h2 className="font-label-bold text-[11px] sm:text-xs font-bold uppercase tracking-[0.06em]">
+              <h2 className="font-label-bold text-xs font-bold uppercase tracking-wider">
                 Total Saldo Bersih
               </h2>
             </div>
 
             <Link
               href="/accounts"
-              className="h-9 inline-flex items-center gap-1.5 px-3.5 rounded-xl bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline text-[11px] sm:text-xs font-label-bold tracking-wide shadow-[2px_2px_0_0_var(--theme-outline)] active-press-sm transition-colors"
+              className="min-h-11 inline-flex items-center gap-1.5 px-4 rounded-xl bg-surface hover:bg-surface-bright text-on-surface border-2 border-outline text-xs sm:text-sm font-label-bold font-bold shadow-[2px_2px_0_0_var(--theme-outline)] active-press-sm transition-colors"
             >
               <span>Kelola Dompet</span>
             </Link>
           </div>
 
           <div className="my-1 sm:my-2">
-            <h3 className="text-[clamp(2.25rem,5.2vw,3.75rem)] leading-[1.05] tracking-[-0.03em] font-display-lg font-extrabold text-on-primary-container break-words w-full tabular-nums">
+            <p className="text-[clamp(2.25rem,5.2vw,3.75rem)] leading-[1.05] tracking-[-0.03em] font-display-lg font-extrabold text-on-primary-container break-words w-full tabular-nums">
               {balanceLoading || (budgetLoading && !budget) ? (
                 <span className="animate-pulse opacity-50">Rp ...</span>
               ) : (
                 formatIDR(coldBalance)
               )}
-            </h3>
+            </p>
           </div>
 
-          <div className="bg-surface/90 dark:bg-surface/95 border border-outline/30 rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 text-xs sm:text-[13px] leading-snug text-on-surface">
+          <div className="bg-surface/95 border-2 border-outline/40 rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 text-xs sm:text-sm leading-snug text-on-surface">
             <span className="flex items-center gap-1.5 text-on-surface-variant text-pretty">
               <span className="material-symbols-outlined text-base text-tertiary shrink-0">
                 verified_user
@@ -148,7 +148,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Kartu 2: Roasting Keuangan AI */}
-        <div className="col-span-12 lg:col-span-4 h-full min-h-[260px] bg-surface border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] p-5 sm:p-6 flex flex-col relative rounded-3xl">
+        <div className="col-span-12 lg:col-span-4 h-full min-h-[260px] bg-surface comic-card p-5 sm:p-6 flex flex-col relative">
           {!loading && !balanceLoading ? (
             <AISummaryCard
               transactions={transactions}
@@ -177,84 +177,84 @@ export default function DashboardPage() {
         />
 
         {/* Kartu 4 (Kiri Bawah - 5 Kolom): Arus Kas & Pos Pengeluaran */}
-        <div className="col-span-12 lg:col-span-5 bg-surface border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] rounded-3xl p-5 sm:p-6 flex flex-col justify-between gap-4">
+        <div className="col-span-12 lg:col-span-5 bg-surface comic-card p-5 sm:p-6 flex flex-col justify-between gap-4">
           <div className="flex items-center justify-between gap-2">
-            <h4 className="font-headline-md text-base sm:text-lg text-on-surface font-bold">
+            <h2 className="font-headline-md text-lg text-on-surface font-extrabold">
               Arus Kas & Pos Pengeluaran
-            </h4>
-            <span className="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface-variant border border-outline/30 font-label-bold text-[11px] shrink-0">
+            </h2>
+            <span className="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface-variant border-2 border-outline/40 font-label-bold font-bold text-xs shrink-0">
               Bulan Ini
             </span>
           </div>
 
           <div className="flex flex-col gap-3 flex-1">
             {/* Kotak Pemasukan Bulan Ini */}
-            <div className="bg-background border border-outline/30 rounded-2xl p-3.5 space-y-2">
+            <div className="bg-background border-2 border-outline/35 rounded-xl p-3.5 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <span className="font-label-bold text-xs text-on-surface-variant flex items-center gap-1">
+                <span className="font-label-bold font-semibold text-xs sm:text-sm text-on-surface-variant flex items-center gap-1">
                   <span className="material-symbols-outlined text-base text-tertiary">
                     arrow_upward
                   </span>
                   <span>Pemasukan Bulan Ini</span>
                 </span>
-                <span className="font-display-lg text-base sm:text-lg font-bold text-tertiary dark:text-tertiary-fixed tabular-nums">
+                <span className="font-display-lg text-base sm:text-lg font-extrabold text-tertiary dark:text-tertiary-fixed tabular-nums">
                   +{formatIDR(totalIncome)}
                 </span>
               </div>
-              <div className="h-2.5 w-full bg-surface-container-high border border-outline/40 rounded-full overflow-hidden relative">
+              <div className="h-3 w-full bg-surface-container-high border-2 border-outline/50 rounded-lg overflow-hidden relative">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${incomePercent}%` }}
                   transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                  className="h-full bg-tertiary-container"
+                  className="h-full bg-tertiary-container sketch-hatch"
                 />
               </div>
             </div>
 
             {/* Kotak Total Pengeluaran */}
-            <div className="bg-background border border-outline/30 rounded-2xl p-3.5 space-y-2">
+            <div className="bg-background border-2 border-outline/35 rounded-xl p-3.5 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <span className="font-label-bold text-xs text-on-surface-variant flex items-center gap-1">
+                <span className="font-label-bold font-semibold text-xs sm:text-sm text-on-surface-variant flex items-center gap-1">
                   <span className="material-symbols-outlined text-base text-error">
                     arrow_downward
                   </span>
                   <span>Total Pengeluaran ({expenseToIncomeRatio}%)</span>
                 </span>
-                <span className="font-display-lg text-base sm:text-lg font-bold text-error tabular-nums">
+                <span className="font-display-lg text-base sm:text-lg font-extrabold text-error tabular-nums">
                   -{formatIDR(totalExpense)}
                 </span>
               </div>
-              <div className="h-2.5 w-full bg-surface-container-high border border-outline/40 rounded-full overflow-hidden relative">
+              <div className="h-3 w-full bg-surface-container-high border-2 border-outline/50 rounded-lg overflow-hidden relative">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${expensePercent}%` }}
                   transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
-                  className="h-full bg-error-container"
+                  className="h-full bg-error-container sketch-hatch"
                 />
               </div>
             </div>
 
             {/* Kotak Pos Terbesar */}
-            <div className="bg-surface-container border border-outline/30 rounded-2xl p-3.5 space-y-2.5 flex-1 flex flex-col justify-center">
+            <div className="bg-surface-container border-2 border-outline/35 rounded-xl p-3.5 space-y-2.5 flex-1 flex flex-col justify-center">
               <div className="flex items-center justify-between gap-2">
-                <span className="font-label-bold text-xs text-on-surface font-semibold">
+                <h3 className="font-label-bold text-sm text-on-surface font-bold">
                   Pos Pengeluaran Terbesar
-                </span>
+                </h3>
                 <Link
                   href="/categories"
-                  className="text-[11px] font-label-bold text-secondary hover:underline"
+                  className="text-xs font-label-bold font-bold text-secondary hover:underline"
                 >
                   Atur Pos &rarr;
                 </Link>
               </div>
 
               {withSpending.length === 0 ? (
-                <p className="text-xs text-on-surface-variant italic">
+                <p className="text-sm text-on-surface-variant italic">
                   Belum ada pengeluaran yang tercatat di bulan ini.
                 </p>
               ) : (
                 <div className="space-y-2">
-                  <p className="text-xs font-body-md text-on-surface-variant leading-relaxed">
+                  <p className="text-xs sm:text-sm font-body-md text-on-surface-variant leading-relaxed">
                     {withSpending
                       .slice(0, 4)
                       .map(
@@ -263,7 +263,7 @@ export default function DashboardPage() {
                       )
                       .join(" • ")}
                   </p>
-                  <div className="space-y-1.5 pt-1">
+                  <div className="space-y-2 pt-1">
                     {withSpending.slice(0, 3).map(({ cat, spent }, idx) => {
                       const barColors = [
                         "bg-primary-container",
@@ -272,7 +272,7 @@ export default function DashboardPage() {
                       ];
                       return (
                         <div key={cat.id} className="space-y-1">
-                          <div className="flex justify-between text-[11px] font-label-bold">
+                          <div className="flex justify-between text-xs font-label-bold font-semibold">
                             <span className="truncate text-on-surface">
                               {cat.name}
                             </span>
@@ -280,9 +280,9 @@ export default function DashboardPage() {
                               {formatIDR(spent)}
                             </span>
                           </div>
-                          <div className="h-2 w-full bg-surface border border-outline/30 rounded-full overflow-hidden">
+                          <div className="h-2.5 w-full bg-surface border border-outline/50 rounded-md overflow-hidden">
                             <div
-                              className={`h-full ${barColors[idx % 3]}`}
+                              className={`h-full ${barColors[idx % 3]} sketch-hatch`}
                               style={{ width: `${(spent / maxSpent) * 100}%` }}
                             />
                           </div>
@@ -297,13 +297,13 @@ export default function DashboardPage() {
         </div>
 
         {/* Kartu 5 (Kanan Bawah - 7 Kolom): Transaksi Terbaru */}
-        <div className="col-span-12 lg:col-span-7 bg-surface border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] rounded-3xl p-5 sm:p-6 flex flex-col gap-4">
+        <div className="col-span-12 lg:col-span-7 bg-surface comic-card p-5 sm:p-6 flex flex-col gap-4">
           <div className="flex items-center justify-between gap-2">
-            <h4 className="font-headline-md text-base sm:text-lg text-on-surface font-bold">
+            <h2 className="font-headline-md text-lg text-on-surface font-extrabold">
               Transaksi Terbaru
-            </h4>
+            </h2>
             <Link
-              className="font-label-bold text-xs text-secondary hover:underline inline-flex items-center gap-1"
+              className="font-label-bold font-bold text-xs sm:text-sm text-secondary hover:underline inline-flex items-center gap-1"
               href="/transactions"
             >
               <span>Lihat Semua Riwayat</span>
@@ -336,16 +336,16 @@ export default function DashboardPage() {
                         setShowTransactionForm(true);
                       }
                     }}
-                    className="flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl border border-outline/30 bg-background hover:bg-surface-container transition-colors group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                    className="flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-xl border-2 border-outline/30 hover:border-outline bg-background hover:bg-surface-container transition-colors group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div
-                        className={`w-10 h-10 rounded-xl border border-outline/40 flex items-center justify-center shrink-0 ${
+                        className={`w-10 h-10 rounded-xl border-2 border-outline/50 flex items-center justify-center shrink-0 ${
                           isIncome
-                            ? "bg-tertiary-container/85 text-on-tertiary-container"
+                            ? "bg-tertiary-container text-on-tertiary-container"
                             : isTransfer
-                            ? "bg-secondary-container/85 text-on-secondary-container"
-                            : "bg-primary-container/85 text-on-primary-container"
+                            ? "bg-secondary-container text-on-secondary-container"
+                            : "bg-primary-container text-on-primary-container"
                         }`}
                       >
                         <span className="material-symbols-outlined text-xl">
@@ -359,13 +359,13 @@ export default function DashboardPage() {
                         </span>
                       </div>
                       <div className="min-w-0">
-                        <h5 className="font-label-bold text-xs sm:text-sm text-on-surface font-semibold truncate">
+                        <h3 className="font-label-bold text-sm text-on-surface font-bold truncate">
                           {t.note ||
                             (isTransfer
                               ? "Transfer Antar Akun"
                               : cat?.name || t.category || "Transaksi")}
-                        </h5>
-                        <p className="font-body-sm text-[11px] sm:text-xs text-on-surface-variant truncate mt-0.5">
+                        </h3>
+                        <p className="font-body-sm text-xs text-on-surface-variant truncate mt-0.5">
                           {isTransfer
                             ? `${t.accountName || "?"} -> ${t.destinationAccountName || "?"}`
                             : `${cat?.name || t.category || "Tanpa Kategori"}${
@@ -385,7 +385,7 @@ export default function DashboardPage() {
                     </div>
 
                     <span
-                      className={`font-display-lg text-sm sm:text-base font-bold whitespace-nowrap shrink-0 tabular-nums ${
+                      className={`font-display-lg text-sm sm:text-base font-extrabold whitespace-nowrap shrink-0 tabular-nums ${
                         isIncome
                           ? "text-tertiary dark:text-tertiary-fixed"
                           : isTransfer
@@ -400,14 +400,14 @@ export default function DashboardPage() {
                 );
               })
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-background border border-dashed border-outline/50 rounded-2xl text-on-surface-variant">
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-background border-2 border-dashed border-outline/50 rounded-xl text-on-surface-variant sketch-hatch">
                 <span className="material-symbols-outlined text-3xl mb-1.5">
                   receipt_long
                 </span>
-                <p className="font-label-bold text-xs">
+                <p className="font-label-bold font-bold text-sm text-on-surface">
                   Belum ada transaksi di bulan ini
                 </p>
-                <p className="text-[11px] mt-0.5">
+                <p className="text-xs mt-1">
                   Ketuk tombol + biru di kanan bawah untuk mencatat transaksi.
                 </p>
               </div>

@@ -3,53 +3,24 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Common Fonts */
-  --font-sans: 'Plus Jakarta Sans', var(--font-sans);
-  
+  /* Typography: Bricolage Grotesque sebagai satu sistem font yang aktif di seluruh utility */
+  --font-sans: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-display-lg: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-headline-lg: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-headline-lg-mobile: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-headline-md: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-label-bold: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-label-md: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-body-lg: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-body-md: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-body-sm: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+
   /* Shared Spacing */
   --spacing-base: 8px;
   --spacing-container-padding: 24px;
   --spacing-gutter: 16px;
-  --spacing-hard-shadow-offset: 6px;
+  --spacing-hard-shadow-offset: 4px;
   --spacing-border-width: 3px;
-
-  /* Typography */
-  --font-family-headline-lg-mobile: 'Plus Jakarta Sans', sans-serif;
-  --font-family-label-bold: 'Plus Jakarta Sans', sans-serif;
-  --font-family-headline-md: 'Plus Jakarta Sans', sans-serif;
-  --font-family-body-lg: 'Plus Jakarta Sans', sans-serif;
-  --font-family-display-lg: 'Plus Jakarta Sans', sans-serif;
-  --font-family-headline-lg: 'Plus Jakarta Sans', sans-serif;
-  --font-family-body-md: 'Plus Jakarta Sans', sans-serif;
-
-  --text-headline-lg-mobile: 28px;
-  --text-headline-lg-mobile--line-height: 34px;
-  --text-headline-lg-mobile--font-weight: 800;
-
-  --text-label-bold: 14px;
-  --text-label-bold--line-height: 20px;
-  --text-label-bold--font-weight: 700;
-
-  --text-headline-md: 24px;
-  --text-headline-md--line-height: 32px;
-  --text-headline-md--font-weight: 700;
-
-  --text-body-lg: 18px;
-  --text-body-lg--line-height: 28px;
-  --text-body-lg--font-weight: 500;
-
-  --text-display-lg: 48px;
-  --text-display-lg--line-height: 56px;
-  --text-display-lg--letter-spacing: -0.02em;
-  --text-display-lg--font-weight: 800;
-
-  --text-headline-lg: 32px;
-  --text-headline-lg--line-height: 40px;
-  --text-headline-lg--font-weight: 800;
-
-  --text-body-md: 16px;
-  --text-body-md--line-height: 24px;
-  --text-body-md--font-weight: 500;
 
   /* CSS Variables mapped from root */
   --color-on-secondary-container: var(--theme-on-secondary-container);
@@ -102,14 +73,14 @@
 }
 
 :root {
-  /* Light Theme (Warm Paper Neo-Brutalist — Low Glare & WCAG AA) */
+  /* Light Theme (Warm Sketchbook Paper Cartoonish Neo-Brutalist — WCAG AA) */
   --theme-on-secondary-container: #10254a;
   --theme-surface-tint: #c84332;
   --theme-surface-container-low: #f6f2e9;
   --theme-on-tertiary-container: #123320;
   --theme-inverse-surface: #24211c;
   --theme-primary-fixed: #f2cc63;
-  --theme-secondary: #2156b5;
+  --theme-secondary: #1e4ea3;
   --theme-surface-container-highest: #d5cbb8;
   --theme-on-primary-container: #241e11;
   --theme-on-background: #24211c;
@@ -117,7 +88,7 @@
   --theme-secondary-fixed-dim: #7da9eb;
   --theme-on-error-container: #4a1210;
   --theme-primary-fixed-dim: #e2b338;
-  --theme-tertiary: #1d7543;
+  --theme-tertiary: #17663a;
   --theme-surface-variant: #efe9dc;
   --theme-surface: #faf7f0;
   --theme-on-tertiary-fixed-variant: #123320;
@@ -129,12 +100,12 @@
   --theme-inverse-primary: #e2b338;
   --theme-outline: #2b2720;
   --theme-tertiary-fixed-dim: #7ec493;
-  --theme-outline-variant: #c8beac;
+  --theme-outline-variant: #b8ad99;
   --theme-on-primary-fixed: #241e11;
   --theme-error: #b92b27;
   --theme-inverse-on-surface: #f6f2e9;
   --theme-on-secondary-fixed: #10254a;
-  --theme-background: #f2ede2; /* warm oatmeal paper to prevent glare */
+  --theme-background: #f2ede2;
   --theme-on-secondary-fixed-variant: #10254a;
   --theme-primary-container: #efc44e;
   --theme-surface-container-high: #dfd6c5;
@@ -148,59 +119,169 @@
   --theme-on-tertiary: #fffaf5;
   --theme-on-secondary: #fffaf5;
   --theme-on-surface: #24211c;
-  --theme-on-surface-variant: #575046;
+  --theme-on-surface-variant: #50493f;
   --theme-tertiary-container: #86cf9c;
+
+  /* Tekstur Arsiran Pensil & Bayangan Komik (Light) */
+  --theme-sketch-hatch: rgba(43, 39, 32, 0.065);
+  --theme-sketch-hatch-strong: rgba(43, 39, 32, 0.14);
+  --theme-sketch-dot: rgba(43, 39, 32, 0.075);
+
+  /* Sakuga VFX Color Bridge (Light) */
+  --sk-card: var(--theme-surface);
+  --sk-ink: var(--theme-outline);
+  --sk-dim: var(--theme-on-surface-variant);
+  --sk-soft: var(--theme-outline);
+  --sk-pri: var(--theme-tertiary-container);
+  --sk-pri-ink: var(--theme-on-tertiary-container);
+  --sk-acc: var(--theme-primary);
+  --sk-track: var(--theme-surface-container-high);
+  --sk-r: 14px;
+  --sk-bw: 3px;
+  --sk-sh: 4px 4px 0 var(--theme-outline);
+  --sk-btn-sh: 3px 3px 0 var(--theme-outline);
+  --sk-btn-line: var(--theme-outline);
+  --sk-alt-sh: 2px 2px 0 var(--theme-outline);
+  --sk-alt-line: var(--theme-outline);
+  --sk-tick: var(--theme-outline);
+  --sk-fill: var(--theme-primary);
+  --sk-on-pri: var(--theme-on-tertiary-container);
 }
 
 .dark {
-  /* Dark Theme (Cartoonish Night Mode) */
+  /* Dark Theme (Cartoonish Comic Night Mode — Crisp Chalk Ink Outline) */
   --theme-on-secondary-container: #ffffff;
   --theme-surface-tint: #ff8585;
-  --theme-surface-container-low: #2a2d3e;
+  --theme-surface-container-low: #262938;
   --theme-on-tertiary-container: #0c2414;
-  --theme-inverse-surface: #ffffff;
+  --theme-inverse-surface: #f6f2e9;
   --theme-primary-fixed: #ffdf60;
-  --theme-secondary: #6eaaff;
-  --theme-surface-container-highest: #4b506b;
-  --theme-on-primary-container: #1e1e1e;
-  --theme-on-background: #ffffff;
+  --theme-secondary: #7ab3ff;
+  --theme-surface-container-highest: #454a63;
+  --theme-on-primary-container: #1b1812;
+  --theme-on-background: #f8f5ee;
   --theme-surface-container-lowest: #141620;
   --theme-secondary-fixed-dim: #84b8ff;
   --theme-on-error-container: #ffffff;
   --theme-primary-fixed-dim: #ffd530;
   --theme-tertiary: #84d88e;
   --theme-surface-variant: #2a2d3e;
-  --theme-surface: #1d1f2b;
-  --theme-on-tertiary-fixed-variant: #1e1e1e;
-  --theme-surface-container: #232634;
-  --theme-on-primary: #1e1e1e;
-  --theme-error-container: #c92a3e;
+  --theme-surface: #1e212e;
+  --theme-on-tertiary-fixed-variant: #122818;
+  --theme-surface-container: #252838;
+  --theme-on-primary: #1b1812;
+  --theme-error-container: #b8293b;
   --theme-tertiary-fixed: #b4fdb9;
-  --theme-on-primary-fixed-variant: #1e1e1e;
+  --theme-on-primary-fixed-variant: #1b1812;
   --theme-inverse-primary: #ffb700;
-  --theme-outline: #4a5068; /* visible crisp border for dark mode */
+  --theme-outline: #d9d1c2; /* Garis tinta kapur tegas agar gaya komik brutalist tetap tajam */
   --theme-tertiary-fixed-dim: #97eb9f;
-  --theme-outline-variant: #42465d;
-  --theme-on-primary-fixed: #1e1e1e;
-  --theme-error: #ff6b7d;
+  --theme-outline-variant: #575d75;
+  --theme-on-primary-fixed: #1b1812;
+  --theme-error: #ff808e;
   --theme-inverse-on-surface: #141620;
-  --theme-on-secondary-fixed: #1e1e1e;
-  --theme-background: #191b26; /* Deep comic blue-black */
-  --theme-on-secondary-fixed-variant: #1e1e1e;
-  --theme-primary-container: #ffc107;
+  --theme-on-secondary-fixed: #10254a;
+  --theme-background: #171924;
+  --theme-on-secondary-fixed-variant: #10254a;
+  --theme-primary-container: #f5be2e;
   --theme-surface-container-high: #32364a;
   --theme-secondary-container: #2563eb;
-  --theme-surface-bright: #3b3f57;
-  --theme-on-tertiary-fixed: #1e1e1e;
+  --theme-surface-bright: #363a50;
+  --theme-on-tertiary-fixed: #122818;
   --theme-secondary-fixed: #c6e0ff;
   --theme-primary: #ff8585;
-  --theme-surface-dim: #141620;
+  --theme-surface-dim: #13151f;
   --theme-on-error: #ffffff;
   --theme-on-tertiary: #0c2414;
   --theme-on-secondary: #ffffff;
-  --theme-on-surface: #ffffff;
+  --theme-on-surface: #f8f5ee;
   --theme-on-surface-variant: #cbd5e1;
-  --theme-tertiary-container: #5cb868;
+  --theme-tertiary-container: #63c270;
+
+  /* Tekstur Arsiran Pensil & Bayangan Komik (Dark) */
+  --theme-sketch-hatch: rgba(217, 209, 194, 0.06);
+  --theme-sketch-hatch-strong: rgba(217, 209, 194, 0.13);
+  --theme-sketch-dot: rgba(217, 209, 194, 0.075);
+
+  /* Sakuga VFX Color Bridge (Dark) */
+  --sk-card: var(--theme-surface);
+  --sk-ink: var(--theme-outline);
+  --sk-dim: var(--theme-on-surface-variant);
+  --sk-soft: var(--theme-outline);
+  --sk-pri: var(--theme-tertiary-container);
+  --sk-pri-ink: var(--theme-on-tertiary-container);
+  --sk-acc: var(--theme-primary);
+  --sk-track: var(--theme-surface-container-high);
+  --sk-r: 14px;
+  --sk-bw: 3px;
+  --sk-sh: 4px 4px 0 var(--theme-outline);
+  --sk-btn-sh: 3px 3px 0 var(--theme-outline);
+  --sk-btn-line: var(--theme-outline);
+  --sk-alt-sh: 2px 2px 0 var(--theme-outline);
+  --sk-alt-line: var(--theme-outline);
+  --sk-tick: var(--theme-outline);
+  --sk-fill: var(--theme-primary-container);
+  --sk-on-pri: var(--theme-on-tertiary-container);
+}
+
+/* Sistem Satu Gaya: Cartoonist Pencil-Sketch Neo-Brutalist */
+@utility sketch-paper-bg {
+  background-image:
+    radial-gradient(var(--theme-sketch-dot) 1px, transparent 1px),
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0px,
+      transparent 14px,
+      var(--theme-sketch-hatch) 14px,
+      var(--theme-sketch-hatch) 15px
+    );
+  background-size: 20px 20px, 28px 28px;
+}
+
+@utility sketch-hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0px,
+    transparent 5px,
+    var(--theme-sketch-hatch-strong) 5px,
+    var(--theme-sketch-hatch-strong) 6.5px
+  );
+}
+
+@utility sketch-crosshatch {
+  background-image:
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0px,
+      transparent 7px,
+      var(--theme-sketch-hatch) 7px,
+      var(--theme-sketch-hatch) 8px
+    ),
+    repeating-linear-gradient(
+      45deg,
+      transparent 0px,
+      transparent 7px,
+      var(--theme-sketch-hatch) 7px,
+      var(--theme-sketch-hatch) 8px
+    );
+}
+
+@utility comic-card {
+  border: 3px solid var(--theme-outline);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0px 0px var(--theme-outline);
+}
+
+@utility comic-subcard {
+  border: 2px solid var(--theme-outline);
+  border-radius: 12px;
+  box-shadow: 2px 2px 0px 0px var(--theme-outline);
+}
+
+@utility comic-modal {
+  border: 3px solid var(--theme-outline);
+  border-radius: 16px;
+  box-shadow: 6px 6px 0px 0px var(--theme-outline);
 }
 
 @utility neo-brutalist-shadow {
@@ -211,20 +292,20 @@
 }
 @utility neo-brutalist-border {
   border: 3px solid var(--theme-outline);
-  border-radius: 16px; /* softer rounded corners for cartoon feel */
+  border-radius: 16px;
 }
 @utility active-press {
   transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   &:active {
-      transform: translate(2px, 2px);
-      box-shadow: 2px 2px 0px 0px var(--theme-outline);
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0px 0px var(--theme-outline);
   }
 }
 @utility active-press-sm {
   transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   &:active {
-      transform: translate(1px, 1px);
-      box-shadow: 1px 1px 0px 0px var(--theme-outline);
+    transform: translate(1.5px, 1.5px);
+    box-shadow: 0.5px 0.5px 0px 0px var(--theme-outline);
   }
 }
 @utility text-outline {
@@ -233,20 +314,21 @@
 }
 @utility text-outline-dark {
   text-shadow:
-    -1px -1px 0 rgba(0,0,0,0.6),
-     1px -1px 0 rgba(0,0,0,0.6),
-    -1px  1px 0 rgba(0,0,0,0.6),
-     1px  1px 0 rgba(0,0,0,0.6);
+    -1px -1px 0 rgba(0, 0, 0, 0.6),
+     1px -1px 0 rgba(0, 0, 0, 0.6),
+    -1px  1px 0 rgba(0, 0, 0, 0.6),
+     1px  1px 0 rgba(0, 0, 0, 0.6);
 }
 @utility stroke-cartoon {
-  -webkit-text-stroke: 0.5px var(--theme-outline);
+  -webkit-text-stroke: 0.4px var(--theme-outline);
+  paint-order: stroke fill;
 }
 @utility icon-filled {
   font-variation-settings: 'FILL' 1;
 }
 
 .material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
   display: inline-block;
   line-height: 1;
   text-transform: none;
@@ -257,7 +339,7 @@
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
 }
 
 ::selection {
@@ -266,12 +348,125 @@ body {
 }
 
 h1, h2, h3, h4 {
-  word-spacing: 0.12em;
+  letter-spacing: -0.02em;
 }
 
-h1.uppercase, h2.uppercase, h3.uppercase, h4.uppercase {
-  letter-spacing: 0.02em;
-  word-spacing: 0.22em;
+canvas.sakuga-fx {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 2147483000;
+}
+
+sakuga-toast {
+  position: fixed;
+  left: 16px;
+  bottom: 96px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  sakuga-toast {
+    left: 112px;
+    bottom: 24px;
+  }
+}
+
+sakuga-toast::part(toast) {
+  pointer-events: auto;
+  font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+}
+
+sakuga-button.sakuga-cancel-btn {
+  display: block;
+}
+
+sakuga-button.sakuga-cancel-btn::part(button) {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 18px;
+  border-width: 2px;
+  border-radius: 12px;
+  font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+sakuga-input.sakuga-field {
+  display: block;
+  width: 100%;
+  --sk-input-width: 100%;
+}
+
+sakuga-input.sakuga-field::part(input) {
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  min-height: 44px;
+  padding: 11px 16px;
+  border-width: 2px;
+  border-radius: 12px;
+  box-shadow: 2px 2px 0 0 var(--theme-outline);
+  background: var(--theme-background);
+  color: var(--theme-on-surface);
+  font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+sakuga-input.sakuga-field:focus-within::part(input) {
+  border-color: var(--theme-secondary);
+}
+
+sakuga-input.sakuga-field.sakuga-field--surface::part(input) {
+  background: var(--theme-surface);
+}
+
+sakuga-input.sakuga-field.sakuga-field--lowest::part(input) {
+  background: var(--theme-surface-container-lowest);
+}
+
+sakuga-input.sakuga-field.sakuga-field--pl-icon::part(input) {
+  padding-left: 44px;
+}
+
+sakuga-input.sakuga-field.sakuga-field--pr-icon::part(input) {
+  padding-right: 44px;
+}
+
+sakuga-input.sakuga-field.sakuga-field--pl-rp::part(input) {
+  padding-left: 44px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+sakuga-input.sakuga-field.sakuga-field--hero-amount::part(input) {
+  min-height: 44px;
+  padding: 4px 6px;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  font-size: 1.75rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+sakuga-toggle.sakuga-theme-toggle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: 0;
+  transform: translate(-50%, -50%) scale(0.56);
+  transform-origin: center center;
 }
 
 .no-scrollbar::-webkit-scrollbar {

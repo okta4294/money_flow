@@ -36,17 +36,17 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
 
   if (loading) {
     return (
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-surface border-4 border-outline rounded-3xl p-5 animate-pulse flex flex-col gap-4">
+          <div key={i} className="bg-background border-2 border-outline rounded-xl p-5 animate-pulse flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-surface-bright border-2 border-outline rounded-2xl" />
+              <div className="w-11 h-11 bg-surface-bright border-2 border-outline rounded-xl" />
               <div className="flex-1 space-y-2">
                 <div className="h-4 bg-surface-bright rounded w-28" />
                 <div className="h-3 bg-surface-bright rounded w-20" />
               </div>
             </div>
-            <div className="h-6 bg-surface-bright border-2 border-outline rounded-full w-full mt-2" />
+            <div className="h-5 bg-surface-bright border-2 border-outline rounded-lg w-full mt-2" />
           </div>
         ))}
       </section>
@@ -55,16 +55,16 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
 
   if (debts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-20 h-20 bg-surface-container border-4 border-outline rounded-3xl flex items-center justify-center mb-4 shadow-[4px_4px_0_0_var(--theme-outline)]">
+      <div className="flex flex-col items-center justify-center py-12 text-center bg-background border-2 border-dashed border-outline/60 rounded-xl sketch-hatch px-4">
+        <div className="w-16 h-16 bg-surface-container comic-subcard flex items-center justify-center mb-4">
           <span className="material-symbols-outlined text-4xl text-on-surface-variant">
             {filter === "paid" ? "check_circle" : "celebration"}
           </span>
         </div>
-        <p className="font-headline-md text-on-surface text-lg">
+        <p className="font-headline-md font-extrabold text-on-surface text-lg">
           {filter === "paid" ? "Belum ada hutang yang lunas" : "Tidak ada hutang aktif"}
         </p>
-        <p className="font-body-md text-on-surface-variant mt-1">
+        <p className="font-body-md text-sm text-on-surface-variant mt-1">
           {filter === "paid" ? "Catatan hutang yang telah lunas akan tersimpan di sini" : "Hebat! Anda bebas dari beban hutang."}
         </p>
       </div>
@@ -103,7 +103,7 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
               key={debt.id}
               role="button"
               tabIndex={0}
-              className="bg-background hover:bg-surface-bright border-2 border-outline rounded-2xl p-3.5 sm:p-5 shadow-[2px_2px_0_0_var(--theme-outline)] transition-all flex flex-col gap-2.5 group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+              className="bg-background hover:bg-surface-bright border-2 border-outline/50 hover:border-outline rounded-xl p-4 sm:p-5 transition-all flex flex-col gap-3 group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
               onClick={() => onEdit(debt)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -115,7 +115,7 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
               <div className="flex items-start justify-between gap-2.5 min-w-0">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div
-                    className={`w-10 h-10 rounded-xl border-2 border-outline flex items-center justify-center shrink-0 ${
+                    className={`w-11 h-11 rounded-xl border-2 border-outline flex items-center justify-center shrink-0 ${
                       isPaid
                         ? "bg-tertiary-container text-on-tertiary-container"
                         : overdue
@@ -129,16 +129,16 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                      <h4 className="font-label-bold text-sm sm:text-base font-extrabold text-on-surface truncate max-w-full">
+                      <h3 className="font-label-bold text-base font-extrabold text-on-surface truncate max-w-full">
                         {debt.name}
-                      </h4>
+                      </h3>
                       {overdue && !isPaid && (
-                        <span className="px-2 py-0.5 rounded-md bg-error-container text-on-error-container border border-outline text-[10px] font-label-bold uppercase shrink-0">
+                        <span className="px-2 py-0.5 rounded-md bg-error-container text-on-error-container border border-outline text-xs font-label-bold font-bold shrink-0">
                           Lewat Jatuh Tempo
                         </span>
                       )}
                       {isPaid && (
-                        <span className="px-2 py-0.5 rounded-md bg-tertiary-container text-on-tertiary-container border border-outline text-[10px] font-label-bold uppercase shrink-0">
+                        <span className="px-2 py-0.5 rounded-md bg-tertiary-container text-on-tertiary-container border border-outline text-xs font-label-bold font-bold shrink-0">
                           Lunas
                         </span>
                       )}
@@ -162,7 +162,7 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                     }}
                     title="Edit Hutang"
                     aria-label={`Edit ${debt.name}`}
-                    className="w-10 h-10 rounded-xl bg-surface hover:bg-surface-bright border-2 border-outline text-on-surface flex items-center justify-center active-press-sm cursor-pointer"
+                    className="w-11 h-11 rounded-xl bg-surface hover:bg-surface-bright border-2 border-outline text-on-surface flex items-center justify-center active-press-sm cursor-pointer"
                   >
                     <span aria-hidden="true" className="material-symbols-outlined text-base">
                       edit
@@ -177,7 +177,7 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                     disabled={deletingId === debt.id}
                     title="Hapus Hutang"
                     aria-label={`Hapus ${debt.name}`}
-                    className="w-10 h-10 rounded-xl bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm cursor-pointer disabled:opacity-50"
+                    className="w-11 h-11 rounded-xl bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm cursor-pointer disabled:opacity-50"
                   >
                     <span aria-hidden="true" className="material-symbols-outlined text-base">
                       {deletingId === debt.id ? "hourglass_top" : "delete"}
@@ -186,13 +186,13 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-baseline justify-between gap-1.5 pt-1.5 border-t border-outline/15 min-w-0">
+              <div className="flex flex-wrap items-baseline justify-between gap-1.5 pt-2 border-t border-outline/15 min-w-0">
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-[11px] font-label-bold uppercase text-on-surface-variant">
+                  <span className="text-xs font-label-bold font-semibold uppercase text-on-surface-variant">
                     Sisa:
                   </span>
                   <span
-                    className={`font-display-lg text-sm sm:text-base font-extrabold ${
+                    className={`font-display-lg text-base font-extrabold tabular-nums ${
                       isPaid
                         ? "text-tertiary dark:text-tertiary-fixed"
                         : overdue
@@ -204,14 +204,14 @@ export function DebtList({ debts, loading, onEdit, filter }: DebtListProps) {
                   </span>
                 </div>
 
-                <span className="text-xs font-label-bold text-on-surface-variant">
+                <span className="text-xs font-label-bold font-semibold text-on-surface-variant tabular-nums">
                   Total {formatRupiah(debt.totalAmount)} ({Math.round(pct)}%)
                 </span>
               </div>
 
-              <div className="h-3.5 w-full bg-surface-container-high border-2 border-outline rounded-full overflow-hidden relative">
+              <div className="h-3.5 w-full bg-surface-container-high border-2 border-outline rounded-lg overflow-hidden relative">
                 <div
-                  className={`h-full ${barColorClass} border-r-2 border-outline transition-all duration-500`}
+                  className={`h-full ${barColorClass} sketch-hatch border-r-2 border-outline transition-all duration-500`}
                   style={{ width: `${Math.max(pct, 6)}%` }}
                 />
               </div>

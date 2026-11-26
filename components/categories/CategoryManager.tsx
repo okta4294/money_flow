@@ -11,6 +11,8 @@ import {
 } from "@/lib/budget-calculator";
 import { motion, AnimatePresence } from "framer-motion";
 import { normalizeCategoryIcon } from "@/lib/utils";
+import { triggerSakugaPop, showSakugaToast } from "@/lib/sakuga";
+import { SakugaInput } from "@/components/ui/SakugaInput";
 
 interface CategoryManagerProps {
   categories: Category[];
@@ -158,6 +160,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
           icon,
           ...budgetFlags,
         });
+        showSakugaToast("Kategori diperbarui!");
       } else {
         await addCategory(user.uid, {
           name: name.trim(),
@@ -166,6 +169,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
           color: "#000000",
           ...budgetFlags,
         });
+        showSakugaToast("Kategori tersimpan!");
       }
       setShowForm(false);
     } catch {
@@ -194,14 +198,14 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
 
   return (
     <div className="space-y-6">
-      {/* Bagian Atas: Tambah Kategori Baru + Klasifikasi Pos Anggaran sesuai FigCraft Frame 06 */}
-      <div className="bg-surface border-4 border-outline rounded-3xl p-5 sm:p-6 shadow-[4px_4px_0_0_var(--theme-outline)] space-y-4">
+      {/* Bagian Atas: Tambah Kategori Baru + Klasifikasi Pos Anggaran */}
+      <div className="bg-surface comic-card p-5 sm:p-6 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 className="font-headline-md text-sm sm:text-base uppercase font-extrabold text-on-surface">
+            <h2 className="font-headline-md text-base sm:text-lg font-extrabold text-on-surface">
               Tambah Kategori Baru + Klasifikasi Pos Anggaran
-            </h3>
-            <p className="text-xs font-body-sm text-on-surface-variant mt-0.5">
+            </h2>
+            <p className="text-xs sm:text-sm font-body-sm text-on-surface-variant mt-0.5">
               Pilih tab Pengeluaran atau Pemasukan, lalu tambahkan atau ubah klasifikasi pos anggaran.
             </p>
           </div>
@@ -209,23 +213,26 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
           <button
             id="add-category-btn"
             type="button"
-            onClick={openAdd}
-            className="px-4 py-2.5 rounded-xl bg-primary-container text-on-primary-container border-2 border-outline font-label-bold text-xs uppercase shadow-[2px_2px_0_0_var(--theme-outline)] hover:opacity-95 active-press-sm flex items-center gap-1.5 cursor-pointer shrink-0"
+            onClick={(e) => {
+              triggerSakugaPop(e.currentTarget, "sparkle");
+              openAdd();
+            }}
+            className="min-h-11 px-4 py-2.5 rounded-xl bg-primary-container text-on-primary-container border-2 border-outline font-label-bold font-bold text-xs sm:text-sm shadow-[2px_2px_0_0_var(--theme-outline)] hover:opacity-95 active-press-sm flex items-center gap-1.5 cursor-pointer shrink-0 sketch-hatch"
           >
             <span className="material-symbols-outlined text-base">add</span>
             <span>Tambah Kategori Baru</span>
           </button>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t-2 border-outline/15">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t-2 border-outline/15">
           <div className="flex gap-2.5">
             <button
               type="button"
               onClick={() => { setTab("expense"); setPosFilter("all"); }}
-              className={`px-4 py-2 font-label-bold text-xs uppercase rounded-xl transition-all whitespace-nowrap border-2 border-outline cursor-pointer ${
+              className={`min-h-11 px-4 py-2 font-label-bold text-xs sm:text-sm rounded-xl transition-all whitespace-nowrap border-2 border-outline cursor-pointer ${
                 tab === "expense"
-                  ? "bg-primary-container text-on-primary-container shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold"
-                  : "bg-background text-on-surface hover:bg-surface-bright"
+                  ? "bg-primary-container text-on-primary-container shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold sketch-hatch"
+                  : "bg-background text-on-surface hover:bg-surface-bright font-semibold"
               }`}
             >
               Pengeluaran ({expenseCount})
@@ -233,17 +240,17 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
             <button
               type="button"
               onClick={() => { setTab("income"); setPosFilter("all"); }}
-              className={`px-4 py-2 font-label-bold text-xs uppercase rounded-xl transition-all whitespace-nowrap border-2 border-outline cursor-pointer ${
+              className={`min-h-11 px-4 py-2 font-label-bold text-xs sm:text-sm rounded-xl transition-all whitespace-nowrap border-2 border-outline cursor-pointer ${
                 tab === "income"
-                  ? "bg-tertiary-container text-on-tertiary-container shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold"
-                  : "bg-background text-on-surface hover:bg-surface-bright"
+                  ? "bg-tertiary-container text-on-tertiary-container shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold sketch-hatch"
+                  : "bg-background text-on-surface hover:bg-surface-bright font-semibold"
               }`}
             >
               Pemasukan ({incomeCount})
             </button>
           </div>
 
-          <div className="text-[11px] font-label-bold text-on-surface-variant flex flex-wrap items-center gap-1.5">
+          <div className="text-xs font-label-bold text-on-surface-variant flex flex-wrap items-center gap-1.5">
             <span>Jenis Pos:</span>
             {posOptions.map((opt) => {
               const active = posFilter === opt.id;
@@ -252,8 +259,8 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                   key={opt.id}
                   type="button"
                   onClick={() => setPosFilter(active ? "all" : opt.id)}
-                  className={`px-2.5 py-1 rounded-lg border-2 border-outline text-on-surface transition-all cursor-pointer ${opt.color} ${
-                    active ? "shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold -translate-y-0.5" : "opacity-80 hover:opacity-100"
+                  className={`min-h-9 px-3 py-1 rounded-lg border-2 border-outline text-on-surface transition-all cursor-pointer ${opt.color} ${
+                    active ? "shadow-[2px_2px_0_0_var(--theme-outline)] font-extrabold" : "opacity-85 hover:opacity-100 font-semibold"
                   }`}
                 >
                   {opt.label}
@@ -264,13 +271,13 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
         </div>
       </div>
 
-      {/* Bagian Bawah: Daftar Kategori Aktif sesuai FigCraft Frame 06 */}
-      <div className="bg-surface border-4 border-outline rounded-3xl p-5 sm:p-6 shadow-[4px_4px_0_0_var(--theme-outline)] space-y-4">
+      {/* Bagian Bawah: Daftar Kategori Aktif */}
+      <div className="bg-surface comic-card p-5 sm:p-6 space-y-4">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="font-headline-md text-sm sm:text-base uppercase font-extrabold text-on-surface">
+          <h2 className="font-headline-md text-base sm:text-lg font-extrabold text-on-surface">
             Daftar Kategori Aktif ({tab === "expense" ? "Pengeluaran" : "Pemasukan"})
-          </h3>
-          <span className="text-xs font-label-bold text-on-surface-variant">
+          </h2>
+          <span className="text-xs sm:text-sm font-label-bold font-bold text-on-surface-variant">
             {filtered.length} Kategori
           </span>
         </div>
@@ -280,22 +287,22 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
             {[...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="h-16 rounded-2xl bg-surface-bright border-2 border-outline animate-pulse"
+                className="h-16 rounded-xl bg-surface-bright border-2 border-outline animate-pulse"
               />
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-background border-2 border-dashed border-outline rounded-2xl p-8 text-center space-y-2">
+          <div className="bg-background border-2 border-dashed border-outline/60 rounded-xl p-8 text-center space-y-2 sketch-hatch">
             <span className="material-symbols-outlined text-3xl text-on-surface-variant">
               grid_view
             </span>
-            <p className="font-label-bold text-sm text-on-surface uppercase">
+            <p className="font-label-bold font-bold text-sm text-on-surface">
               Belum ada kategori {tab === "expense" ? "pengeluaran" : "pemasukan"}
             </p>
             <button
               type="button"
               onClick={openAdd}
-              className="mt-1 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container border-2 border-outline font-label-bold text-xs uppercase shadow-[2px_2px_0_0_var(--theme-outline)] cursor-pointer"
+              className="mt-1 min-h-11 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container border-2 border-outline font-label-bold font-bold text-xs sm:text-sm shadow-[2px_2px_0_0_var(--theme-outline)] cursor-pointer"
             >
               + Buat Kategori Sekarang
             </button>
@@ -317,13 +324,13 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
               const badgeLabel =
                 cat.type === "expense"
                   ? isFixed
-                    ? "POS TETAP BULANAN"
+                    ? "Pos Tetap Bulanan"
                     : isEssential
-                    ? "POS POKOK (100% PRIORITAS)"
-                    : "POS SEKUNDER / VARIABEL"
+                    ? "Pos Pokok (100%)"
+                    : "Pos Sekunder / Variabel"
                   : isPrimaryIncome
-                  ? "PEMASUKAN UTAMA (SIKLUS GAJIAN)"
-                  : "PEMASUKAN SAMPINGAN";
+                  ? "Pemasukan Utama"
+                  : "Pemasukan Sampingan";
 
               const badgeStyle =
                 cat.type === "expense"
@@ -352,7 +359,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                       openEdit(cat);
                     }
                   }}
-                  className="bg-background hover:bg-surface-bright rounded-2xl border-2 border-outline p-3.5 sm:p-4 flex items-center justify-between gap-3 shadow-[2px_2px_0_0_var(--theme-outline)] transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                  className="bg-background hover:bg-surface-bright rounded-xl border-2 border-outline/50 hover:border-outline p-3.5 sm:p-4 flex items-center justify-between gap-3 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div
@@ -363,11 +370,11 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                       </span>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-label-bold text-sm sm:text-base text-on-surface font-extrabold truncate">
+                      <h3 className="font-label-bold text-sm sm:text-base text-on-surface font-extrabold truncate">
                         {cat.name}
-                      </h4>
+                      </h3>
                       <span
-                        className={`mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-outline text-[10px] font-label-bold uppercase max-w-full truncate ${badgeStyle}`}
+                        className={`mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-outline text-xs font-label-bold font-bold max-w-full truncate ${badgeStyle}`}
                       >
                         {badgeLabel}
                       </span>
@@ -383,7 +390,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                       }}
                       title="Edit Kategori"
                       aria-label={`Edit ${cat.name}`}
-                      className="w-10 h-10 rounded-xl bg-surface hover:bg-surface-bright border-2 border-outline text-on-surface flex items-center justify-center active-press-sm cursor-pointer"
+                      className="w-11 h-11 rounded-xl bg-surface hover:bg-surface-bright border-2 border-outline text-on-surface flex items-center justify-center active-press-sm cursor-pointer"
                     >
                       <span aria-hidden="true" className="material-symbols-outlined text-base">
                         edit
@@ -397,7 +404,7 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                       }}
                       title="Hapus Kategori"
                       aria-label={`Hapus ${cat.name}`}
-                      className="w-10 h-10 rounded-xl bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm cursor-pointer"
+                      className="w-11 h-11 rounded-xl bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center hover:opacity-90 active-press-sm cursor-pointer"
                     >
                       <span aria-hidden="true" className="material-symbols-outlined text-base">
                         delete
@@ -420,17 +427,17 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }} 
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="relative bg-surface rounded-3xl w-full max-w-md p-6 border-[3px] border-outline shadow-[6px_6px_0_0_var(--theme-outline)] z-10 max-h-[90vh] overflow-y-auto"
+            className="relative bg-surface comic-modal w-full max-w-md p-6 z-10 max-h-[90vh] overflow-y-auto"
           >
-            <div className="flex items-center justify-between mb-5">
-              <h3 id="category-modal-title" className="font-headline-lg text-on-background tracking-tighter stroke-cartoon">
+            <div className="flex items-center justify-between mb-5 pb-3.5 border-b-[3px] border-outline">
+              <h2 id="category-modal-title" className="font-display-lg text-xl sm:text-2xl font-extrabold text-on-background tracking-tight">
                 {editData ? "Edit Kategori" : "Kategori Baru"}
-              </h3>
+              </h2>
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
                 aria-label="Tutup modal"
-                className="w-9 h-9 rounded-xl bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center active-press-sm cursor-pointer shadow-[2px_2px_0_0_var(--theme-outline)]"
+                className="w-11 h-11 rounded-xl bg-error-container text-on-error-container border-2 border-outline flex items-center justify-center active-press-sm cursor-pointer shadow-[2px_2px_0_0_var(--theme-outline)]"
               >
                 <span aria-hidden="true" className="material-symbols-outlined text-lg">close</span>
               </button>
@@ -438,50 +445,52 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
 
             <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-4">
               <div>
-                <label htmlFor="category-name-input" className="text-on-surface-variant font-label-bold block mb-1.5 uppercase tracking-widest text-xs">Nama Kategori</label>
-                <input
+                <label htmlFor="category-name-input" className="text-on-surface-variant font-label-bold font-bold block mb-1.5 uppercase tracking-wider text-xs">Nama Kategori</label>
+                <SakugaInput
                   id="category-name-input"
-                  type="text"
+                  name="categoryName"
+                  label="Nama Kategori"
                   autoFocus={!editData}
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onValueChange={setName}
                   placeholder="Contoh: Makanan & Minuman"
-                  className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl px-4 py-3 text-on-background font-body-md focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus:shadow-[2px_2px_0_0_var(--theme-outline)] transition-all"
+                  className="sakuga-field--lowest"
                 />
               </div>
 
               <div>
-                <label className="text-on-surface-variant font-label-bold block mb-2 uppercase tracking-widest text-xs">Ikon Kategori</label>
+                <span className="text-on-surface-variant font-label-bold font-bold block mb-2 uppercase tracking-wider text-xs">Ikon Kategori</span>
                 <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-1 no-scrollbar">
                   {PRESET_ICONS.map((i) => (
                     <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
+                      whileHover={{ y: -1 }}
+                      whileTap={{ scale: 0.94 }}
                       key={i}
                       type="button"
                       onClick={() => setIcon(i)}
-                      className={`w-12 h-12 rounded-xl transition-all duration-150 flex items-center justify-center border-2 border-outline ${
-                        icon === i ? "bg-primary-container text-on-primary-container shadow-[2px_2px_0_0_var(--theme-outline)] -translate-y-1 -translate-x-1" : "bg-surface text-on-surface-variant hover:bg-surface-bright"
+                      aria-label={`Pilih ikon ${i}`}
+                      className={`w-11 h-11 rounded-xl transition-all duration-150 flex items-center justify-center border-2 border-outline cursor-pointer ${
+                        icon === i ? "bg-primary-container text-on-primary-container shadow-[2px_2px_0_0_var(--theme-outline)]" : "bg-surface text-on-surface-variant hover:bg-surface-bright"
                       }`}
                     >
-                      <span className="material-symbols-outlined text-[24px]">{i}</span>
+                      <span className="material-symbols-outlined text-[22px]">{i}</span>
                     </motion.button>
                   ))}
                 </div>
               </div>
 
               {tab === "expense" ? (
-                <div className="bg-surface-container border-2 border-outline rounded-2xl p-3.5 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-on-surface-variant font-label-bold block uppercase tracking-widest text-xs">
+                <div className="bg-surface-container border-2 border-outline rounded-xl p-3.5 space-y-2.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-on-surface font-label-bold font-bold block uppercase tracking-wider text-xs">
                       Klasifikasi Smart Budget
-                    </label>
-                    <span className="text-[11px] font-medium text-on-surface-variant/80">
+                    </span>
+                    <span className="text-xs font-medium text-on-surface-variant">
                       {expenseClassification === "auto" ? "Deteksi Otomatis" : "Diatur Manual"}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-1.5">
+                  <div className="grid grid-cols-2 gap-2">
                     {[
                       {
                         id: "auto",
@@ -514,24 +523,30 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                           key={opt.id}
                           type="button"
                           onClick={() => setExpenseClassification(opt.id as ExpenseClassification)}
-                          className={`p-2.5 rounded-xl text-left border-2 transition-all flex flex-col justify-between ${
+                          className={`p-3 rounded-xl text-left border-2 transition-all flex flex-col justify-between cursor-pointer ${
                             isSelected
-                              ? "bg-primary-container text-on-primary-container border-outline shadow-[2px_2px_0_0_var(--theme-outline)] font-bold -translate-y-0.5"
-                              : "bg-surface text-on-surface border-outline/40 hover:bg-surface-bright hover:border-outline"
+                              ? "bg-primary-container text-on-primary-container border-outline shadow-[2px_2px_0_0_var(--theme-outline)] font-bold"
+                              : "bg-surface text-on-surface border-outline/45 hover:bg-surface-bright hover:border-outline"
                           }`}
                         >
                           <div className="flex items-center gap-1.5 mb-1">
-                            <span className="material-symbols-outlined text-[16px]">{opt.icon}</span>
-                            <span className="text-xs font-bold leading-none">{opt.label}</span>
+                            <span className="material-symbols-outlined text-base">{opt.icon}</span>
+                            <span className="text-xs sm:text-sm font-bold leading-none">{opt.label}</span>
                           </div>
-                          <span className="text-[10px] leading-tight text-on-surface-variant opacity-85">
+                          <span
+                            className={`text-xs leading-snug ${
+                              isSelected
+                                ? "text-on-primary-container/85 font-medium"
+                                : "text-on-surface-variant"
+                            }`}
+                          >
                             {opt.desc}
                           </span>
                         </button>
                       );
                     })}
                   </div>
-                  <p className="text-[10px] text-on-surface-variant pt-1 leading-relaxed">
+                  <p className="text-xs text-on-surface-variant pt-1 leading-relaxed">
                     {expenseClassification === "auto" &&
                       "Sistem otomatis mendeteksi kata kunci nama (contoh: 'makan'/'belanja' jadi Pokok, 'kos'/'listrik' jadi Tetap, sisanya Sekunder)."}
                     {expenseClassification === "essential" &&
@@ -543,17 +558,17 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                   </p>
                 </div>
               ) : (
-                <div className="bg-surface-container border-2 border-outline rounded-2xl p-3.5 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-on-surface-variant font-label-bold block uppercase tracking-widest text-xs">
+                <div className="bg-surface-container border-2 border-outline rounded-xl p-3.5 space-y-2.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-on-surface font-label-bold font-bold block uppercase tracking-wider text-xs">
                       Peran dalam Smart Budget
-                    </label>
-                    <span className="text-[11px] font-medium text-on-surface-variant/80">
+                    </span>
+                    <span className="text-xs font-medium text-on-surface-variant">
                       {incomeRole === "auto" ? "Deteksi Otomatis" : "Diatur Manual"}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-1.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
                       {
                         id: "auto",
@@ -580,24 +595,30 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
                           key={opt.id}
                           type="button"
                           onClick={() => setIncomeRole(opt.id as IncomeRole)}
-                          className={`p-2.5 rounded-xl text-left border-2 transition-all flex flex-col justify-between ${
+                          className={`p-3 rounded-xl text-left border-2 transition-all flex flex-col justify-between cursor-pointer ${
                             isSelected
-                              ? "bg-primary-container text-on-primary-container border-outline shadow-[2px_2px_0_0_var(--theme-outline)] font-bold -translate-y-0.5"
-                              : "bg-surface text-on-surface border-outline/40 hover:bg-surface-bright hover:border-outline"
+                              ? "bg-primary-container text-on-primary-container border-outline shadow-[2px_2px_0_0_var(--theme-outline)] font-bold"
+                              : "bg-surface text-on-surface border-outline/45 hover:bg-surface-bright hover:border-outline"
                           }`}
                         >
                           <div className="flex items-center gap-1.5 mb-1">
-                            <span className="material-symbols-outlined text-[16px]">{opt.icon}</span>
-                            <span className="text-xs font-bold leading-none">{opt.label}</span>
+                            <span className="material-symbols-outlined text-base">{opt.icon}</span>
+                            <span className="text-xs sm:text-sm font-bold leading-none">{opt.label}</span>
                           </div>
-                          <span className="text-[10px] leading-tight text-on-surface-variant opacity-85">
+                          <span
+                            className={`text-xs leading-snug ${
+                              isSelected
+                                ? "text-on-primary-container/85 font-medium"
+                                : "text-on-surface-variant"
+                            }`}
+                          >
                             {opt.desc}
                           </span>
                         </button>
                       );
                     })}
                   </div>
-                  <p className="text-[10px] text-on-surface-variant pt-1 leading-relaxed">
+                  <p className="text-xs text-on-surface-variant pt-1 leading-relaxed">
                     {incomeRole === "auto" &&
                       "Sistem otomatis mendeteksi kata kunci nama (seperti gaji, salary, uang saku, atau uang bulanan)."}
                     {incomeRole === "primary" &&
@@ -609,24 +630,25 @@ export function CategoryManager({ categories, loading }: CategoryManagerProps) {
               )}
 
               {error && (
-                <div className="bg-error-container border-2 border-outline p-3 rounded-lg text-on-error-container font-label-bold text-sm">
+                <div className="bg-error-container border-2 border-outline p-3 rounded-xl text-on-error-container font-label-bold font-bold text-sm">
                   {error}
                 </div>
               )}
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
+              <div className="flex gap-3 pt-4 border-t-[3px] border-outline">
+                <sakuga-button
+                  variant="secondary"
                   onClick={() => setShowForm(false)}
-                  className="flex-1 py-3 rounded-xl bg-surface border-2 border-outline text-on-background font-label-bold transition-all hover:bg-surface-bright active-press"
+                  className="flex-1 sakuga-cancel-btn"
                 >
                   Batal
-                </button>
+                </sakuga-button>
                 <button
                   id="save-category"
                   type="submit"
                   disabled={formLoading}
-                  className="flex-1 py-3 rounded-xl bg-primary-container border-2 border-outline text-on-primary-container font-label-bold transition-all disabled:opacity-50 active-press shadow-[2px_2px_0_0_var(--theme-outline)] hover:shadow-[4px_4px_0_0_var(--theme-outline)]"
+                  onClick={(e) => triggerSakugaPop(e.currentTarget, "impact")}
+                  className="flex-1 min-h-11 py-3 rounded-xl bg-primary-container border-2 border-outline text-on-primary-container font-label-bold font-extrabold text-sm transition-all disabled:opacity-50 active-press shadow-[2px_2px_0_0_var(--theme-outline)] cursor-pointer sketch-hatch"
                 >
                   {formLoading ? "Menyimpan..." : "Simpan"}
                 </button>

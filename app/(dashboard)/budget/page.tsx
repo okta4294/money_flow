@@ -43,13 +43,13 @@ export default function BudgetPage() {
           setMonth(m);
         }}
         action={
-          <div className="h-11 w-full sm:w-auto bg-surface-container border-2 border-outline rounded-xl p-1 flex items-center gap-1 shadow-[2px_2px_0_0_var(--theme-outline)] shrink-0">
+          <div className="min-h-11 w-full sm:w-auto bg-surface-container comic-subcard p-1 flex items-center gap-1 shrink-0">
             <button
               type="button"
               onClick={() => setBudgetCalculationMode("adaptive")}
-              className={`flex-1 sm:flex-initial h-full px-3 rounded-lg text-xs font-label-bold uppercase transition-all cursor-pointer flex items-center justify-center ${
+              className={`flex-1 sm:flex-initial min-h-9 px-3.5 rounded-lg text-xs sm:text-sm font-label-bold font-bold transition-all cursor-pointer flex items-center justify-center ${
                 budgetCalculationMode === "adaptive"
-                  ? "bg-tertiary-container text-on-tertiary-container border-2 border-outline"
+                  ? "bg-tertiary-container text-on-tertiary-container border-2 border-outline sketch-hatch"
                   : "text-on-surface-variant hover:text-on-surface"
               }`}
               title="Mode Adaptif: Bagi rata sisa saldo bersih dengan sisa hari"
@@ -59,9 +59,9 @@ export default function BudgetPage() {
             <button
               type="button"
               onClick={() => setBudgetCalculationMode("strict_rollover")}
-              className={`flex-1 sm:flex-initial h-full px-3 rounded-lg text-xs font-label-bold uppercase transition-all cursor-pointer flex items-center justify-center ${
+              className={`flex-1 sm:flex-initial min-h-9 px-3.5 rounded-lg text-xs sm:text-sm font-label-bold font-bold transition-all cursor-pointer flex items-center justify-center ${
                 budgetCalculationMode === "strict_rollover"
-                  ? "bg-tertiary-container text-on-tertiary-container border-2 border-outline"
+                  ? "bg-tertiary-container text-on-tertiary-container border-2 border-outline sketch-hatch"
                   : "text-on-surface-variant hover:text-on-surface"
               }`}
               title="Mode Disiplin (1:1): Akumulasi kuota harian hari per hari"

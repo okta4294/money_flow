@@ -7,8 +7,8 @@ export function proxy(request: NextRequest) {
   const cspHeader = `
     default-src 'none';
     script-src 'self' 'nonce-${nonce}'${isDev ? " 'unsafe-eval'" : ""} https://apis.google.com;
-    style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com;
-    style-src-elem 'self' 'nonce-${nonce}' https://fonts.googleapis.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com;
     style-src-attr 'self' 'unsafe-inline';
     img-src 'self' blob: data: https://lh3.googleusercontent.com;
     font-src 'self' data: https://fonts.gstatic.com;

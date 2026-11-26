@@ -21,9 +21,9 @@ export function SafeToSpendCard({
 }: SafeToSpendCardProps) {
   if (loading || !budget) {
     return (
-      <div className="col-span-12 bg-surface-container border-4 border-outline shadow-[4px_4px_0_0_var(--theme-outline)] p-5 rounded-3xl animate-pulse space-y-3">
+      <div className="col-span-12 bg-surface-container comic-card p-5 animate-pulse space-y-3">
         <div className="h-5 w-40 bg-surface-bright rounded"></div>
-        <div className="h-16 w-full bg-surface-bright rounded-2xl"></div>
+        <div className="h-16 w-full bg-surface-bright rounded-xl"></div>
       </div>
     );
   }
@@ -48,14 +48,13 @@ export function SafeToSpendCard({
   const dailyProgressPercent = Math.min(100, percentUsed);
 
   return (
-    <section className="col-span-12 bg-surface border-2 border-outline shadow-[3px_3px_0_0_var(--theme-outline)] rounded-3xl p-5 sm:p-6 flex flex-col gap-4">
-      {/* Baris Header sesuai FigCraft Frame 01 */}
+    <section className="col-span-12 bg-surface comic-card p-5 sm:p-6 flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2.5">
-          <h3 className="font-headline-md text-sm sm:text-base md:text-lg text-on-surface font-bold tracking-tight">
+          <h2 className="font-headline-md text-lg text-on-surface font-extrabold tracking-tight">
             Batas Belanja Hari Ini
-          </h3>
-          <span className="h-8 inline-flex items-center px-2.5 text-[10px] sm:text-xs font-label-bold bg-surface-container text-on-surface-variant rounded-xl border border-outline/35">
+          </h2>
+          <span className="min-h-8 inline-flex items-center px-3 py-1 text-xs font-label-bold font-bold bg-surface-container text-on-surface-variant rounded-lg border-2 border-outline/40">
             {budgetCycle?.isPaydayCycle
               ? `Siklus Gajian • ${budgetCycle.label} (${remainingDays} Hari Lagi)`
               : `Siklus Bulanan • ${remainingDays} Hari Tersisa`}
@@ -64,7 +63,7 @@ export function SafeToSpendCard({
 
         <Link
           href="/budget"
-          className="h-9 px-3.5 inline-flex items-center bg-surface-container hover:bg-surface-bright border-2 border-outline rounded-xl text-on-surface font-label-bold text-[11px] sm:text-xs active-press-sm shadow-[2px_2px_0_0_var(--theme-outline)] shrink-0"
+          className="min-h-11 px-4 inline-flex items-center bg-surface-container hover:bg-surface-bright border-2 border-outline rounded-xl text-on-surface font-label-bold font-bold text-xs sm:text-sm active-press-sm shadow-[2px_2px_0_0_var(--theme-outline)] shrink-0"
         >
           <span>Rincian Anggaran</span>
         </Link>
@@ -74,25 +73,25 @@ export function SafeToSpendCard({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Kolom Kiri (6 kolom): Progress Total Jatah Hari Ini */}
         <div
-          className={`lg:col-span-6 rounded-2xl border p-4 flex flex-col justify-between gap-3 ${
+          className={`lg:col-span-6 rounded-xl border-2 p-4 flex flex-col justify-between gap-3 ${
             isOverBudget
               ? "bg-error-container/15 border-error text-on-surface"
-              : "bg-background border-outline/30 text-on-surface"
+              : "bg-background border-outline/35 text-on-surface"
           }`}
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="font-label-bold text-xs sm:text-sm font-bold tabular-nums">
+            <span className="font-label-bold text-sm font-bold tabular-nums">
               {isOverBudget
                 ? `Melewati Batas: +${formatRupiah(overAmount)}`
                 : `Sisa Total Jatah Hari Ini: ${formatRupiah(dailyRemainingBalance)}`}
             </span>
             <span
-              className={`text-[11px] font-label-bold px-2 py-0.5 rounded-lg border ${
+              className={`text-xs font-label-bold font-bold px-2.5 py-0.5 rounded-lg border ${
                 isOverBudget
-                  ? "bg-error-container text-on-error-container border-error font-bold"
+                  ? "bg-error-container text-on-error-container border-error"
                   : percentUsed >= 80
-                  ? "bg-primary-container/60 text-on-primary-container border-outline/40"
-                  : "bg-tertiary-container/20 text-tertiary dark:text-tertiary-fixed border-tertiary/40 font-semibold"
+                  ? "bg-primary-container text-on-primary-container border-outline"
+                  : "bg-tertiary-container/25 text-tertiary dark:text-tertiary-fixed border-tertiary/50"
               }`}
             >
               {percentUsed}% Terpakai •{" "}
@@ -104,12 +103,12 @@ export function SafeToSpendCard({
             </span>
           </div>
 
-          <div className="h-3.5 w-full bg-surface-container-high border border-outline/40 rounded-full overflow-hidden relative">
+          <div className="h-3.5 w-full bg-surface-container-high border-2 border-outline/50 rounded-lg overflow-hidden relative">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${isOverBudget ? 100 : dailyProgressPercent}%` }}
               transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-              className={`h-full ${
+              className={`h-full sketch-hatch ${
                 isOverBudget
                   ? "bg-error"
                   : percentUsed >= 80
@@ -119,13 +118,13 @@ export function SafeToSpendCard({
             />
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] font-body-md text-on-surface-variant">
+          <div className="flex flex-wrap items-center justify-between gap-1 text-xs font-body-md text-on-surface-variant">
             <span className="tabular-nums">
               Terpakai {formatRupiah(eligibleDailySpending)} dari batas harian{" "}
               {formatRupiah(dailyBudget)} (Hutang & tagihan tetap dikecualikan)
             </span>
             {dailyCheck && dailyCheck.excludedCount > 0 && (
-              <span className="font-label-bold underline">
+              <span className="font-label-bold font-bold underline">
                 +{dailyCheck.excludedCount} transaksi tetap dikecualikan
               </span>
             )}
@@ -133,12 +132,12 @@ export function SafeToSpendCard({
         </div>
 
         {/* Kolom Tengah (3 kolom): Sisa Kuota Pokok Harian */}
-        <div className="lg:col-span-3 bg-primary-container/20 dark:bg-primary-container/15 text-on-surface rounded-2xl border border-outline/35 p-4 flex flex-col justify-between gap-1.5">
+        <div className="lg:col-span-3 bg-primary-container/20 dark:bg-primary-container/15 text-on-surface rounded-xl border-2 border-outline/40 p-4 flex flex-col justify-between gap-1.5">
           <div className="flex items-center justify-between gap-1">
-            <span className="font-label-bold text-[11px] uppercase tracking-wide text-on-surface-variant">
+            <span className="font-label-bold font-bold text-xs uppercase tracking-wide text-on-surface-variant">
               Sisa Kuota Pokok
             </span>
-            <span className="w-7 h-7 rounded-lg bg-primary-container text-on-primary-container border border-outline/40 flex items-center justify-center">
+            <span className="w-8 h-8 rounded-lg bg-primary-container text-on-primary-container border-2 border-outline/60 flex items-center justify-center">
               <span className="material-symbols-outlined text-base">
                 restaurant
               </span>
@@ -148,7 +147,7 @@ export function SafeToSpendCard({
             {formatRupiah(essentialRemaining)}{" "}
             <span className="text-xs font-medium text-on-surface-variant">/ hari</span>
           </p>
-          <p className="text-[11px] font-body-md text-on-surface-variant leading-snug">
+          <p className="text-xs font-body-md text-on-surface-variant leading-snug">
             Makan, Minum, Bensin & Dapur
             {essentialDailySpending > 0 &&
               ` • Terpakai ${formatRupiah(essentialDailySpending)}`}
@@ -156,12 +155,12 @@ export function SafeToSpendCard({
         </div>
 
         {/* Kolom Kanan (3 kolom): Sisa Kuota Sekunder Harian */}
-        <div className="lg:col-span-3 bg-secondary-container/15 dark:bg-secondary-container/15 text-on-surface rounded-2xl border border-outline/35 p-4 flex flex-col justify-between gap-1.5">
+        <div className="lg:col-span-3 bg-secondary-container/15 dark:bg-secondary-container/15 text-on-surface rounded-xl border-2 border-outline/40 p-4 flex flex-col justify-between gap-1.5">
           <div className="flex items-center justify-between gap-1">
-            <span className="font-label-bold text-[11px] uppercase tracking-wide text-on-surface-variant">
+            <span className="font-label-bold font-bold text-xs uppercase tracking-wide text-on-surface-variant">
               Sisa Kuota Sekunder
             </span>
-            <span className="w-7 h-7 rounded-lg bg-secondary-container text-on-secondary-container border border-outline/40 flex items-center justify-center">
+            <span className="w-8 h-8 rounded-lg bg-secondary-container text-on-secondary-container border-2 border-outline/60 flex items-center justify-center">
               <span className="material-symbols-outlined text-base">
                 local_cafe
               </span>
@@ -171,7 +170,7 @@ export function SafeToSpendCard({
             {formatRupiah(discretionaryRemaining)}{" "}
             <span className="text-xs font-medium text-on-surface-variant">/ hari</span>
           </p>
-          <p className="text-[11px] font-body-md text-on-surface-variant leading-snug">
+          <p className="text-xs font-body-md text-on-surface-variant leading-snug">
             Nongkrong, Kopi & Hiburan Bebas
             {discretionaryDailySpending > 0 &&
               ` • Terpakai ${formatRupiah(discretionaryDailySpending)}`}

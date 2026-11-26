@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
+import { triggerSakugaPop } from "@/lib/sakuga";
+import { SakugaInput } from "@/components/ui/SakugaInput";
 
 type Mode = "login" | "register";
 
@@ -47,6 +49,14 @@ export function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (mode === "register" && !name.trim()) {
+      setError("Nama lengkap wajib diisi");
+      return;
+    }
+    if (!email.trim() || !password) {
+      setError("Email dan kata sandi wajib diisi");
+      return;
+    }
     setLoading(true);
     try {
       if (mode === "login") {
@@ -105,84 +115,94 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full bg-surface border-4 border-outline rounded-3xl p-8 md:p-10 shadow-[6px_6px_0_0_var(--theme-outline)] flex flex-col gap-6">
+    <div className="w-full bg-surface comic-card p-6 sm:p-8 md:p-10 flex flex-col gap-6">
       <div className="flex flex-col items-center text-center gap-2">
-        <div className="w-12 h-12 rounded-2xl bg-primary-container border-2 border-outline flex items-center justify-center mb-2 shadow-[2px_2px_0_0_var(--theme-outline)]">
+        <div className="w-12 h-12 rounded-xl bg-primary-container border-2 border-outline flex items-center justify-center mb-1 shadow-[2px_2px_0_0_var(--theme-outline)] sketch-hatch">
           <span className="material-symbols-outlined text-on-primary-container text-2xl">account_balance_wallet</span>
         </div>
-        <h1 className="font-headline-md text-2xl text-on-background tracking-tighter uppercase font-bold stroke-cartoon">
+        <h1 className="font-display-lg text-2xl sm:text-3xl text-on-background tracking-tight font-extrabold">
           {mode === "login" ? "Masuk ke Money Flow" : "Buat Akun Baru"}
         </h1>
-        <p className="font-body-md text-sm text-on-surface-variant">
+        <p className="font-body-md text-sm sm:text-base text-on-surface-variant">
           {mode === "login" ? "Akses dashboard finansial Anda" : "Mulai mencatat keuangan Anda"}
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full mt-2">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3.5 w-full mt-1">
         {mode === "register" && (
-          <div className="flex flex-col gap-1">
-            <label className="font-label-bold text-xs uppercase tracking-widest text-on-surface-variant ml-1" htmlFor="name">Nama Lengkap</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="font-label-bold font-bold text-xs uppercase tracking-wider text-on-surface-variant ml-0.5" htmlFor="name">Nama Lengkap</label>
             <div className="relative group">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/70 text-lg">person</span>
-              <input
+              <span aria-hidden="true" className="material-symbols-outlined pointer-events-none z-10 absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/75 text-lg">person</span>
+              <SakugaInput
                 id="name"
+                name="name"
                 type="text"
+                label="Nama Lengkap"
+                autoComplete="name"
                 placeholder="Nama Anda"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onValueChange={setName}
                 required
-                className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl py-3 pl-10 pr-4 text-on-background font-body-md text-sm placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary focus:shadow-[2px_2px_0_0_var(--theme-secondary)] transition-all"
+                className="sakuga-field--lowest sakuga-field--pl-icon"
               />
             </div>
           </div>
         )}
 
-        <div className="flex flex-col gap-1">
-          <label className="font-label-bold text-xs uppercase tracking-widest text-on-surface-variant ml-1" htmlFor="email">Email</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="font-label-bold font-bold text-xs uppercase tracking-wider text-on-surface-variant ml-0.5" htmlFor="email">Email</label>
           <div className="relative group">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/70 text-lg">mail</span>
-            <input
+            <span aria-hidden="true" className="material-symbols-outlined pointer-events-none z-10 absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/75 text-lg">mail</span>
+            <SakugaInput
               id="email"
+              name="email"
               type="email"
+              label="Email"
+              autoComplete="email"
               placeholder="nama@email.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onValueChange={setEmail}
               required
-              className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl py-3 pl-10 pr-4 text-on-background font-body-md text-sm placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary focus:shadow-[2px_2px_0_0_var(--theme-secondary)] transition-all"
+              className="sakuga-field--lowest sakuga-field--pl-icon"
             />
           </div>
         </div>
 
-        <div className="flex flex-col gap-1 mt-1">
-          <div className="flex justify-between items-center ml-1">
-            <label className="font-label-bold text-xs uppercase tracking-widest text-on-surface-variant" htmlFor="password">Kata Sandi</label>
+        <div className="flex flex-col gap-1.5 mt-0.5">
+          <div className="flex justify-between items-center ml-0.5">
+            <label className="font-label-bold font-bold text-xs uppercase tracking-wider text-on-surface-variant" htmlFor="password">Kata Sandi</label>
             {mode === "login" && (
               <button
                 type="button"
                 onClick={handleForgotPassword}
-                className="font-label-bold text-xs text-secondary hover:underline underline-offset-2 transition-colors cursor-pointer"
+                className="font-label-bold font-bold text-xs text-secondary hover:underline underline-offset-2 transition-colors cursor-pointer"
               >
                 Lupa sandi?
               </button>
             )}
           </div>
           <div className="relative group">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/70 text-lg">lock</span>
-            <input
+            <span aria-hidden="true" className="material-symbols-outlined pointer-events-none z-10 absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/75 text-lg">lock</span>
+            <SakugaInput
               id="password"
+              name="password"
               type={showPassword ? "text" : "password"}
+              label="Kata Sandi"
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
               placeholder="••••••••"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onValueChange={setPassword}
               required
-              className="w-full bg-surface-container-lowest border-2 border-outline rounded-xl py-3 pl-10 pr-10 text-on-background font-body-md text-sm placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary focus:shadow-[2px_2px_0_0_var(--theme-secondary)] transition-all"
+              className="sakuga-field--lowest sakuga-field--pl-icon sakuga-field--pr-icon"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/70 hover:text-on-surface transition-colors p-1"
+              aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+              className="z-10 absolute right-1.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
             >
-              <span className="material-symbols-outlined text-base">
+              <span aria-hidden="true" className="material-symbols-outlined text-lg">
                 {showPassword ? "visibility_off" : "visibility"}
               </span>
             </button>
@@ -190,14 +210,14 @@ export function LoginForm() {
         </div>
 
         {error && (
-          <div className="bg-error-container text-on-error-container border-2 border-outline rounded-xl px-4 py-3 font-label-bold text-xs mt-2 flex items-center gap-2">
+          <div className="bg-error-container text-on-error-container border-2 border-outline rounded-xl px-4 py-3 font-label-bold font-bold text-xs sm:text-sm mt-2 flex items-center gap-2">
             <span className="material-symbols-outlined text-base">warning</span>
             {error}
           </div>
         )}
 
         {infoMessage && (
-          <div className="bg-tertiary-container text-on-tertiary-container border-2 border-outline rounded-xl px-4 py-3 font-label-bold text-xs mt-2 flex items-center gap-2">
+          <div className="bg-tertiary-container text-on-tertiary-container border-2 border-outline rounded-xl px-4 py-3 font-label-bold font-bold text-xs sm:text-sm mt-2 flex items-center gap-2">
             <span className="material-symbols-outlined text-base">check_circle</span>
             {infoMessage}
           </div>
@@ -207,16 +227,17 @@ export function LoginForm() {
           id="submit-auth"
           type="submit"
           disabled={loading}
-          className="mt-4 w-full bg-primary-container text-on-primary-container border-2 border-outline font-label-bold text-xs uppercase tracking-wider rounded-xl py-3.5 px-4 flex items-center justify-center gap-2 shadow-[2px_2px_0_0_var(--theme-outline)] hover:shadow-[4px_4px_0_0_var(--theme-outline)] active-press transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={(e) => triggerSakugaPop(e.currentTarget, "impact")}
+          className="mt-3 w-full min-h-12 bg-primary-container text-on-primary-container border-2 border-outline font-label-bold font-extrabold text-sm uppercase tracking-wide rounded-xl py-3 px-4 flex items-center justify-center gap-2 shadow-[3px_3px_0_0_var(--theme-outline)] active-press transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer sketch-hatch"
         >
           <span>{loading ? "Memproses..." : mode === "login" ? "Masuk" : "Daftar"}</span>
-          <span className="material-symbols-outlined text-sm">arrow_forward</span>
+          <span className="material-symbols-outlined text-base">arrow_forward</span>
         </button>
       </form>
 
-      <div className="flex items-center gap-4 w-full opacity-60">
+      <div className="flex items-center gap-4 w-full opacity-70">
         <div className="h-[2px] flex-1 bg-outline"></div>
-        <span className="font-label-bold text-xs uppercase tracking-widest text-on-surface-variant">atau</span>
+        <span className="font-label-bold font-bold text-xs uppercase tracking-widest text-on-surface-variant">atau</span>
         <div className="h-[2px] flex-1 bg-outline"></div>
       </div>
 
@@ -225,9 +246,9 @@ export function LoginForm() {
           type="button"
           onClick={handleGoogle}
           disabled={loading}
-          className="w-full bg-surface border-2 border-outline text-on-background font-label-bold text-xs uppercase tracking-wider rounded-xl py-3 px-4 flex items-center justify-center gap-3 hover:bg-surface-bright shadow-[2px_2px_0_0_var(--theme-outline)] active-press transition-all disabled:opacity-50"
+          className="w-full min-h-12 bg-surface border-2 border-outline text-on-background font-label-bold font-bold text-xs sm:text-sm uppercase tracking-wide rounded-xl py-3 px-4 flex items-center justify-center gap-3 hover:bg-surface-bright shadow-[2px_2px_0_0_var(--theme-outline)] active-press transition-all disabled:opacity-50 cursor-pointer"
         >
-          <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
@@ -240,14 +261,14 @@ export function LoginForm() {
           id="guest-login-btn"
           onClick={handleGuest}
           disabled={loading}
-          className="w-full bg-surface border-2 border-outline text-on-background font-label-bold text-xs uppercase tracking-wider rounded-xl py-3 px-4 flex items-center justify-center gap-3 hover:bg-surface-bright shadow-[2px_2px_0_0_var(--theme-outline)] active-press transition-all disabled:opacity-50"
+          className="w-full min-h-12 bg-surface border-2 border-outline text-on-background font-label-bold font-bold text-xs sm:text-sm uppercase tracking-wide rounded-xl py-3 px-4 flex items-center justify-center gap-3 hover:bg-surface-bright shadow-[2px_2px_0_0_var(--theme-outline)] active-press transition-all disabled:opacity-50 cursor-pointer"
         >
           <span className="material-symbols-outlined text-lg">person_outline</span>
           <span>Lanjutkan sebagai Tamu</span>
         </button>
       </div>
 
-      <div className="text-center mt-2">
+      <div className="text-center mt-1">
         <p className="font-body-md text-sm text-on-surface-variant">
           {mode === "login" ? (
             <>
@@ -255,7 +276,7 @@ export function LoginForm() {
               <button
                 type="button"
                 onClick={() => { setMode("register"); setError(""); }}
-                className="text-on-background font-bold underline underline-offset-4 hover:opacity-80 transition-opacity"
+                className="text-on-background font-bold underline underline-offset-4 hover:opacity-80 transition-opacity cursor-pointer"
               >
                 Daftar
               </button>
@@ -266,7 +287,7 @@ export function LoginForm() {
               <button
                 type="button"
                 onClick={() => { setMode("login"); setError(""); }}
-                className="text-on-background font-bold underline underline-offset-4 hover:opacity-80 transition-opacity"
+                className="text-on-background font-bold underline underline-offset-4 hover:opacity-80 transition-opacity cursor-pointer"
               >
                 Masuk
               </button>
